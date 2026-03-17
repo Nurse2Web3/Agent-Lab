@@ -12,7 +12,7 @@ const PLAN_CONFIG: Record<string, {
   features: { label: string; included: boolean }[];
 }> = {
   Pro: {
-    name: "Pro",
+    name: "AI AgentLab Pro",
     price: "$19",
     period: "/month",
     badge: "Recommended",
@@ -34,13 +34,13 @@ const PLAN_CONFIG: Record<string, {
     ],
   },
   Studio: {
-    name: "Studio",
+    name: "AI AgentLab Premium",
     price: "$49",
     period: "/month",
     badge: null,
     tagline: "Built for teams.",
     desc: "Everything in Pro, plus shared workspaces, review links, and collaboration tools for teams.",
-    cta: "Get Studio",
+    cta: "Get Premium",
     popular: false,
     planKey: "studio",
     features: [
@@ -139,7 +139,7 @@ export default function Pricing() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="max-w-5xl mx-auto mb-8 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between gap-4">
             <p className="text-sm font-medium">
-              You're on the <span className="text-primary font-bold capitalize">{currentPlan}</span> plan.
+              You're on the <span className="text-primary font-bold">{PLAN_CONFIG[currentPlan === "pro" ? "Pro" : "Studio"]?.name ?? currentPlan}</span> plan.
             </p>
             <Button variant="outline" size="sm" className="rounded-xl text-xs" onClick={() => managePortal()} disabled={isPortaling}>
               {isPortaling ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : null}
@@ -264,7 +264,7 @@ export default function Pricing() {
             <div className="grid grid-cols-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40">
               <div className="p-4 col-span-1">Feature</div>
               <div className="p-4 text-center border-l border-border/40">Trial</div>
-              <div className="p-4 text-center border-l border-border/40 text-primary">Pro</div>
+              <div className="p-4 text-center border-l border-border/40 text-primary">AI AgentLab Pro</div>
             </div>
             {[
               { label: "Providers", free: "1", pro: "All 3" },

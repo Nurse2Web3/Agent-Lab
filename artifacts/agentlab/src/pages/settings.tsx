@@ -13,8 +13,8 @@ import { useBillingStatus, useManageBilling, useCheckout } from "@/hooks/use-bil
 
 const PLAN_LABELS: Record<string, string> = {
   sandbox: "Trial",
-  pro: "Pro",
-  studio: "Studio",
+  pro: "AI AgentLab Pro",
+  studio: "AI AgentLab Premium",
 };
 
 const PLAN_COLORS: Record<string, string> = {
@@ -132,7 +132,7 @@ export default function Settings() {
 
                 {!isActivePlan && !billingLoading && (
                   <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                    You're on the Trial plan (4 free comparisons). Upgrade to Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
+                    You're on the Trial plan (4 free comparisons). Upgrade to AI AgentLab Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
                   </p>
                 )}
               </div>
@@ -155,7 +155,7 @@ export default function Settings() {
                       window.location.href = "/pricing";
                     }}
                   >
-                    <ArrowRight className="w-4 h-4 mr-2" /> Upgrade to Pro
+                    <ArrowRight className="w-4 h-4 mr-2" /> Upgrade to AI AgentLab Pro
                   </Button>
                 )}
               </div>

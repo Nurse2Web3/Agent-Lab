@@ -401,12 +401,12 @@ export default function Landing() {
                 highlight: false,
               },
               {
-                name: "Pro",
+                name: "AI AgentLab Pro",
                 desc: "Unlock the real working tier with multiple providers, unlimited saved runs, winner recommendations, and production exports.",
                 highlight: true,
               },
               {
-                name: "Studio",
+                name: "AI AgentLab Premium",
                 desc: "Add team-ready collaboration, shared workspaces, and more advanced decision support.",
                 highlight: false,
               },
