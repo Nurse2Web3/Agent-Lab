@@ -12,7 +12,7 @@ const PLAN_CONFIG: Record<string, {
   features: { label: string; included: boolean }[];
 }> = {
   Pro: {
-    name: "AI AgentLab Pro",
+    name: "Ai AgentLab Pro",
     price: "$19",
     period: "/month",
     badge: "Recommended",
@@ -34,7 +34,7 @@ const PLAN_CONFIG: Record<string, {
     ],
   },
   Studio: {
-    name: "AI AgentLab Premium",
+    name: "Ai AgentLab Premium",
     price: "$49",
     period: "/month",
     badge: null,
@@ -63,8 +63,8 @@ const SANDBOX_TIER = {
   price: "$0",
   period: null,
   badge: null,
-  tagline: "Try AI AgentLab free.",
-  desc: "Try AI AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
+  tagline: "Try Ai AgentLab free.",
+  desc: "Try Ai AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
   popular: false,
   cta: "Start Trial",
   features: [
@@ -264,7 +264,7 @@ export default function Pricing() {
             <div className="grid grid-cols-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40">
               <div className="p-4 col-span-1">Feature</div>
               <div className="p-4 text-center border-l border-border/40">Trial</div>
-              <div className="p-4 text-center border-l border-border/40 text-primary">AI AgentLab Pro</div>
+              <div className="p-4 text-center border-l border-border/40 text-primary">Ai AgentLab Pro</div>
             </div>
             {[
               { label: "Providers", free: "1", pro: "All 3" },

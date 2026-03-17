@@ -44,7 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Zap className="w-4 h-4 text-white fill-white/20" />
               </div>
               <span className="font-display font-bold text-xl tracking-tight text-foreground group-hover:text-primary transition-colors">
-                AgentLab
+                Ai AgentLab
               </span>
             </Link>
 

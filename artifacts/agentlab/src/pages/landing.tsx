@@ -6,8 +6,8 @@ import { useState } from "react";
 
 const FAQS = [
   {
-    q: "What makes AI AgentLab different from a normal AI playground?",
-    a: "A normal playground helps you generate outputs. AI AgentLab helps you compare them, score them, and decide what to ship.",
+    q: "What makes Ai AgentLab different from a normal AI playground?",
+    a: "A normal playground helps you generate outputs. Ai AgentLab helps you compare them, score them, and decide what to ship.",
   },
   {
     q: "Do I need API keys to use it?",
@@ -80,7 +80,7 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          AI AgentLab helps founders compare prompts and models side by side, score what matters, and choose the best option to ship — without scripts, spreadsheets, or switching between tabs.
+          Ai AgentLab helps founders compare prompts and models side by side, score what matters, and choose the best option to ship — without scripts, spreadsheets, or switching between tabs.
         </motion.p>
 
         <motion.div
@@ -122,7 +122,7 @@ export default function Landing() {
             Most founders test the same prompt across multiple tools, compare responses manually, and try to remember which output was better, faster, or cheaper. The process is messy, inconsistent, and hard to trust.
           </p>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mt-4">
-            AI AgentLab turns that into one workflow: run once, compare everything side by side, and choose what to ship with more confidence.
+            Ai AgentLab turns that into one workflow: run once, compare everything side by side, and choose what to ship with more confidence.
           </p>
         </div>
       </div>
@@ -218,7 +218,7 @@ export default function Landing() {
               {
                 icon: Trophy,
                 title: "Winner Engine",
-                desc: "AI AgentLab does not just show outputs. It recommends what to ship. Every run surfaces Best Quality, Cheapest, Fastest, and Recommended Winner so you can make tradeoffs quickly.",
+                desc: "Ai AgentLab does not just show outputs. It recommends what to ship. Every run surfaces Best Quality, Cheapest, Fastest, and Recommended Winner so you can make tradeoffs quickly.",
                 highlight: true,
               },
               {
@@ -278,7 +278,7 @@ export default function Landing() {
           <div className="glass-card rounded-3xl p-10 border-primary/20 ring-1 ring-primary/10 grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                Most tools help you generate outputs. AI AgentLab helps you decide what to ship.
+                Most tools help you generate outputs. Ai AgentLab helps you decide what to ship.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-8">
                 The Winner Engine balances quality, speed, and cost efficiency so you can move faster with fewer bad guesses. Instead of comparing responses by eye and hoping for the best, you get a clearer path to a production-ready choice.
@@ -365,7 +365,7 @@ export default function Landing() {
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Who it is for</p>
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Built for founders making product decisions.</h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
-            AI AgentLab is designed for non-technical founders, indie makers, and product builders who want a faster, clearer way to choose the right AI setup for their product.
+            Ai AgentLab is designed for non-technical founders, indie makers, and product builders who want a faster, clearer way to choose the right AI setup for their product.
           </p>
           <ul className="inline-flex flex-col items-start gap-4 text-left">
             {[
@@ -397,16 +397,16 @@ export default function Landing() {
             {[
               {
                 name: "Trial",
-                desc: "Try AI AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
+                desc: "Try Ai AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
                 highlight: false,
               },
               {
-                name: "AI AgentLab Pro",
+                name: "Ai AgentLab Pro",
                 desc: "Unlock the real working tier with multiple providers, unlimited saved runs, winner recommendations, and production exports.",
                 highlight: true,
               },
               {
-                name: "AI AgentLab Premium",
+                name: "Ai AgentLab Premium",
                 desc: "Add team-ready collaboration, shared workspaces, and more advanced decision support.",
                 highlight: false,
               },
