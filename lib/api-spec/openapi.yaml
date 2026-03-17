@@ -1,15 +1,20 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI AgentLab API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: compare
+    description: AI model comparison
+  - name: history
+    description: Test run history
+  - name: settings
+    description: API key settings
 paths:
   /healthz:
     get:
@@ -24,6 +29,145 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /compare:
+    post:
+      operationId: runComparison
+      tags: [compare]
+      summary: Run AI comparison
+      description: Run a prompt comparison across multiple AI providers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompareRequest"
+      responses:
+        "200":
+          description: Comparison results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompareResponse"
+
+  /history:
+    get:
+      operationId: getHistory
+      tags: [history]
+      summary: Get test run history
+      description: Returns all saved test runs
+      responses:
+        "200":
+          description: List of history items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryListResponse"
+    post:
+      operationId: saveRun
+      tags: [history]
+      summary: Save a test run
+      description: Save a comparison run to history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveRunRequest"
+      responses:
+        "200":
+          description: Saved run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryItem"
+
+  /history/{id}:
+    get:
+      operationId: getRun
+      tags: [history]
+      summary: Get a specific run
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Run details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryItem"
+    delete:
+      operationId: deleteRun
+      tags: [history]
+      summary: Delete a test run
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResponse"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get provider connection statuses
+      description: Returns which providers have API keys configured
+      responses:
+        "200":
+          description: Provider statuses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsResponse"
+    post:
+      operationId: saveApiKey
+      tags: [settings]
+      summary: Save an API key for a provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveApiKeyRequest"
+      responses:
+        "200":
+          description: Key saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveApiKeyResponse"
+
+  /settings/test:
+    post:
+      operationId: testConnection
+      tags: [settings]
+      summary: Test a provider connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestConnectionRequest"
+      responses:
+        "200":
+          description: Test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestConnectionResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +178,228 @@ components:
       required:
         - status
 
+    CompareRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+        systemPrompt:
+          type: string
+        providers:
+          type: array
+          items:
+            type: string
+        temperature:
+          type: number
+      required:
+        - prompt
+        - providers
+
+    ProviderResult:
+      type: object
+      properties:
+        provider:
+          type: string
+        model:
+          type: string
+        text:
+          type: string
+        latencyMs:
+          type: number
+        estimatedCost:
+          type: number
+        tokenCount:
+          type: number
+        qualityScore:
+          type: number
+        clarityScore:
+          type: number
+        toneScore:
+          type: number
+        overallScore:
+          type: number
+        isDemo:
+          type: boolean
+      required:
+        - provider
+        - model
+        - text
+        - latencyMs
+        - estimatedCost
+        - tokenCount
+        - qualityScore
+        - clarityScore
+        - toneScore
+        - overallScore
+        - isDemo
+
+    CompareResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProviderResult"
+        recommendedWinner:
+          type: string
+        bestQuality:
+          type: string
+        cheapest:
+          type: string
+        fastest:
+          type: string
+      required:
+        - results
+        - recommendedWinner
+        - bestQuality
+        - cheapest
+        - fastest
+
+    HistoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        prompt:
+          type: string
+        systemPrompt:
+          type: string
+        providers:
+          type: array
+          items:
+            type: string
+        winner:
+          type: string
+        temperature:
+          type: number
+        results:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - prompt
+        - providers
+        - winner
+        - temperature
+        - results
+        - createdAt
+
+    HistoryListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryItem"
+      required:
+        - items
+
+    SaveRunRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        prompt:
+          type: string
+        systemPrompt:
+          type: string
+        providers:
+          type: array
+          items:
+            type: string
+        winner:
+          type: string
+        temperature:
+          type: number
+        results:
+          type: string
+      required:
+        - name
+        - prompt
+        - providers
+        - winner
+        - temperature
+        - results
+
+    DeleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
+
+    ProviderStatus:
+      type: object
+      properties:
+        provider:
+          type: string
+        connected:
+          type: boolean
+        model:
+          type: string
+        description:
+          type: string
+      required:
+        - provider
+        - connected
+        - model
+        - description
+
+    SettingsResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProviderStatus"
+      required:
+        - providers
+
+    SaveApiKeyRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+        apiKey:
+          type: string
+      required:
+        - provider
+        - apiKey
+
+    SaveApiKeyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    TestConnectionRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+      required:
+        - provider
+
+    TestConnectionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        latencyMs:
+          type: number
+      required:
+        - success
+        - message
+        - latencyMs

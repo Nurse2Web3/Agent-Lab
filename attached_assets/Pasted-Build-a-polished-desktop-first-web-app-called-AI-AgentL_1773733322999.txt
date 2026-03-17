@@ -1,0 +1,235 @@
+Build a polished desktop-first web app called AI AgentLab.
+
+PRODUCT:
+AI AgentLab is a founder-friendly AI comparison and testing studio. It helps users compare prompts across multiple AI providers, score outputs, view speed and estimated cost, save winners, and export the best version for production use.
+
+POSITIONING:
+“Test AI agents. Compare outputs. Ship with confidence.”
+
+GOAL:
+Create a real startup-style MVP that works with free API options first.
+The app should be built to support:
+- Gemini API
+- Hugging Face Inference Providers
+- Groq
+
+Use mock/demo mode first if keys are missing, but structure the app so real API keys can be connected easily through secure backend routes.
+
+IMPORTANT FREE API STRATEGY:
+Set up the code so these providers can be plugged in:
+1. Gemini API — good free-tier starting option
+2. Hugging Face Inference Providers — useful for model variety and free monthly credits
+3. Groq — useful for fast inference and free-tier experimentation
+
+Do NOT expose API keys in the frontend.
+All provider calls must go through secure server-side API routes or backend functions.
+Use environment variables for all secrets.
+
+TECH STACK:
+Use a modern Replit-friendly stack:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- clean reusable components
+- responsive layout
+- server routes for provider calls
+- local state or lightweight persistence
+- architecture ready for future OpenAI and Anthropic support
+
+APP NAME:
+AI AgentLab
+
+TAGLINE:
+Test AI agents. Compare outputs. Ship with confidence.
+
+REQUIRED PAGES:
+1. Landing page
+2. Playground page
+3. History page
+4. Pricing page
+5. Settings / API Connections page
+
+LANDING PAGE:
+Create a premium SaaS landing page with:
+- headline: “Test AI agents. Compare outputs. Ship with confidence.”
+- subheadline: “A founder-friendly AI testing studio for comparing prompts, models, cost, speed, and output quality without writing code.”
+- CTA buttons: “Try the Lab” and “View Demo”
+- feature blocks
+- workflow section
+- pricing preview
+- FAQ
+- final CTA
+
+PLAYGROUND PAGE:
+Main functionality:
+- prompt input
+- optional system prompt
+- model/provider selection
+- temperature slider
+- run comparison button
+
+Default supported providers/models:
+- Gemini
+- Hugging Face model option
+- Groq model option
+
+When user runs comparison:
+Display side-by-side output cards.
+
+Each card must show:
+- provider/model name
+- generated output
+- response time
+- estimated cost
+- token count if available
+- quality score buttons
+- “Save as Winner” button
+
+Below results show:
+- Recommended Winner
+- Best Quality
+- Cheapest
+- Fastest
+- Best Overall
+
+Add export actions:
+- Copy Prompt
+- Copy JSON Settings
+- Copy API Payload
+- Save Winner
+
+HISTORY PAGE:
+Show saved runs with:
+- prompt/test name
+- date
+- providers used
+- winner
+- reopen
+- duplicate
+- delete
+
+SETTINGS / API CONNECTIONS PAGE:
+Build a clean settings page with cards for:
+- Gemini API
+- Hugging Face
+- Groq
+- future placeholders for OpenAI and Anthropic
+
+Each provider card should include:
+- provider name
+- status: connected / not connected
+- input for API key
+- save button
+- short help text
+- test connection button
+
+IMPORTANT:
+Store secrets securely on the backend or in server-side environment variables.
+Do not store actual API keys in client-side local storage.
+
+API ARCHITECTURE:
+Create provider abstraction files like:
+- /lib/providers/gemini.ts
+- /lib/providers/huggingface.ts
+- /lib/providers/groq.ts
+- /lib/providers/index.ts
+- /lib/scoring.ts
+- /lib/mockResponses.ts
+
+Each provider should use a shared response shape:
+- text
+- latencyMs
+- estimatedCost
+- tokenCount
+- provider
+- model
+
+DEMO MODE:
+If no API key is present, automatically run in demo mode using realistic mock outputs.
+Each provider should return slightly different outputs:
+- Gemini = balanced and organized
+- Hugging Face = more variable / open-model style
+- Groq = fast and concise
+
+SCORING:
+Create a simple scoring system using:
+- quality
+- clarity
+- tone
+- value
+- speed
+- cost efficiency
+
+Use this to calculate a recommended winner.
+
+DESIGN:
+Make the app feel:
+- premium
+- modern
+- founder-friendly
+- not overly technical
+- lots of whitespace
+- rounded cards
+- polished dashboard
+- strong typography
+- soft shadows
+- clean navbar
+- dark mode if possible
+
+COMPONENTS:
+- Navbar
+- Hero section
+- Feature cards
+- Provider selector
+- Prompt editor
+- Output comparison cards
+- Results summary panel
+- History list
+- Settings cards
+- Pricing cards
+- Toast notifications
+- Loading states
+- Empty states
+
+PRICING PAGE:
+Create 3 tiers:
+
+Free
+- limited runs
+- 3 saved tests
+- 2 providers
+- demo mode
+
+Pro — $19/month
+- more runs
+- unlimited saved tests
+- all providers
+- exports
+- history
+
+Studio — $49/month
+- team features
+- shared review links
+- workspace organization
+- advanced comparison tools
+
+README:
+Include a README that explains:
+- what AI AgentLab does
+- how to run locally in Replit
+- where to add Gemini API key
+- where to add Hugging Face API key
+- where to add Groq API key
+- how demo mode works
+- how to add future providers later
+
+EXTRA:
+Add sample templates users can test:
+- AI coach
+- customer support bot
+- FAQ generator
+- product description writer
+- email assistant
+
+DELIVERABLE:
+Generate the full working codebase with all pages, components, provider abstraction, s

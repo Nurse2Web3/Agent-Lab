@@ -1,0 +1,9 @@
+packages:
+  "framer-motion": "For page transitions, smooth UI animations, and premium layout shifts"
+images:
+  - path: "artifacts/agentlab/public/images/hero-bg.png"
+    description: "Abstract gradient mesh background in deep navy, indigo, and electric violet with soft light leaks and subtle particle noise, premium dark mode aesthetic"
+    aspect_ratio: "16:9"
+notes:
+  - Uses generated API hooks from @workspace/api-client-react
+  - Assumes shadcn/ui components are available in src/components/ui/

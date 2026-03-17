@@ -1,8 +1,10 @@
-# Workspace
+# AI AgentLab
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+AI AgentLab is a founder-friendly AI comparison and testing studio. It helps users compare prompts across multiple AI providers, score outputs, view speed and estimated cost, save winners, and export the best version for production use.
+
+**Tagline:** Test AI agents. Compare outputs. Ship with confidence.
 
 ## Stack
 
@@ -10,87 +12,91 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
+- **Frontend**: React + Vite + Tailwind CSS (artifacts/agentlab)
+- **Backend**: Express 5 (artifacts/api-server)
 - **Database**: PostgreSQL + Drizzle ORM
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Animations**: Framer Motion
 
 ## Structure
 
 ```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+artifacts/
+├── agentlab/               # React + Vite frontend
+│   └── src/
+│       ├── pages/          # Landing, Playground, History, Pricing, Settings
+│       ├── components/     # Shared components (layout, provider-icon, ui/)
+│       └── index.css       # Theme variables + tailwind
+├── api-server/             # Express 5 backend
+│   └── src/
+│       ├── lib/
+│       │   ├── providers/  # gemini.ts, huggingface.ts, groq.ts, types.ts
+│       │   ├── mockResponses.ts  # Demo mode fallbacks
+│       │   └── scoring.ts  # Winner calculation logic
+│       └── routes/         # compare.ts, history.ts, settings.ts, health.ts
+lib/
+├── api-spec/openapi.yaml   # API contract (source of truth)
+├── api-client-react/       # Generated React Query hooks
+├── api-zod/                # Generated Zod schemas
+└── db/src/schema/          # history.ts, apiKeys.ts tables
 ```
 
-## TypeScript & Composite Projects
+## Pages
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+1. **Landing** (`/`) — Marketing page with hero, features, workflow, pricing preview, FAQ
+2. **Playground** (`/playground`) — Main comparison tool: prompt input, provider selection, results cards
+3. **History** (`/history`) — Saved test runs with search, delete, reopen
+4. **Settings** (`/settings`) — API key management for Gemini, HuggingFace, Groq (+ future OpenAI, Anthropic)
+5. **Pricing** (`/pricing`) — 3 tier cards: Sandbox ($0), Pro ($19/mo), Studio ($49/mo)
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## API Routes
 
-## Root Scripts
+- `POST /api/compare` — Run prompt comparison across selected providers
+- `GET /api/history` — Get all saved runs
+- `POST /api/history` — Save a run
+- `DELETE /api/history/:id` — Delete a run
+- `GET /api/settings` — Get provider connection statuses
+- `POST /api/settings` — Save an API key
+- `POST /api/settings/test` — Test a provider connection
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## Providers
 
-## Packages
+- **Gemini**: Google's Gemini 1.5 Flash — balanced, organized outputs
+- **HuggingFace**: Mistral-7B-Instruct — open-source, variable outputs
+- **Groq**: LLaMA 3.1 8B Instant — fast, concise outputs
+- **OpenAI / Anthropic**: Coming soon placeholders in settings
 
-### `artifacts/api-server` (`@workspace/api-server`)
+## Demo Mode
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+If no API keys are present, the app automatically returns realistic mock responses. Each provider has distinct demo output styles:
+- Gemini = balanced and organized
+- HuggingFace = more variable / open-model style
+- Groq = fast and concise
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+## Adding API Keys
 
-### `lib/db` (`@workspace/db`)
+API keys are stored securely in the PostgreSQL database (server-side only). Never exposed to the frontend.
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+To add keys:
+1. Go to Settings page
+2. Enter the API key for each provider
+3. Click Save Key
+4. Click Test Connection to verify
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+Environment variables needed for providers:
+- Keys are stored in `api_keys` DB table, NOT in environment variables
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+## Database Tables
 
-### `lib/api-spec` (`@workspace/api-spec`)
+- `history` — saved comparison runs
+- `api_keys` — provider API keys (stored server-side only)
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
+## Scoring Algorithm
 
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
+Results are scored on:
+- Quality (40% weight for winner calculation)
+- Speed / latency (30%)
+- Cost efficiency (30%)
 
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+Each card also shows: qualityScore, clarityScore, toneScore, overallScore (1–5 scale)
