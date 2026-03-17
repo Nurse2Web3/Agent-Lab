@@ -1,0 +1,247 @@
+Update the AI AgentLab homepage copy with the exact wording below.
+Keep the current layout structure if it already looks polished, but replace the homepage text and section emphasis so the messaging is sharper, more premium, and more differentiated.
+
+==================================================
+HERO SECTION
+==================================================
+
+Headline:
+Test AI agents. Compare outputs. Ship with confidence.
+
+Subheadline:
+AI AgentLab helps founders compare prompts and models side by side, score what matters, and choose the best option to ship — without scripts, spreadsheets, or switching between tabs.
+
+Primary CTA:
+Try the Lab
+
+Secondary CTA:
+View Demo
+
+Small trust/supporting line under CTA:
+Built for non-technical founders, indie makers, and product builders shipping AI features.
+
+==================================================
+PROBLEM SECTION
+==================================================
+
+Section label:
+Why this exists
+
+Headline:
+Choosing an AI model should not feel like guesswork.
+
+Body copy:
+Most founders test the same prompt across multiple tools, compare responses manually, and try to remember which output was better, faster, or cheaper. The process is messy, inconsistent, and hard to trust.
+
+AI AgentLab turns that into one workflow: run once, compare everything side by side, and choose what to ship with more confidence.
+
+==================================================
+HOW IT WORKS SECTION
+==================================================
+
+Section label:
+How it works
+
+Headline:
+One prompt. Multiple providers. Clear decision.
+
+Step 1 title:
+Run once
+
+Step 1 body:
+Enter your prompt, choose your providers, and launch a comparison in one click.
+
+Step 2 title:
+Compare everything
+
+Step 2 body:
+See output quality, speed, token count, and estimated cost in one view instead of across scattered tabs.
+
+Step 3 title:
+Choose the winner
+
+Step 3 body:
+Use the Winner Engine to surface Best Quality, Cheapest, Fastest, and the best overall option to ship.
+
+Step 4 title:
+Export to production
+
+Step 4 body:
+Copy the winning prompt, settings, and payload so you can move from testing to shipping without rebuilding the setup manually.
+
+==================================================
+CORE FEATURES SECTION
+==================================================
+
+Section label:
+Core features
+
+Headline:
+A faster way to decide what to ship.
+
+Feature 1 title:
+Side-by-side comparison
+
+Feature 1 body:
+Run the same prompt across multiple AI providers and compare outputs in a single view.
+
+Feature 2 title:
+Winner Engine
+
+Feature 2 body:
+AI AgentLab does not just show outputs. It recommends what to ship. Every run surfaces Best Quality, Cheapest, Fastest, and Recommended Winner so you can make tradeoffs quickly.
+
+Feature 3 title:
+Demo mode
+
+Feature 3 body:
+Try the workflow before connecting any API keys. Demo mode lets you explore the full product experience with realistic simulated results.
+
+Feature 4 title:
+Saved history
+
+Feature 4 body:
+Keep a record of past runs, revisit decisions, and compare new experiments against what worked before.
+
+Feature 5 title:
+Production export
+
+Feature 5 body:
+Copy the winning prompt, settings, and API payload for real use in your product. No more rerunning tests just to recreate what worked.
+
+Feature 6 title:
+Provider connections
+
+Feature 6 body:
+Connect providers when you are ready and compare real outputs across Gemini, Hugging Face models, and Groq-hosted models.
+
+==================================================
+WINNER ENGINE HIGHLIGHT SECTION
+==================================================
+
+Section label:
+Why it is different
+
+Headline:
+More than a playground. A decision engine for AI builders.
+
+Body copy:
+Most tools help you generate outputs. AI AgentLab helps you decide what to ship.
+
+The Winner Engine balances quality, speed, and cost efficiency so you can move faster with fewer bad guesses. Instead of comparing responses by eye and hoping for the best, you get a clearer path to a production-ready choice.
+
+Supporting bullets:
+- Best Quality
+- Cheapest
+- Fastest
+- Recommended Winner
+
+Small closing line:
+Built to grow from prompt comparison into full agent testing, version tracking, and workflow evaluation.
+
+==================================================
+PROVIDER SECTION
+==================================================
+
+Section label:
+Supported providers
+
+Headline:
+Start with free-friendly providers. Expand when ready.
+
+Provider 1:
+Gemini — balanced and a strong free-tier starting point
+
+Provider 2:
+Hugging Face models — open-model variety and flexibility
+
+Provider 3:
+Groq-hosted models — speed-first comparisons
+
+Small supporting text:
+Designed to support real provider comparisons today, with room to expand into broader agent workflows over time.
+
+==================================================
+WHO IT IS FOR SECTION
+==================================================
+
+Section label:
+Who it is for
+
+Headline:
+Built for founders making product decisions.
+
+Body copy:
+AI AgentLab is designed for non-technical founders, indie makers, and product builders who want a faster, clearer way to choose the right AI setup for their product.
+
+Supporting bullets:
+- Compare prompts without writing test scripts
+- Understand tradeoffs without using spreadsheets
+- Move from testing to shipping with less friction
+- Make better model decisions with more confidence
+
+==================================================
+PRICING PREVIEW SECTION
+==================================================
+
+Section label:
+Pricing
+
+Headline:
+Start in Sandbox. Upgrade when you are ready to ship seriously.
+
+Sandbox:
+Explore the workflow with demo mode and a limited live setup.
+
+Pro:
+Unlock the real working tier with multiple providers, unlimited saved runs, winner recommendations, and production exports.
+
+Studio:
+Add team-ready collaboration, shared workspaces, and more advanced decision support.
+
+Small supporting text:
+The free tier is built for exploration. Paid plans are built for real shipping decisions.
+
+==================================================
+FAQ SECTION
+==================================================
+
+Question:
+What makes AI AgentLab different from a normal AI playground?
+
+Answer:
+A normal playground helps you generate outputs. AI AgentLab helps you compare them, score them, and decide what to ship.
+
+Question:
+Do I need API keys to use it?
+
+Answer:
+No. You can start in demo mode and explore the workflow before connecting any providers.
+
+Question:
+Who is this built for?
+
+Answer:
+Non-technical founders, indie makers, and product builders evaluating prompts and models for real AI features.
+
+Question:
+Can I export what works?
+
+Answer:
+Yes. Paid plans let you copy the winning prompt, settings, and payload so you can use them in production.
+
+==================================================
+FINAL CTA SECTION
+==================================================
+
+Headline:
+Stop guessing which AI setup to ship.
+
+Body copy:
+Compare prompts, evaluate tradeoffs, and choose the best version with more confidence.
+
+Primary CTA:
+Try the Lab
+
+Secondary CTA:
+View Pricing
