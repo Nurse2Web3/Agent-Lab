@@ -132,7 +132,7 @@ export default function Settings() {
 
                 {!isActivePlan && !billingLoading && (
                   <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                    You're on the Trial plan (4 free comparisons). Upgrade to Ai AgentLab Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
+                    You're on the Trial plan with 4 comparisons. Upgrade to Ai AgentLab Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
                   </p>
                 )}
               </div>

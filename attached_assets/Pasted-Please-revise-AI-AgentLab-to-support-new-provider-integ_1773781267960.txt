@@ -1,0 +1,312 @@
+Please revise AI AgentLab to support new provider integrations, update pricing-tier access, and visibly list provider availability throughout the website and app.
+
+PROJECT GOAL
+AI AgentLab should feel like a founder-friendly AI comparison studio for real builders. The core value is running the same prompt across multiple AI providers and comparing outputs side by side. The product should feel premium, useful, modern, and decision-oriented. Do not describe it as a playground.
+
+CORE PRODUCT EXPERIENCE
+Users should be able to:
+- enter one prompt
+- send that same prompt to multiple AI providers
+- view outputs side by side
+- compare response speed
+- compare token usage when available
+- compare estimated cost when available
+
+PROVIDER INTEGRATIONS TO SUPPORT
+Please structure the codebase to support these providers:
+
+- Google Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+IMPORTANT IMPLEMENTATION REQUIREMENTS
+- Build provider integrations using a provider abstraction layer so each provider has its own adapter/service file
+- Keep API keys in environment variables only
+- Do not hard-code API keys
+- Normalize provider responses into one common format for display in the comparison UI
+- Normalize these fields when available:
+  - provider name
+  - model name
+  - output text
+  - latency
+  - token usage
+  - estimated cost
+  - error state
+- Make the architecture easy to expand later with more providers
+
+SUGGESTED ENVIRONMENT VARIABLES
+- GEMINI_API_KEY
+- GROK_API_KEY
+- KIMI_API_KEY
+- OPENAI_API_KEY
+- ANTHROPIC_API_KEY
+
+PRICING TIERS
+
+1. AI AgentLab Trial
+Price: $0
+Badge: Current plan
+
+Description:
+Try AI AgentLab with 3 side-by-side AI comparisons using 2 providers.
+
+Features:
+- 3 total comparisons
+- access to 2 starter providers only
+- side-by-side output view
+- basic speed visibility
+- no saved history
+- no exports
+- no advanced scoring
+
+Important logic:
+- One comparison means one prompt is sent to both Trial providers and both outputs appear side by side
+- Trial users may complete only 3 total comparisons
+- After the third comparison, block further usage and show the upgrade modal
+
+Trial provider access:
+- Google Gemini
+- Grok
+
+2. AI AgentLab Pro
+Price: $29/month
+Badge: Recommended plan
+
+Description:
+For founders and builders who want more comparisons and access to additional AI providers before shipping.
+
+Features:
+- 100 comparisons per month
+- access to Google Gemini
+- access to Grok
+- access to Kimi
+- saved test history
+- side-by-side comparison view
+- basic export support
+
+3. AI AgentLab Premium
+Price: $49/month
+No badge above this plan
+
+Description:
+Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.
+
+Features:
+- everything in Pro
+- 300 comparisons per month
+- access to OpenAI models
+- access to Claude models
+- advanced scoring
+- richer evaluation insights
+- premium export and comparison workflow
+
+Premium must include all Pro providers plus:
+- OpenAI
+- Claude
+
+PROVIDER ACCESS LOGIC SUMMARY
+Trial:
+- Gemini
+- Grok
+
+Pro:
+- Gemini
+- Grok
+- Kimi
+
+Premium:
+- Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+UPGRADE FLOW
+
+When a Trial user uses all 3 comparisons, show this modal:
+
+Title:
+Your AI AgentLab Trial has ended
+
+Body:
+You’ve used your 3 free comparisons. Upgrade to Pro for more providers and testing capacity, or go Premium to unlock OpenAI, Claude, and deeper evaluation tools.
+
+Buttons:
+- Upgrade to Pro
+- Go Premium
+
+STRIPE REQUIREMENTS
+- Pro upgrade button must route to the Stripe checkout for the $29/month plan
+- Premium upgrade button must route to the Stripe checkout for the $49/month plan
+- After successful checkout, the user account must update to the correct tier
+- Premium users must automatically inherit Pro features
+
+WHERE TO LIST PROVIDERS ON THE WEBSITE
+
+Please visibly show provider access in these places:
+
+1. HERO SECTION
+Add a small trust line or provider strip below the hero headline/subheadline.
+
+Use wording like:
+Compare outputs across leading AI providers in one workspace
+
+Display providers as compact pills or badges:
+Gemini
+Grok
+Kimi
+OpenAI
+Claude
+
+Design note:
+These should look clean and premium, not cluttered.
+
+2. PRICING SECTION
+Each pricing card should clearly list which providers are included in that plan.
+
+Trial card should show:
+Included providers:
+- Gemini
+- Grok
+
+Pro card should show:
+Included providers:
+- Gemini
+- Grok
+- Kimi
+
+Premium card should show:
+Included providers:
+- Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+Design note:
+Provider names can be shown as pills, checkmarks, or a mini provider list inside each card.
+
+3. FEATURE COMPARISON SECTION
+Add a plan comparison table below pricing or further down the page.
+
+Columns:
+- Trial
+- Pro
+- Premium
+
+Rows should include:
+- Number of comparisons
+- Included providers
+- Saved history
+- Exports
+- Advanced scoring
+
+For Included providers row, show:
+Trial: Gemini, Grok
+Pro: Gemini, Grok, Kimi
+Premium: Gemini, Grok, Kimi, OpenAI, Claude
+
+4. APP DASHBOARD / PLAN AREA
+Inside the logged-in dashboard, show the user’s current plan and available providers.
+
+Example:
+Current plan: AI AgentLab Trial
+Available providers:
+- Gemini
+- Grok
+
+If Pro:
+Current plan: AI AgentLab Pro
+Available providers:
+- Gemini
+- Grok
+- Kimi
+
+If Premium:
+Current plan: AI AgentLab Premium
+Available providers:
+- Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+5. UPGRADE MODAL
+Inside the upgrade modal, remind the user what they unlock.
+
+Pro unlocks:
+- Gemini
+- Grok
+- Kimi
+
+Premium unlocks:
+- everything in Pro
+- OpenAI
+- Claude
+
+PRICING SECTION COPY
+
+Headline:
+Choose the right plan for how you build
+
+Subheadline:
+Start with a trial, compare AI outputs side by side, and upgrade when you need more providers and deeper testing.
+
+Trial card:
+Name: AI AgentLab Trial
+Price: $0
+Description: Try AI AgentLab with 3 side-by-side AI comparisons using Gemini and Grok.
+
+Pro card:
+Name: AI AgentLab Pro
+Price: $29/month
+Description: For founders and builders who want more comparisons and access to Gemini, Grok, and Kimi.
+
+Premium card:
+Name: AI AgentLab Premium
+Price: $49/month
+Description: Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.
+
+TECHNICAL BUILD DIRECTION
+
+Please organize integrations so they are production-friendly.
+
+Recommended structure:
+- /lib/providers/gemini.ts
+- /lib/providers/grok.ts
+- /lib/providers/kimi.ts
+- /lib/providers/openai.ts
+- /lib/providers/claude.ts
+- /lib/providers/types.ts
+- /lib/providers/router.ts
+
+Requirements:
+- each provider adapter should accept a prompt and return a normalized response
+- the comparison runner should call only the providers allowed by the user’s plan
+- if one provider fails, the UI should still show the other provider responses and display a clean error for the failed one
+- add placeholder comments where actual API request code needs to be inserted if any provider is not yet fully wired
+
+MODEL CONFIGURATION REQUIREMENT
+Do not hard-code old or fragile model names across the UI.
+Create a central provider config object for:
+- provider label
+- default model
+- fallback model
+- plan availability
+- active/inactive status
+
+This is important because provider model availability can change.
+
+DESIGN DIRECTION
+- Keep the current clean SaaS style
+- Keep Trial, Pro, and Premium naming
+- Keep Pro highlighted as the recommended plan
+- Do not add a badge above Premium
+- Premium should feel like the highest-value tier because it includes OpenAI and Claude
+- Do not use Bronze, Silver, or Gold
+- Do not use the word playground
+- Keep all provider references modern, clean, and easy to scan
+
+IF ANY CURRENT COPY OR PROVIDER LOGIC CONFLICTS WITH THIS, REPLACE IT WITH THIS VERSION.

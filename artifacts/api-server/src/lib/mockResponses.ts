@@ -10,8 +10,8 @@ const huggingFaceResponses = [
   "Based on the input, here's what I can provide: the topic spans multiple domains and the optimal answer depends heavily on context. From what I can infer, the most likely scenario involves several factors working together. Let me break down each component for clarity.",
 ];
 
-const groqResponses = [
-  "Direct answer: yes, this approach works. Key points: (1) speed matters most here, (2) the tradeoff is acceptable, (3) implement with minimal overhead. Groq delivers fast, concise outputs optimized for latency-sensitive applications.",
+const grokResponses = [
+  "Direct answer: yes, this approach works. Key points: (1) speed matters most here, (2) the tradeoff is acceptable, (3) implement with minimal overhead. Grok delivers fast, concise outputs optimized for latency-sensitive applications.",
   "Quick summary: the core idea is sound. Three things to watch: efficiency, scalability, maintainability. Prioritize in that order. Fast inference means faster iteration cycles for your team.",
 ];
 
@@ -24,9 +24,9 @@ function randomBetween(min: number, max: number): number {
 }
 
 function computeScores(text: string, provider: string): { quality: number; clarity: number; tone: number; overall: number } {
-  const baseQuality = provider === "gemini" ? 4.2 : provider === "groq" ? 3.8 : 3.5;
-  const baseClarity = provider === "gemini" ? 4.5 : provider === "groq" ? 4.0 : 3.6;
-  const baseTone = provider === "gemini" ? 4.0 : provider === "groq" ? 3.7 : 3.9;
+  const baseQuality = provider === "gemini" ? 4.2 : provider === "grok" ? 3.8 : 3.5;
+  const baseClarity = provider === "gemini" ? 4.5 : provider === "grok" ? 4.0 : 3.6;
+  const baseTone = provider === "gemini" ? 4.0 : provider === "grok" ? 3.7 : 3.9;
 
   const quality = Math.min(5, Math.max(1, baseQuality + randomBetween(-0.3, 0.3)));
   const clarity = Math.min(5, Math.max(1, baseClarity + randomBetween(-0.3, 0.3)));
@@ -86,14 +86,14 @@ export function getMockHuggingFaceResponse(prompt: string): ProviderResult {
 }
 
 export function getMockGroqResponse(prompt: string): ProviderResult {
-  const text = pickRandom(groqResponses) + " Input summary: " + prompt.slice(0, 60);
+  const text = pickRandom(grokResponses) + " Input summary: " + prompt.slice(0, 60);
   const latencyMs = Math.round(randomBetween(200, 600));
   const tokenCount = Math.round(text.split(" ").length * 1.3);
   const estimatedCost = Math.round(tokenCount * 0.0000002 * 10000) / 10000;
-  const scores = computeScores(text, "groq");
+  const scores = computeScores(text, "grok");
 
   return {
-    provider: "groq",
+    provider: "grok",
     model: "llama-3.1-8b-instant",
     text,
     latencyMs,

@@ -9,7 +9,7 @@ export function ProviderIcon({ provider, className = "w-5 h-5" }: { provider: st
   if (normalized.includes("hugging") || normalized.includes("hf")) {
     return <Cloud className={`${className} text-yellow-500`} />;
   }
-  if (normalized.includes("groq")) {
+  if (normalized.includes("grok")) {
     return <Zap className={`${className} text-red-500`} />;
   }
   if (normalized.includes("open") || normalized.includes("gpt")) {

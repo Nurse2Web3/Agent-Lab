@@ -40,7 +40,7 @@ router.post("/compare", async (req, res) => {
       calls.push(callGemini(opts));
     } else if (provider === "huggingface") {
       calls.push(callHuggingFace(opts));
-    } else if (provider === "groq") {
+    } else if (provider === "grok") {
       calls.push(callGroq(opts));
     }
   }

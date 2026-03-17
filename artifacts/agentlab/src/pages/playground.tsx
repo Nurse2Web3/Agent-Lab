@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 const PROVIDERS = [
   { id: "Gemini",       name: "Google Gemini",  model: "gemini-1.5-pro" },
   { id: "HuggingFace",  name: "Hugging Face",   model: "mistralai/Mistral-7B-Instruct" },
-  { id: "Groq",         name: "Groq",           model: "llama3-70b-8192" },
+  { id: "Grok",         name: "Grok",           model: "llama3-70b-8192" },
 ];
 
 const TEMPLATES = [
@@ -123,7 +123,7 @@ export default function Playground() {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(["Gemini", "Groq"]);
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(["Gemini", "Grok"]);
   const [temperature, setTemperature] = useState([0.7]);
   const [scores, setScores] = useState<Record<string, number>>({});
 

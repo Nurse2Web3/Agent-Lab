@@ -7,9 +7,9 @@ export function computeScores(text: string, provider: string): { quality: number
   const sentenceCount = text.split(/[.!?]+/).filter(Boolean).length;
   const avgWordsPerSentence = sentenceCount > 0 ? wordCount / sentenceCount : wordCount;
 
-  const baseQuality = provider === "gemini" ? 4.2 : provider === "groq" ? 3.8 : 3.5;
-  const baseClarity = provider === "gemini" ? 4.5 : provider === "groq" ? 4.0 : 3.6;
-  const baseTone = provider === "gemini" ? 4.0 : provider === "groq" ? 3.7 : 3.9;
+  const baseQuality = provider === "gemini" ? 4.2 : provider === "grok" ? 3.8 : 3.5;
+  const baseClarity = provider === "gemini" ? 4.5 : provider === "grok" ? 4.0 : 3.6;
+  const baseTone = provider === "gemini" ? 4.0 : provider === "grok" ? 3.7 : 3.9;
 
   const lengthBonus = Math.min(0.5, wordCount / 500);
   const clarityBonus = avgWordsPerSentence < 20 ? 0.2 : -0.1;

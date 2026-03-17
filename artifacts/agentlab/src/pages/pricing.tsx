@@ -22,7 +22,7 @@ const PLAN_CONFIG: Record<string, {
     popular: true,
     planKey: "pro",
     features: [
-      { label: "Multiple providers (Gemini, HF, Groq)", included: true },
+      { label: "Multiple providers (Gemini, HF, Grok)", included: true },
       { label: "Unlimited saved runs", included: true },
       { label: "Winner Engine recommendations", included: true },
       { label: "Production export tools", included: true },
@@ -50,7 +50,7 @@ const PLAN_CONFIG: Record<string, {
       { label: "Workspace organization", included: true },
       { label: "Advanced decision support", included: true },
       { label: "Team collaboration features", included: true },
-      { label: "Multiple providers (Gemini, HF, Groq)", included: true },
+      { label: "Multiple providers (Gemini, HF, Grok)", included: true },
       { label: "Unlimited saved runs", included: true },
       { label: "Winner Engine recommendations", included: true },
       { label: "Production export tools", included: true },
@@ -63,8 +63,8 @@ const SANDBOX_TIER = {
   price: "$0",
   period: null,
   badge: null,
-  tagline: "Try Ai AgentLab free.",
-  desc: "Try Ai AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
+  tagline: "Try Ai AgentLab.",
+  desc: "Try Ai AgentLab with 4 comparisons and see how different AI models respond to the same prompt.",
   popular: false,
   cta: "Start Trial",
   features: [
@@ -130,7 +130,7 @@ export default function Pricing() {
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
             className="text-muted-foreground text-base">
-            The Trial is built for exploration. Paid plans are built for real shipping decisions.
+            The Trial is built for exploration. Upgrade when you are ready to ship seriously.
           </motion.p>
         </div>
 
@@ -254,7 +254,7 @@ export default function Pricing() {
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.4 }}
           className="text-center text-sm text-muted-foreground/60 mt-12">
-          The free tier is built for exploration. Paid plans are built for real shipping decisions.
+          The Trial is built for exploration. Paid plans are built for real shipping decisions.
         </motion.p>
 
         {/* Comparison table */}

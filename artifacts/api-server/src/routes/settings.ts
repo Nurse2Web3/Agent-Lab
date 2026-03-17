@@ -9,15 +9,15 @@ const router: IRouter = Router();
 const PROVIDER_INFO: Record<string, { model: string; description: string }> = {
   gemini: {
     model: "gemini-1.5-flash",
-    description: "Google's balanced and capable AI model with generous free tier.",
+    description: "Google's balanced and capable AI model.",
   },
   huggingface: {
     model: "mistralai/Mistral-7B-Instruct-v0.3",
     description: "Open-source model access via Hugging Face Inference API.",
   },
-  groq: {
+  grok: {
     model: "llama-3.1-8b-instant",
-    description: "Ultra-fast inference for LLaMA models. Excellent free tier.",
+    description: "Ultra-fast inference. Excellent speed-first comparisons.",
   },
   openai: {
     model: "gpt-4o",
@@ -33,7 +33,7 @@ router.get("/settings", async (_req, res) => {
   const rows = await db.select().from(apiKeysTable);
   const connectedProviders = new Set(rows.map((r) => r.provider));
 
-  const providers = ["gemini", "huggingface", "groq", "openai", "anthropic"].map((p) => ({
+  const providers = ["gemini", "huggingface", "grok", "openai", "anthropic"].map((p) => ({
     provider: p,
     connected: connectedProviders.has(p),
     model: PROVIDER_INFO[p]?.model ?? "",
@@ -82,7 +82,7 @@ router.post("/settings/test", async (req, res) => {
       result = await callGemini({ prompt: testPrompt, apiKey });
     } else if (provider === "huggingface") {
       result = await callHuggingFace({ prompt: testPrompt, apiKey });
-    } else if (provider === "groq") {
+    } else if (provider === "grok") {
       result = await callGroq({ prompt: testPrompt, apiKey });
     } else {
       res.json({ success: false, message: "Provider not supported yet", latencyMs: 0 });

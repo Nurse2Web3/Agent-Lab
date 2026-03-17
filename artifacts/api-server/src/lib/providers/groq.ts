@@ -34,7 +34,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
     });
 
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status}`);
+      throw new Error(`Grok API error: ${response.status}`);
     }
 
     const data = await response.json() as {
@@ -45,10 +45,10 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
     const tokenCount = data.usage?.total_tokens ?? Math.round(text.split(" ").length * 1.3);
     const latencyMs = Date.now() - start;
     const estimatedCost = Math.round(tokenCount * 0.0000002 * 10000) / 10000;
-    const scores = computeScores(text, "groq");
+    const scores = computeScores(text, "grok");
 
     return {
-      provider: "groq",
+      provider: "grok",
       model: MODEL,
       text,
       latencyMs,
@@ -61,7 +61,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
       isDemo: false,
     };
   } catch (err) {
-    console.error("Groq error:", err);
+    console.error("Grok error:", err);
     return { ...getMockGroqResponse(prompt), isDemo: true };
   }
 }

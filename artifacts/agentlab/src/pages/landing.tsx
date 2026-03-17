@@ -171,7 +171,7 @@ export default function Landing() {
                       <div className="h-2 rounded bg-secondary/60 w-1/2" />
                     </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
-                      {["Gemini", "Groq", "HF"].map((p) => (
+                      {["Gemini", "Grok", "HF"].map((p) => (
                         <div key={p} className="rounded-lg border border-border/50 p-3 bg-secondary/20">
                           <div className="text-xs font-medium mb-2 text-muted-foreground">{p}</div>
                           <div className="space-y-1">
@@ -186,7 +186,7 @@ export default function Landing() {
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="text-xs text-muted-foreground mb-1">Recommended Winner</div>
-                          <span className="font-bold text-foreground">Groq</span>
+                          <span className="font-bold text-foreground">Grok</span>
                         </div>
                         <span className="text-xs bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold">Ship This 🏆</span>
                       </div>
@@ -242,7 +242,7 @@ export default function Landing() {
               {
                 icon: Plug,
                 title: "Provider connections",
-                desc: "Connect providers when you are ready and compare real outputs across Gemini, Hugging Face models, and Groq-hosted models.",
+                desc: "Connect providers when you are ready and compare real outputs across Gemini, Hugging Face models, and Grok-hosted models.",
                 highlight: false,
               },
             ].map((feature, i) => (
@@ -303,8 +303,8 @@ export default function Landing() {
               <div className="p-6 space-y-4">
                 {[
                   { label: "Best Quality", value: "Gemini", bar: "w-[92%]", color: "bg-emerald-500/60" },
-                  { label: "Cheapest", value: "Groq", bar: "w-[78%]", color: "bg-sky-500/60" },
-                  { label: "Fastest", value: "Groq", bar: "w-[95%]", color: "bg-violet-500/60" },
+                  { label: "Cheapest", value: "Grok", bar: "w-[78%]", color: "bg-sky-500/60" },
+                  { label: "Fastest", value: "Grok", bar: "w-[95%]", color: "bg-violet-500/60" },
                 ].map((row) => (
                   <div key={row.label}>
                     <div className="flex justify-between text-xs mb-1.5">
@@ -319,7 +319,7 @@ export default function Landing() {
                 <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-between">
                   <div>
                     <div className="text-xs text-muted-foreground mb-0.5">Recommended Winner</div>
-                    <span className="font-bold text-lg">Groq</span>
+                    <span className="font-bold text-lg">Grok</span>
                   </div>
                   <span className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-full font-semibold">Ship This 🏆</span>
                 </div>
@@ -343,7 +343,7 @@ export default function Landing() {
             {[
               { name: "Gemini", sub: "Balanced and a strong free-tier starting point", emoji: "✦" },
               { name: "Hugging Face", sub: "Open-model variety and flexibility", emoji: "🤗" },
-              { name: "Groq", sub: "Speed-first comparisons", emoji: "⚡" },
+              { name: "Grok", sub: "Speed-first comparisons", emoji: "⚡" },
             ].map((p) => (
               <div key={p.name} className="glass-card rounded-2xl p-8 text-center group hover:border-primary/30 transition-colors">
                 <div className="text-3xl mb-4">{p.emoji}</div>
@@ -397,7 +397,7 @@ export default function Landing() {
             {[
               {
                 name: "Trial",
-                desc: "Try Ai AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
+                desc: "Try Ai AgentLab with 4 comparisons and see how different AI models respond to the same prompt.",
                 highlight: false,
               },
               {
