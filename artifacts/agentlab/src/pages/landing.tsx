@@ -390,14 +390,14 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Pricing</p>
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">
-            Start in Sandbox. Upgrade when you are ready to ship seriously.
+            Start with a Trial. Upgrade when you are ready to ship seriously.
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
               {
-                name: "Sandbox",
-                desc: "Explore the workflow with demo mode and a limited live setup.",
+                name: "Trial",
+                desc: "Try AI AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
                 highlight: false,
               },
               {
@@ -425,7 +425,7 @@ export default function Landing() {
           </div>
 
           <p className="text-sm text-muted-foreground/70">
-            The free tier is built for exploration. Paid plans are built for real shipping decisions.
+            The Trial is built for exploration. Paid plans are built for real shipping decisions.
           </p>
 
           <div className="mt-8">

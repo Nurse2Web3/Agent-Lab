@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useBillingStatus, useManageBilling, useCheckout } from "@/hooks/use-billing";
 
 const PLAN_LABELS: Record<string, string> = {
-  sandbox: "Sandbox (Free)",
+  sandbox: "Trial",
   pro: "Pro",
   studio: "Studio",
 };
@@ -116,7 +116,7 @@ export default function Settings() {
                     {isActivePlan && <Crown className="w-5 h-5 text-primary" />}
                     <span className="text-xl font-bold">{PLAN_LABELS[plan]}</span>
                     <Badge className={`text-xs border ${PLAN_COLORS[plan]}`} variant="outline">
-                      {isActivePlan ? "Active" : "Free"}
+                      {isActivePlan ? "Active" : "Trial"}
                     </Badge>
                   </div>
                 )}
@@ -132,7 +132,7 @@ export default function Settings() {
 
                 {!isActivePlan && !billingLoading && (
                   <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                    You're on the free Sandbox plan. Upgrade to Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
+                    You're on the Trial plan (4 free comparisons). Upgrade to Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
                   </p>
                 )}
               </div>
@@ -164,8 +164,8 @@ export default function Settings() {
             {/* Feature summary */}
             <div className="mt-6 pt-6 border-t border-border/40 grid sm:grid-cols-2 gap-3 text-sm">
               {[
-                { label: "Providers", sandbox: "1 (demo)", pro: "All 3", studio: "All 3" },
-                { label: "Saved runs", sandbox: "5", pro: "Unlimited", studio: "Unlimited" },
+                { label: "Providers", sandbox: "1", pro: "All 3", studio: "All 3" },
+                { label: "Comparisons", sandbox: "4 total", pro: "Unlimited", studio: "Unlimited" },
                 { label: "Winner Engine", sandbox: "—", pro: "✓", studio: "✓" },
                 { label: "Production export", sandbox: "—", pro: "✓", studio: "✓" },
                 { label: "Team workspaces", sandbox: "—", pro: "—", studio: "✓" },

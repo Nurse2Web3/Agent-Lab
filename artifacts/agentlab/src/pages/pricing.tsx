@@ -59,24 +59,22 @@ const PLAN_CONFIG: Record<string, {
 };
 
 const SANDBOX_TIER = {
-  name: "Sandbox",
+  name: "Trial",
   price: "$0",
   period: null,
   badge: null,
-  tagline: "Built for exploration.",
-  desc: "Get a feel for the workflow before committing to anything. Demo mode included, no API keys needed.",
+  tagline: "Try AI AgentLab free.",
+  desc: "Try AI AgentLab with 4 free comparisons and see how different AI models respond to the same prompt.",
   popular: false,
+  cta: "Start Trial",
   features: [
-    { label: "Demo mode (no API keys needed)", included: true },
-    { label: "1 live API provider", included: true },
-    { label: "5 saved runs", included: true },
-    { label: "Basic side-by-side comparison", included: true },
-    { label: "Basic cost estimation", included: true },
-    { label: "Production export tools", included: false },
-    { label: "Winner Engine recommendations", included: false },
+    { label: "4 total comparisons", included: true },
+    { label: "1 AI provider", included: true },
+    { label: "Side-by-side output view", included: true },
+    { label: "Basic speed and cost visibility", included: true },
+    { label: "Saved history", included: false },
+    { label: "Production exports", included: false },
     { label: "Advanced scoring", included: false },
-    { label: "Unlimited saved runs", included: false },
-    { label: "Team features", included: false },
   ],
 };
 
@@ -128,11 +126,11 @@ export default function Pricing() {
           </motion.p>
           <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
             className="text-4xl md:text-5xl font-display font-bold mb-5 leading-tight">
-            Start in Sandbox.<br className="hidden sm:block" /> Upgrade when you are ready to ship seriously.
+            Start with a Trial.<br className="hidden sm:block" /> Upgrade when you are ready to ship seriously.
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
             className="text-muted-foreground text-base">
-            The free tier is built for exploration. Paid plans are built for real shipping decisions.
+            The Trial is built for exploration. Paid plans are built for real shipping decisions.
           </motion.p>
         </div>
 
@@ -200,7 +198,7 @@ export default function Pricing() {
                   {/* CTA */}
                   {!tier.planKey ? (
                     <Button asChild className="w-full h-12 text-sm font-semibold rounded-xl mb-8" variant="outline">
-                      <Link href="/playground">Start Free</Link>
+                      <Link href="/playground">{tier.cta ?? "Start Trial"}</Link>
                     </Button>
                   ) : isCurrent ? (
                     <Button
@@ -265,16 +263,16 @@ export default function Pricing() {
           <div className="glass-card rounded-2xl overflow-hidden border border-border/40">
             <div className="grid grid-cols-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40">
               <div className="p-4 col-span-1">Feature</div>
-              <div className="p-4 text-center border-l border-border/40">Sandbox</div>
+              <div className="p-4 text-center border-l border-border/40">Trial</div>
               <div className="p-4 text-center border-l border-border/40 text-primary">Pro</div>
             </div>
             {[
               { label: "Providers", free: "1", pro: "All 3" },
-              { label: "Saved runs", free: "5", pro: "Unlimited" },
+              { label: "Comparisons", free: "4 total", pro: "Unlimited" },
+              { label: "Saved history", free: "—", pro: "Full" },
               { label: "Winner Engine", free: "—", pro: "✓" },
               { label: "Production export", free: "—", pro: "✓" },
               { label: "Advanced scoring", free: "—", pro: "✓" },
-              { label: "Run history", free: "Basic", pro: "Full" },
             ].map((row, i) => (
               <div key={row.label} className={`grid grid-cols-3 text-sm ${i % 2 === 0 ? "bg-secondary/10" : ""}`}>
                 <div className="p-4 text-foreground/70 font-medium">{row.label}</div>
