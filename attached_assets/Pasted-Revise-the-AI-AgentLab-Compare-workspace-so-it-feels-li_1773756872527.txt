@@ -1,0 +1,226 @@
+Revise the AI AgentLab Compare workspace so it feels like a premium decision cockpit, not just a results screen.
+
+IMPORTANT:
+Do not rebuild the app from scratch.
+Refine the existing main comparison workspace and keep the current comparison flow, provider logic, and result cards.
+This is a UX and product-emphasis update.
+
+GOAL:
+The main workspace should make users feel:
+“I know what to ship next.”
+
+It should feel less like a generic prompt tool and more like a founder-friendly compare-and-ship workspace.
+
+==================================================
+1. MAKE RECOMMENDED WINNER THE MAIN FOCUS
+==================================================
+
+The most important element in the Compare workspace should be the Recommended Winner.
+
+Update the page so:
+- Recommended Winner is visually prominent
+- it appears above or clearly before secondary stats
+- it feels like the main decision output
+- it includes a short summary of why it won
+
+The user should instantly understand:
+- which option won
+- why it won
+- what to do next
+
+Use labels like:
+- Recommended Winner
+- Best Quality
+- Cheapest
+- Fastest
+- Best Overall
+
+But Recommended Winner should be the primary visual focus.
+
+==================================================
+2. ADD A “READY TO SHIP” PANEL
+==================================================
+
+Create a premium-looking panel near the results section called:
+
+Ready to Ship
+
+This panel should:
+- highlight the winning provider/model
+- show a short explanation of why it is recommended
+- include export actions:
+  - Copy Prompt
+  - Copy JSON Settings
+  - Copy API Payload
+  - Save Winner
+- feel like the bridge from comparison to production
+
+This panel should feel like a paid-value workflow, not a basic utility box.
+
+==================================================
+3. IMPROVE THE RESULTS SUMMARY SECTION
+==================================================
+
+Refine the summary section styling so it feels more like a decision dashboard.
+
+It should clearly present:
+- Recommended Winner
+- Best Quality
+- Cheapest
+- Fastest
+
+Improve spacing, typography, and visual hierarchy.
+Use premium cards, subtle emphasis, and clear labels.
+Avoid making the summary feel cluttered or overly technical.
+
+==================================================
+4. MAKE THE RESULT CARDS EASIER TO SCAN
+==================================================
+
+Refine the provider result cards so the user can compare them quickly.
+
+Each result card should still show:
+- provider/model name
+- generated output
+- response time
+- estimated cost
+- token count
+- score values
+- Save as Winner button
+
+But improve scanability by:
+- separating metrics from body output
+- improving label hierarchy
+- making score areas cleaner
+- making the card feel polished and premium
+- making differences between providers easy to notice visually
+
+Do not make the cards overly developer-heavy.
+
+==================================================
+5. ADD DECISION-ORIENTED MICROCOPY
+==================================================
+
+Update helper text and labels across the Compare workspace to sound more founder-friendly.
+
+Use phrases like:
+- Compare before you ship
+- Choose the best option faster
+- See the tradeoffs clearly
+- Pick the best value, not just the best answer
+- Move from testing to production
+
+Avoid language that sounds too infra-heavy or overly technical.
+
+==================================================
+6. IMPROVE EMPTY STATE
+==================================================
+
+When no comparison has run yet, the main workspace should have a polished, helpful empty state.
+
+Suggested empty state content:
+
+Headline:
+Run your first comparison
+
+Body:
+Test one prompt across multiple providers and see which option wins on quality, speed, and cost.
+
+Buttons/options:
+- Start with a template
+- Try demo mode
+- Write your own prompt
+
+Make the empty state visually strong and welcoming.
+
+==================================================
+7. IMPROVE LOADING EXPERIENCE
+==================================================
+
+When a comparison is running:
+- add a polished loading state
+- show progress or staged feedback if possible
+- make it feel like the system is actively evaluating options
+- avoid bland spinners only
+
+Suggested loading copy:
+- Running your comparison
+- Checking provider responses
+- Scoring quality, speed, and cost
+- Choosing the best overall option
+
+==================================================
+8. ADD MORE PREMIUM VISUAL HIERARCHY
+==================================================
+
+Refine the page styling to feel:
+- premium
+- simple
+- calm
+- high-confidence
+- founder-friendly
+
+Use:
+- more whitespace
+- clearer section grouping
+- better card hierarchy
+- subtle shadows
+- stronger section headers
+- polished metric badges
+- cleaner typography
+
+Do not make the page noisy or too colorful.
+
+==================================================
+9. MAKE THE PAGE FEEL LIKE A DECISION WORKFLOW
+==================================================
+
+Organize the screen so the story is:
+
+1. Enter prompt
+2. Run comparison
+3. Review outputs
+4. See winner summary
+5. Export the winning setup
+
+The page should visually reinforce that sequence.
+
+==================================================
+10. KEEP THE CURRENT CORE FUNCTIONALITY
+==================================================
+
+Preserve:
+- existing provider support
+- demo mode
+- prompt inputs
+- result generation
+- history integration
+- scoring logic
+- export actions
+
+This is a UX and positioning refinement, not a rebuild.
+
+==================================================
+11. OPTIONAL ENHANCEMENTS IF EASY
+==================================================
+
+If simple to add, include:
+- a small “Why this won” explanation under Recommended Winner
+- subtle badges on winning cards
+- highlight the top-ranked card more clearly
+- a sticky summary panel on desktop
+- template suggestions near the prompt area
+
+==================================================
+12. FINAL RESULT
+==================================================
+
+After this update, the main workspace should feel like:
+- a compare-and-ship workspace
+- a decision dashboard
+- a premium tool for founders choosing AI setups
+
+It should NOT feel like:
+- a generic playground
+- a developer-only testing console
+- a raw results dump
