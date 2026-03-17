@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
@@ -8,12 +8,16 @@ export default function Pricing() {
     {
       name: "Sandbox",
       price: "$0",
-      desc: "Perfect for exploring the platform and testing basics.",
+      desc: "Explore the platform and get a feel for AI comparisons.",
       features: [
-        "Demo mode requests",
-        "2 API providers (Gemini, Groq)",
-        "10 local history saves",
-        "Basic cost estimation",
+        "Demo mode",
+        "1 live API provider",
+        "5 saved runs",
+        "Basic compare",
+      ],
+      missing: [
+        "No exports",
+        "No advanced scoring",
       ],
       cta: "Start Free",
       href: "/playground",
@@ -23,15 +27,16 @@ export default function Pricing() {
       name: "Pro",
       price: "$19",
       period: "/mo",
-      desc: "Everything you need to optimize real production prompts.",
+      desc: "Everything you need to ship better AI prompts faster.",
       features: [
-        "Bring your own API keys",
-        "All active providers",
-        "Unlimited history saves",
-        "Export payloads as JSON",
-        "Advanced temperature control",
-        "Priority support"
+        "3 providers",
+        "Unlimited saved runs",
+        "Export tools",
+        "Winner recommendation",
+        "History",
+        "Better scoring",
       ],
+      missing: [],
       cta: "Upgrade to Pro",
       href: "/",
       popular: true
@@ -40,15 +45,15 @@ export default function Pricing() {
       name: "Studio",
       price: "$49",
       period: "/mo",
-      desc: "For teams collaborating on prompt engineering.",
+      desc: "Built for teams collaborating on prompt engineering.",
       features: [
         "Everything in Pro",
+        "Teams",
         "Shared workspaces",
-        "Shareable review links",
-        "Custom model endpoints",
-        "A/B test scheduling",
-        "Export to TypeScript/Python"
+        "Review links",
+        "Advanced testing",
       ],
+      missing: [],
       cta: "Contact Sales",
       href: "/",
       popular: false
@@ -91,11 +96,17 @@ export default function Pricing() {
             
             <CardContent className="flex-1">
               <div className="h-px bg-border/50 w-full mb-6" />
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {tier.features.map((feat) => (
-                  <li key={feat} className="flex items-start gap-3">
-                    <Check className={`w-5 h-5 shrink-0 ${tier.popular ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <li key={feat} className="flex items-center gap-3">
+                    <Check className={`w-4 h-4 shrink-0 ${tier.popular ? 'text-primary' : 'text-muted-foreground'}`} />
                     <span className="text-sm text-foreground/80">{feat}</span>
+                  </li>
+                ))}
+                {tier.missing.map((feat) => (
+                  <li key={feat} className="flex items-center gap-3 opacity-40">
+                    <X className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">{feat}</span>
                   </li>
                 ))}
               </ul>
