@@ -1,8 +1,8 @@
-import { Bot, Cpu, Zap, Cloud, Sparkles } from "lucide-react";
+import { Bot, Cpu, Zap, Cloud, Sparkles, Brain } from "lucide-react";
 
 export function ProviderIcon({ provider, className = "w-5 h-5" }: { provider: string, className?: string }) {
   const normalized = provider.toLowerCase();
-  
+
   if (normalized.includes("gemini") || normalized.includes("google")) {
     return <Sparkles className={`${className} text-blue-400`} />;
   }
@@ -12,13 +12,16 @@ export function ProviderIcon({ provider, className = "w-5 h-5" }: { provider: st
   if (normalized.includes("grok")) {
     return <Zap className={`${className} text-red-500`} />;
   }
-  if (normalized.includes("open") || normalized.includes("gpt")) {
+  if (normalized.includes("kimi") || normalized.includes("moonshot")) {
+    return <Brain className={`${className} text-cyan-400`} />;
+  }
+  if (normalized.includes("openai") || normalized.includes("gpt")) {
     return <Bot className={`${className} text-emerald-500`} />;
   }
-  if (normalized.includes("anthropic") || normalized.includes("claude")) {
+  if (normalized.includes("claude") || normalized.includes("anthropic")) {
     return <Cpu className={`${className} text-orange-400`} />;
   }
-  
+
   return <Bot className={className} />;
 }
 

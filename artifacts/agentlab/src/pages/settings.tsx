@@ -12,9 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { useBillingStatus, useManageBilling, useCheckout } from "@/hooks/use-billing";
 
 const PLAN_LABELS: Record<string, string> = {
-  sandbox: "Trial",
+  sandbox: "Ai AgentLab Trial",
   pro: "Ai AgentLab Pro",
   studio: "Ai AgentLab Premium",
+};
+
+const PLAN_PROVIDERS: Record<string, string[]> = {
+  sandbox: ["Gemini", "Grok"],
+  pro: ["Gemini", "Grok", "Kimi"],
+  studio: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
 };
 
 const PLAN_COLORS: Record<string, string> = {
@@ -132,7 +138,7 @@ export default function Settings() {
 
                 {!isActivePlan && !billingLoading && (
                   <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                    You're on the Trial plan with 4 comparisons. Upgrade to Ai AgentLab Pro to unlock multiple providers, the Winner Engine, unlimited saved runs, and production export tools.
+                    You're on the Trial plan with 3 comparisons. Upgrade to Ai AgentLab Pro to unlock more providers, 100 comparisons per month, saved history, and the Winner Engine.
                   </p>
                 )}
               </div>
@@ -164,12 +170,12 @@ export default function Settings() {
             {/* Feature summary */}
             <div className="mt-6 pt-6 border-t border-border/40 grid sm:grid-cols-2 gap-3 text-sm">
               {[
-                { label: "Providers", sandbox: "1", pro: "All 3", studio: "All 3" },
-                { label: "Comparisons", sandbox: "4 total", pro: "Unlimited", studio: "Unlimited" },
+                { label: "Comparisons", sandbox: "3 total", pro: "100 / month", studio: "300 / month" },
+                { label: "Providers", sandbox: "2", pro: "3", studio: "5" },
+                { label: "Saved history", sandbox: "—", pro: "✓", studio: "✓" },
+                { label: "Exports", sandbox: "—", pro: "Basic", studio: "Full" },
                 { label: "Winner Engine", sandbox: "—", pro: "✓", studio: "✓" },
-                { label: "Production export", sandbox: "—", pro: "✓", studio: "✓" },
-                { label: "Team workspaces", sandbox: "—", pro: "—", studio: "✓" },
-                { label: "Review links", sandbox: "—", pro: "—", studio: "✓" },
+                { label: "Advanced scoring", sandbox: "—", pro: "—", studio: "✓" },
               ].map((f) => (
                 <div key={f.label} className="flex justify-between items-center py-1.5 border-b border-border/20 last:border-0">
                   <span className="text-muted-foreground">{f.label}</span>
@@ -178,6 +184,19 @@ export default function Settings() {
                   </span>
                 </div>
               ))}
+            </div>
+
+            {/* Available providers */}
+            <div className="mt-6 pt-6 border-t border-border/40">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Available providers on your plan</p>
+              <div className="flex flex-wrap gap-2">
+                {(PLAN_PROVIDERS[plan] ?? PLAN_PROVIDERS.sandbox).map((prov) => (
+                  <span key={prov} className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-secondary/60 border border-border/50 text-foreground/80">
+                    <ProviderIcon provider={prov} className="w-3 h-3" />
+                    {prov}
+                  </span>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>

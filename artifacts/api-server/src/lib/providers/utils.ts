@@ -7,9 +7,12 @@ export function computeScores(text: string, provider: string): { quality: number
   const sentenceCount = text.split(/[.!?]+/).filter(Boolean).length;
   const avgWordsPerSentence = sentenceCount > 0 ? wordCount / sentenceCount : wordCount;
 
-  const baseQuality = provider === "gemini" ? 4.2 : provider === "grok" ? 3.8 : 3.5;
-  const baseClarity = provider === "gemini" ? 4.5 : provider === "grok" ? 4.0 : 3.6;
-  const baseTone = provider === "gemini" ? 4.0 : provider === "grok" ? 3.7 : 3.9;
+  const qualityMap: Record<string, number> = { gemini: 4.2, grok: 3.8, kimi: 4.0, openai: 4.5, claude: 4.4 };
+  const clarityMap: Record<string, number> = { gemini: 4.5, grok: 4.0, kimi: 4.1, openai: 4.6, claude: 4.5 };
+  const toneMap: Record<string, number>    = { gemini: 4.0, grok: 3.7, kimi: 3.9, openai: 4.2, claude: 4.3 };
+  const baseQuality = qualityMap[provider] ?? 3.5;
+  const baseClarity = clarityMap[provider] ?? 3.6;
+  const baseTone    = toneMap[provider] ?? 3.9;
 
   const lengthBonus = Math.min(0.5, wordCount / 500);
   const clarityBonus = avgWordsPerSentence < 20 ? 0.2 : -0.1;

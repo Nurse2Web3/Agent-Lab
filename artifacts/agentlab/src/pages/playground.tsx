@@ -17,9 +17,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Badge } from "@/components/ui/badge";
 
 const PROVIDERS = [
-  { id: "Gemini",       name: "Google Gemini",  model: "gemini-1.5-pro" },
-  { id: "HuggingFace",  name: "Hugging Face",   model: "mistralai/Mistral-7B-Instruct" },
-  { id: "Grok",         name: "Grok",           model: "llama3-70b-8192" },
+  { id: "Gemini",  name: "Google Gemini", model: "gemini-1.5-flash",            plan: ["sandbox", "pro", "studio"] },
+  { id: "Grok",   name: "Grok",          model: "llama-3.1-8b-instant",         plan: ["sandbox", "pro", "studio"] },
+  { id: "Kimi",   name: "Kimi",          model: "moonshot-v1-8k",               plan: ["pro", "studio"] },
+  { id: "OpenAI", name: "OpenAI",        model: "gpt-4o",                        plan: ["studio"] },
+  { id: "Claude", name: "Claude",        model: "claude-3-5-sonnet-20241022",   plan: ["studio"] },
 ];
 
 const TEMPLATES = [
@@ -248,27 +250,36 @@ export default function Playground() {
             {/* Providers */}
             <div className="space-y-3 pt-2 border-t border-border/40">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Providers</p>
-              {PROVIDERS.map((p) => (
-                <div key={p.id} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-2.5">
-                    <Checkbox
-                      id={`prov-${p.id}`}
-                      checked={selectedProviders.includes(p.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) setSelectedProviders([...selectedProviders, p.id]);
-                        else setSelectedProviders(selectedProviders.filter((id) => id !== p.id));
-                      }}
-                    />
-                    <label htmlFor={`prov-${p.id}`} className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                      <ProviderIcon provider={p.id} className="w-4 h-4" />
-                      {p.name}
-                    </label>
+              {PROVIDERS.map((p) => {
+                const requiresUpgrade = !p.plan.includes("sandbox");
+                const planLabel = p.plan.includes("studio") && !p.plan.includes("pro") ? "Premium" : "Pro";
+                return (
+                  <div key={p.id} className="flex items-center justify-between group">
+                    <div className="flex items-center gap-2.5">
+                      <Checkbox
+                        id={`prov-${p.id}`}
+                        checked={selectedProviders.includes(p.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) setSelectedProviders([...selectedProviders, p.id]);
+                          else setSelectedProviders(selectedProviders.filter((id) => id !== p.id));
+                        }}
+                      />
+                      <label htmlFor={`prov-${p.id}`} className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                        <ProviderIcon provider={p.id} className="w-4 h-4" />
+                        {p.name}
+                      </label>
+                      {requiresUpgrade && (
+                        <span className="text-[10px] font-semibold text-primary/70 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded">
+                          {planLabel}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-60 transition-opacity font-mono">
+                      {p.model}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-60 transition-opacity font-mono">
-                    {p.model}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Temperature */}

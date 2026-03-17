@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap, Trophy, History, Download, Plug, GitCompare, Sparkles, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { ProviderIcon } from "@/components/provider-icon";
 
 const FAQS = [
   {
@@ -109,6 +110,26 @@ export default function Landing() {
         >
           Built for non-technical founders, indie makers, and product builders shipping AI features.
         </motion.p>
+
+        {/* Provider strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.55 }}
+          className="mt-10"
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-4">
+            Compare outputs across leading AI providers in one workspace
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {["Gemini", "Grok", "Kimi", "OpenAI", "Claude"].map((p) => (
+              <span key={p} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium text-foreground/80 backdrop-blur-sm">
+                <ProviderIcon provider={p} className="w-3.5 h-3.5" />
+                {p}
+              </span>
+            ))}
+          </div>
+        </motion.div>
       </div>
 
       {/* ── PROBLEM SECTION ── */}
@@ -396,18 +417,24 @@ export default function Landing() {
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
               {
-                name: "Trial",
-                desc: "Try Ai AgentLab with 4 comparisons and see how different AI models respond to the same prompt.",
+                name: "Ai AgentLab Trial",
+                price: "$0",
+                providers: ["Gemini", "Grok"],
+                desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Gemini and Grok.",
                 highlight: false,
               },
               {
                 name: "Ai AgentLab Pro",
-                desc: "Unlock the real working tier with multiple providers, unlimited saved runs, winner recommendations, and production exports.",
+                price: "$29/mo",
+                providers: ["Gemini", "Grok", "Kimi"],
+                desc: "For founders and builders who want more comparisons and access to Gemini, Grok, and Kimi.",
                 highlight: true,
               },
               {
                 name: "Ai AgentLab Premium",
-                desc: "Add team-ready collaboration, shared workspaces, and more advanced decision support.",
+                price: "$49/mo",
+                providers: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
+                desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
                 highlight: false,
               },
             ].map((plan) => (
@@ -416,10 +443,21 @@ export default function Landing() {
                 className={`glass-card rounded-2xl p-8 text-left ${plan.highlight ? "border-primary/40 ring-1 ring-primary/20 relative" : ""}`}
               >
                 {plan.highlight && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider text-primary-foreground bg-primary px-3 py-1 rounded-full">Most Popular</span>
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider text-primary-foreground bg-primary px-3 py-1 rounded-full">Recommended</span>
                 )}
-                <h3 className="text-xl font-bold mb-3">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{plan.desc}</p>
+                <div className="flex items-baseline justify-between mb-1">
+                  <h3 className="text-lg font-bold">{plan.name}</h3>
+                  <span className="text-sm font-semibold text-muted-foreground">{plan.price}</span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{plan.desc}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {plan.providers.map((p) => (
+                    <span key={p} className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-secondary/60 border border-border/50 text-foreground/80">
+                      <ProviderIcon provider={p} className="w-3 h-3" />
+                      {p}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

@@ -2,81 +2,90 @@ import { Check, X, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { ProviderIcon } from "@/components/provider-icon";
 import { useBillingStatus, useBillingProducts, useCheckout, useManageBilling } from "@/hooks/use-billing";
 import { useToast } from "@/hooks/use-toast";
 
-const PLAN_CONFIG: Record<string, {
-  name: string; price: string; period: string | null; badge: string | null;
-  tagline: string; desc: string; cta: string; popular: boolean;
-  planKey: string;
-  features: { label: string; included: boolean }[];
-}> = {
-  Pro: {
-    name: "Ai AgentLab Pro",
-    price: "$19",
-    period: "/month",
-    badge: "Recommended",
-    tagline: "Built for real shipping decisions.",
-    desc: "The full working tier. Compare providers, get winner recommendations, and export the setup that works.",
-    cta: "Upgrade to Pro",
-    popular: true,
-    planKey: "pro",
+const PROVIDER_PILLS = ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"];
+
+const TIERS = [
+  {
+    key: "sandbox",
+    planKey: null,
+    name: "Ai AgentLab Trial",
+    price: "$0",
+    period: null,
+    badge: null,
+    popular: false,
+    tagline: "Try Ai AgentLab.",
+    desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Gemini and Grok.",
+    cta: "Start Trial",
+    providers: ["Gemini", "Grok"],
     features: [
-      { label: "Multiple providers (Gemini, HF, Grok)", included: true },
-      { label: "Unlimited saved runs", included: true },
-      { label: "Winner Engine recommendations", included: true },
-      { label: "Production export tools", included: true },
-      { label: "Full comparison workflow", included: true },
-      { label: "Advanced scoring (quality, speed, cost)", included: true },
-      { label: "Deeper run history", included: true },
-      { label: "Shared workspaces", included: false },
-      { label: "Team collaboration", included: false },
+      { label: "3 total comparisons", included: true },
+      { label: "2 starter providers (Gemini, Grok)", included: true },
+      { label: "Side-by-side output view", included: true },
+      { label: "Basic speed visibility", included: true },
+      { label: "Saved history", included: false },
+      { label: "Exports", included: false },
+      { label: "Advanced scoring", included: false },
     ],
   },
-  Studio: {
+  {
+    key: "pro",
+    planKey: "pro",
+    name: "Ai AgentLab Pro",
+    price: "$29",
+    period: "/month",
+    badge: "Recommended",
+    popular: true,
+    tagline: "For founders who need more.",
+    desc: "For founders and builders who want more comparisons and access to Gemini, Grok, and Kimi.",
+    cta: "Upgrade to Pro",
+    providers: ["Gemini", "Grok", "Kimi"],
+    features: [
+      { label: "100 comparisons per month", included: true },
+      { label: "Gemini, Grok, and Kimi access", included: true },
+      { label: "Saved test history", included: true },
+      { label: "Side-by-side comparison view", included: true },
+      { label: "Basic export support", included: true },
+      { label: "Winner Engine recommendations", included: true },
+      { label: "OpenAI and Claude access", included: false },
+      { label: "Advanced scoring", included: false },
+    ],
+  },
+  {
+    key: "studio",
+    planKey: "studio",
     name: "Ai AgentLab Premium",
     price: "$49",
     period: "/month",
     badge: null,
-    tagline: "Built for teams.",
-    desc: "Everything in Pro, plus shared workspaces, review links, and collaboration tools for teams.",
-    cta: "Get Premium",
     popular: false,
-    planKey: "studio",
+    tagline: "Full access. Deeper evaluation.",
+    desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
+    cta: "Get Premium",
+    providers: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
     features: [
       { label: "Everything in Pro", included: true },
-      { label: "Shared workspaces", included: true },
-      { label: "Review links", included: true },
-      { label: "Workspace organization", included: true },
-      { label: "Advanced decision support", included: true },
-      { label: "Team collaboration features", included: true },
-      { label: "Multiple providers (Gemini, HF, Grok)", included: true },
-      { label: "Unlimited saved runs", included: true },
-      { label: "Winner Engine recommendations", included: true },
-      { label: "Production export tools", included: true },
+      { label: "300 comparisons per month", included: true },
+      { label: "OpenAI (GPT-4o) access", included: true },
+      { label: "Claude access", included: true },
+      { label: "Advanced scoring", included: true },
+      { label: "Richer evaluation insights", included: true },
+      { label: "Premium export and comparison workflow", included: true },
     ],
   },
-};
+];
 
-const SANDBOX_TIER = {
-  name: "Trial",
-  price: "$0",
-  period: null,
-  badge: null,
-  tagline: "Try Ai AgentLab.",
-  desc: "Try Ai AgentLab with 4 comparisons and see how different AI models respond to the same prompt.",
-  popular: false,
-  cta: "Start Trial",
-  features: [
-    { label: "4 total comparisons", included: true },
-    { label: "1 AI provider", included: true },
-    { label: "Side-by-side output view", included: true },
-    { label: "Basic speed and cost visibility", included: true },
-    { label: "Saved history", included: false },
-    { label: "Production exports", included: false },
-    { label: "Advanced scoring", included: false },
-  ],
-};
+const COMPARISON_ROWS = [
+  { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "300 / month" },
+  { label: "Providers",         trial: "Gemini, Grok",                   pro: "Gemini, Grok, Kimi",            premium: "Gemini, Grok, Kimi, OpenAI, Claude" },
+  { label: "Saved history",     trial: "—",                              pro: "✓",                             premium: "✓" },
+  { label: "Exports",           trial: "—",                              pro: "Basic",                         premium: "Full" },
+  { label: "Advanced scoring",  trial: "—",                              pro: "—",                             premium: "✓" },
+  { label: "Winner Engine",     trial: "—",                              pro: "✓",                             premium: "✓" },
+];
 
 export default function Pricing() {
   const { data: billingStatus } = useBillingStatus();
@@ -87,29 +96,23 @@ export default function Pricing() {
 
   const currentPlan = billingStatus?.plan ?? "sandbox";
 
-  function getPriceId(productName: string): string | undefined {
+  function getPriceId(planName: string): string | undefined {
     if (!productsData?.products) return undefined;
     const product = productsData.products.find((p) =>
-      p.name.toLowerCase() === productName.toLowerCase()
+      p.name.toLowerCase().includes(planName.toLowerCase())
     );
     const monthlyPrice = product?.prices.find((p) => p.recurring?.interval === "month");
     return monthlyPrice?.id;
   }
 
-  function handleUpgrade(planName: string) {
-    const priceId = getPriceId(planName);
+  function handleUpgrade(tierName: string) {
+    const priceId = getPriceId(tierName);
     if (!priceId) {
       toast({ title: "Products not loaded yet", description: "Please wait a moment and try again.", variant: "destructive" });
       return;
     }
     checkout(priceId);
   }
-
-  const tiers = [
-    { config: null, data: SANDBOX_TIER },
-    { config: PLAN_CONFIG["Pro"], data: PLAN_CONFIG["Pro"] },
-    { config: PLAN_CONFIG["Studio"], data: PLAN_CONFIG["Studio"] },
-  ];
 
   return (
     <div className="relative overflow-hidden">
@@ -119,6 +122,7 @@ export default function Pricing() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
+        {/* Heading */}
         <div className="text-center max-w-3xl mx-auto mb-6">
           <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
             className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">
@@ -126,11 +130,11 @@ export default function Pricing() {
           </motion.p>
           <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
             className="text-4xl md:text-5xl font-display font-bold mb-5 leading-tight">
-            Start with a Trial.<br className="hidden sm:block" /> Upgrade when you are ready to ship seriously.
+            Choose the right plan<br className="hidden sm:block" /> for how you build.
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
             className="text-muted-foreground text-base">
-            The Trial is built for exploration. Upgrade when you are ready to ship seriously.
+            Start with a trial, compare AI outputs side by side, and upgrade when you need more providers and deeper testing.
           </motion.p>
         </div>
 
@@ -139,7 +143,9 @@ export default function Pricing() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="max-w-5xl mx-auto mb-8 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between gap-4">
             <p className="text-sm font-medium">
-              You're on the <span className="text-primary font-bold">{PLAN_CONFIG[currentPlan === "pro" ? "Pro" : "Studio"]?.name ?? currentPlan}</span> plan.
+              You're on the <span className="text-primary font-bold">
+                {TIERS.find(t => t.planKey === currentPlan)?.name ?? currentPlan}
+              </span> plan.
             </p>
             <Button variant="outline" size="sm" className="rounded-xl text-xs" onClick={() => managePortal()} disabled={isPortaling}>
               {isPortaling ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : null}
@@ -150,12 +156,11 @@ export default function Pricing() {
 
         {/* Cards */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch mt-16">
-          {[SANDBOX_TIER, PLAN_CONFIG["Pro"]!, PLAN_CONFIG["Studio"]!].map((tier: any, i) => {
-            const isCurrent = (tier.planKey ?? "sandbox") === currentPlan || (!tier.planKey && currentPlan === "sandbox");
-
+          {TIERS.map((tier, i) => {
+            const isCurrent = tier.planKey === currentPlan || (!tier.planKey && currentPlan === "sandbox");
             return (
               <motion.div
-                key={tier.name}
+                key={tier.key}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 + i * 0.07 }}
@@ -165,7 +170,7 @@ export default function Pricing() {
                     : "border-border/40 bg-card/30 hover:bg-card/50 hover:border-border/70"
                 }`}
               >
-                {tier.badge && (
+                {tier.badge && !isCurrent && (
                   <div className="absolute -top-4 inset-x-0 flex justify-center">
                     <span className="bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full shadow-lg shadow-primary/30">
                       {tier.badge}
@@ -181,28 +186,41 @@ export default function Pricing() {
                 )}
 
                 <div className="p-8 pb-0 pt-10">
-                  <div className="mb-6">
+                  <div className="mb-5">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-1">{tier.name}</h2>
                     <p className={`text-base font-semibold ${tier.popular ? "text-primary" : "text-foreground/70"}`}>{tier.tagline}</p>
                   </div>
 
-                  <div className="flex items-baseline gap-1 mb-4">
+                  <div className="flex items-baseline gap-1 mb-3">
                     <span className={`text-5xl font-display font-bold tracking-tight ${tier.popular ? "text-white" : "text-foreground"}`}>
                       {tier.price}
                     </span>
                     {tier.period && <span className="text-muted-foreground text-sm">{tier.period}</span>}
                   </div>
 
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-8">{tier.desc}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">{tier.desc}</p>
+
+                  {/* Provider pills */}
+                  <div className="mb-6">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Included providers</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {tier.providers.map((prov) => (
+                        <span key={prov} className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-secondary/60 border border-border/50 text-foreground/80">
+                          <ProviderIcon provider={prov} className="w-3 h-3" />
+                          {prov}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* CTA */}
                   {!tier.planKey ? (
-                    <Button asChild className="w-full h-12 text-sm font-semibold rounded-xl mb-8" variant="outline">
-                      <Link href="/playground">{tier.cta ?? "Start Trial"}</Link>
+                    <Button asChild className="w-full h-12 text-sm font-semibold rounded-xl mb-6" variant="outline">
+                      <Link href="/playground">{tier.cta}</Link>
                     </Button>
                   ) : isCurrent ? (
                     <Button
-                      className="w-full h-12 text-sm font-semibold rounded-xl mb-8"
+                      className="w-full h-12 text-sm font-semibold rounded-xl mb-6"
                       variant="outline"
                       onClick={() => managePortal()}
                       disabled={isPortaling}
@@ -212,7 +230,7 @@ export default function Pricing() {
                     </Button>
                   ) : (
                     <Button
-                      className={`w-full h-12 text-sm font-semibold rounded-xl mb-8 ${tier.popular ? "shadow-lg shadow-primary/30" : ""}`}
+                      className={`w-full h-12 text-sm font-semibold rounded-xl mb-6 ${tier.popular ? "shadow-lg shadow-primary/30" : ""}`}
                       variant={tier.popular ? "default" : "outline"}
                       onClick={() => handleUpgrade(tier.name)}
                       disabled={isCheckingOut || productsLoading}
@@ -233,7 +251,7 @@ export default function Pricing() {
 
                 <div className="p-8 pt-6 flex-1">
                   <ul className="space-y-3.5">
-                    {tier.features.map((feat: any) => (
+                    {tier.features.map((feat) => (
                       <li key={feat.label} className={`flex items-start gap-3 ${!feat.included ? "opacity-35" : ""}`}>
                         {feat.included ? (
                           <Check className={`w-4 h-4 mt-0.5 shrink-0 ${tier.popular ? "text-primary" : "text-muted-foreground"}`} />
@@ -252,38 +270,48 @@ export default function Pricing() {
           })}
         </div>
 
+        {/* Footer note */}
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.4 }}
           className="text-center text-sm text-muted-foreground/60 mt-12">
           The Trial is built for exploration. Paid plans are built for real shipping decisions.
         </motion.p>
 
         {/* Comparison table */}
-        <div className="mt-24 max-w-3xl mx-auto">
-          <h3 className="text-center text-xl font-bold mb-8 text-foreground/80">Why upgrade to Pro?</h3>
+        <div className="mt-24 max-w-4xl mx-auto">
+          <h3 className="text-center text-xl font-bold mb-8 text-foreground/80">Plan comparison</h3>
           <div className="glass-card rounded-2xl overflow-hidden border border-border/40">
-            <div className="grid grid-cols-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40">
+            {/* Header */}
+            <div className="grid grid-cols-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40">
               <div className="p-4 col-span-1">Feature</div>
               <div className="p-4 text-center border-l border-border/40">Trial</div>
-              <div className="p-4 text-center border-l border-border/40 text-primary">Ai AgentLab Pro</div>
+              <div className="p-4 text-center border-l border-border/40 text-primary">Pro</div>
+              <div className="p-4 text-center border-l border-border/40 text-violet-400">Premium</div>
             </div>
-            {[
-              { label: "Providers", free: "1", pro: "All 3" },
-              { label: "Comparisons", free: "4 total", pro: "Unlimited" },
-              { label: "Saved history", free: "—", pro: "Full" },
-              { label: "Winner Engine", free: "—", pro: "✓" },
-              { label: "Production export", free: "—", pro: "✓" },
-              { label: "Advanced scoring", free: "—", pro: "✓" },
-            ].map((row, i) => (
-              <div key={row.label} className={`grid grid-cols-3 text-sm ${i % 2 === 0 ? "bg-secondary/10" : ""}`}>
+            {COMPARISON_ROWS.map((row, i) => (
+              <div key={row.label} className={`grid grid-cols-4 text-sm ${i % 2 === 0 ? "bg-secondary/10" : ""}`}>
                 <div className="p-4 text-foreground/70 font-medium">{row.label}</div>
-                <div className="p-4 text-center text-muted-foreground border-l border-border/40">{row.free}</div>
-                <div className="p-4 text-center text-primary font-semibold border-l border-border/40">{row.pro}</div>
+                <div className="p-4 text-center text-muted-foreground border-l border-border/40 text-xs">{row.trial}</div>
+                <div className="p-4 text-center text-primary font-semibold border-l border-border/40 text-xs">{row.pro}</div>
+                <div className="p-4 text-center text-violet-400 font-semibold border-l border-border/40 text-xs">{row.premium}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-16 text-center">
+        {/* Provider strip */}
+        <div className="mt-16 max-w-3xl mx-auto text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">All available providers</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {PROVIDER_PILLS.map((p) => (
+              <span key={p} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium text-foreground/80">
+                <ProviderIcon provider={p} className="w-3.5 h-3.5" />
+                {p}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
             Questions about which plan is right for you?{" "}
             <a href="mailto:hello@agentlab.ai" className="text-primary hover:underline">Get in touch</a>.

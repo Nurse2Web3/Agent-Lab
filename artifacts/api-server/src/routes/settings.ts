@@ -2,42 +2,22 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { apiKeysTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
-import { callGemini, callHuggingFace, callGroq } from "../lib/providers/index.js";
+import { callGemini, callGroq, callKimi, callOpenAI, callClaude, PROVIDER_CONFIG } from "../lib/providers/index.js";
 
 const router: IRouter = Router();
-
-const PROVIDER_INFO: Record<string, { model: string; description: string }> = {
-  gemini: {
-    model: "gemini-1.5-flash",
-    description: "Google's balanced and capable AI model.",
-  },
-  huggingface: {
-    model: "mistralai/Mistral-7B-Instruct-v0.3",
-    description: "Open-source model access via Hugging Face Inference API.",
-  },
-  grok: {
-    model: "llama-3.1-8b-instant",
-    description: "Ultra-fast inference. Excellent speed-first comparisons.",
-  },
-  openai: {
-    model: "gpt-4o",
-    description: "OpenAI's flagship model. Coming soon.",
-  },
-  anthropic: {
-    model: "claude-3-5-sonnet",
-    description: "Anthropic's Claude — thoughtful and safety-focused. Coming soon.",
-  },
-};
 
 router.get("/settings", async (_req, res) => {
   const rows = await db.select().from(apiKeysTable);
   const connectedProviders = new Set(rows.map((r) => r.provider));
 
-  const providers = ["gemini", "huggingface", "grok", "openai", "anthropic"].map((p) => ({
-    provider: p,
-    connected: connectedProviders.has(p),
-    model: PROVIDER_INFO[p]?.model ?? "",
-    description: PROVIDER_INFO[p]?.description ?? "",
+  const providers = Object.values(PROVIDER_CONFIG).map((cfg) => ({
+    provider: cfg.id,
+    label: cfg.label,
+    connected: connectedProviders.has(cfg.id),
+    model: cfg.defaultModel,
+    description: cfg.description,
+    plans: cfg.plans,
+    active: cfg.active,
   }));
 
   res.json({ providers });
@@ -80,10 +60,14 @@ router.post("/settings/test", async (req, res) => {
 
     if (provider === "gemini") {
       result = await callGemini({ prompt: testPrompt, apiKey });
-    } else if (provider === "huggingface") {
-      result = await callHuggingFace({ prompt: testPrompt, apiKey });
     } else if (provider === "grok") {
       result = await callGroq({ prompt: testPrompt, apiKey });
+    } else if (provider === "kimi") {
+      result = await callKimi({ prompt: testPrompt, apiKey });
+    } else if (provider === "openai") {
+      result = await callOpenAI({ prompt: testPrompt, apiKey });
+    } else if (provider === "claude") {
+      result = await callClaude({ prompt: testPrompt, apiKey });
     } else {
       res.json({ success: false, message: "Provider not supported yet", latencyMs: 0 });
       return;
