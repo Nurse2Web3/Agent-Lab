@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Beaker, History, Settings, CreditCard, LayoutDashboard, Menu, X } from "lucide-react";
+import { Zap, FlaskConical, History, Settings, CreditCard, X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -9,26 +9,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Force dark mode for this premium app
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
   const navItems = [
-    { href: "/playground", label: "Playground", icon: Beaker },
+    { href: "/playground", label: "Compare", icon: FlaskConical },
     { href: "/history", label: "History", icon: History },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
     { href: "/settings", label: "Settings", icon: Settings },
@@ -36,7 +32,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background selection:bg-primary/30">
-      {/* Navbar */}
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
           scrolled ? "glass-panel py-3" : "bg-transparent py-5"
@@ -61,11 +56,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     key={item.href}
                     href={item.href}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 outline-none
-                      ${isActive 
-                        ? "bg-secondary text-foreground shadow-sm" 
+                      ${isActive
+                        ? "bg-secondary text-foreground shadow-sm"
                         : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-                      }
-                    `}
+                      }`}
                   >
                     <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : ""}`} />
                     {item.label}
@@ -77,11 +71,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-3">
-              <Button variant="ghost" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link href="/settings">Docs</Link>
-              </Button>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 rounded-full px-6" asChild>
-                <Link href="/playground">Open Lab</Link>
+              <Button
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 rounded-full px-6"
+                asChild
+              >
+                <Link href="/playground">Start Comparing</Link>
               </Button>
             </div>
 
@@ -95,7 +89,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -119,14 +112,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
               ))}
               <div className="h-px bg-border my-2" />
               <Button className="w-full justify-center bg-primary" size="lg" asChild>
-                <Link href="/playground">Open Lab</Link>
+                <Link href="/playground">Start Comparing</Link>
               </Button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <main className="flex-1 pt-[80px]">
         {children}
       </main>

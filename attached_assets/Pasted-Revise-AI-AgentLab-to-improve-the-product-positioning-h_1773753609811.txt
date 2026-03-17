@@ -1,0 +1,278 @@
+Revise AI AgentLab to improve the product positioning, homepage copy, feature emphasis, and pricing presentation.
+
+IMPORTANT:
+Do not rebuild the whole app from scratch.
+Update the existing project and keep the current working structure, pages, and components where possible.
+This is a positioning and product-UX refinement pass.
+
+PRIMARY STRATEGIC CHANGE:
+AI AgentLab should feel less like a generic “playground” and more like a founder-friendly AI decision studio.
+
+New positioning:
+AI AgentLab helps non-technical founders, indie makers, and product builders compare prompts and models side by side, measure quality, speed, and cost in one view, and choose the best version to ship.
+
+CORE MESSAGE:
+“Test AI agents. Compare outputs. Ship with confidence.”
+
+SECONDARY MESSAGE:
+“Choose the best model and prompt for your product in minutes — without scripts, spreadsheets, or switching between tabs.”
+
+==================================================
+1. UPDATE BRAND POSITIONING ACROSS THE APP
+==================================================
+
+Replace generic “playground” language where appropriate with language that emphasizes:
+- decision confidence
+- compare and ship
+- founder-friendly workflow
+- simple model choice
+- production readiness
+
+Keep the product name:
+AI AgentLab
+
+Preferred product descriptor:
+- AI decision studio
+- compare-and-ship studio
+- founder-friendly AI comparison studio
+
+Avoid overusing:
+- playground
+- testing console
+- developer-heavy wording
+
+==================================================
+2. REVISE THE LANDING PAGE COPY
+==================================================
+
+Update the landing page hero section to:
+
+Headline:
+Test AI agents. Compare outputs. Ship with confidence.
+
+Subheadline:
+AI AgentLab helps founders compare prompts and models side by side, score what matters, and choose the best option to ship — without scripts, spreadsheets, or switching between tabs.
+
+Primary CTA:
+Try the Lab
+
+Secondary CTA:
+View Demo
+
+Add a short problem section with this messaging:
+Choosing an AI model for your product is usually messy and manual. You test the same prompt across different tools, compare answers by eye, and try to remember which one was faster, cheaper, or better. AI AgentLab turns that into one workflow: run once, compare everything side by side, and pick a winner.
+
+Add or revise the feature sections so they highlight:
+1. Side-by-side comparison
+2. Winner Engine
+3. Demo mode
+4. Saved history
+5. Production export
+6. Provider connections
+
+Make sure the landing page feels premium, simple, and investor-ready.
+
+==================================================
+3. MAKE WINNER ENGINE THE STAR FEATURE
+==================================================
+
+The biggest value proposition is not just “run prompts.”
+It is helping users decide what to ship.
+
+Update the feature hierarchy and UI emphasis so Winner Engine feels like the core differentiator.
+
+Use this revised Winner Engine description:
+Winner Engine does not just show outputs. It recommends what to ship. Every run surfaces Best Quality, Cheapest, Fastest, and Recommended Winner so users can make tradeoffs quickly. The recommended winner balances quality, speed, and cost efficiency to help founders choose the best overall option, not just the most impressive answer.
+
+On the Playground page:
+- visually elevate the Winner Engine summary section
+- make Recommended Winner more prominent
+- improve the summary card styling so it feels like a real decision panel
+- emphasize “ship this” energy instead of “look at test results”
+
+==================================================
+4. TIGHTEN THE TARGET USER LANGUAGE
+==================================================
+
+Across the landing page, pricing page, and supporting copy, shift the target audience language to:
+
+- non-technical founders
+- indie makers
+- product builders
+- startup teams choosing which AI setup to ship
+
+Reduce emphasis on:
+- enterprise teams
+- heavy developers
+- ML ops style language
+
+The product should feel approachable, visual, and useful for people who are not deeply technical.
+
+==================================================
+5. REPOSITION EXPORT AS A PREMIUM REASON TO PAY
+==================================================
+
+Export should feel more valuable, not like a minor extra.
+
+Use this message:
+Production Export lets users copy the winning prompt, settings, and API payload for real use in their product. No more rerunning tests just to recreate the version that worked.
+
+In the UI:
+- label export tools more clearly
+- make exports feel like a bridge from testing to production
+- consider grouping export actions in a premium-looking “Ready to Ship” panel
+
+==================================================
+6. SOFTEN OVERLY TECHNICAL OR INTERNAL WORDING
+==================================================
+
+Remove or reduce overly technical marketing copy such as:
+- “real database”
+- detailed weighted formulas in hero-level messaging
+- backend implementation details in public-facing copy
+
+Keep the app technically strong, but do not market it like an infra tool.
+Public copy should focus on outcomes:
+- clarity
+- speed
+- confidence
+- better shipping decisions
+- less wasted time
+- less wasted API spend
+
+==================================================
+7. REVISE THE PROVIDER SECTION
+==================================================
+
+Do not overemphasize exact model versions in top-level marketing copy.
+
+Instead of listing exact versions prominently, use provider-level strengths:
+
+- Gemini — balanced and a strong free-tier starting point
+- Hugging Face models — open-model variety and flexibility
+- Groq-hosted models — speed-first comparisons
+
+Keep exact model names only where needed in settings or technical sections.
+
+==================================================
+8. MAKE THE MVP FEEL BROADER THAN JUST A PROMPT BOX
+==================================================
+
+Because the brand name includes “Agent,” add language that supports future growth.
+
+Add one sentence somewhere on the landing page or product overview:
+Built to grow from prompt comparison into full agent testing, version tracking, and workflow evaluation.
+
+Do not overbuild this now, but make sure the positioning supports future product expansion.
+
+==================================================
+9. UPDATE THE FEATURE ORDER EVERYWHERE
+==================================================
+
+Use this order in feature sections and product descriptions:
+
+1. Run one prompt across multiple providers
+2. Compare quality, speed, token count, and cost in one view
+3. Get a recommended winner
+4. Save and revisit your best runs
+5. Export the winning setup into production
+6. Connect providers when ready
+
+This should become the new default story of the product.
+
+==================================================
+10. UPDATE PRICING PAGE LANGUAGE
+==================================================
+
+Revise pricing copy to better support conversion.
+
+Free plan should feel like a preview, not a forever-home.
+
+Use the free plan as:
+Sandbox — for exploring the workflow
+
+If pricing currently shows too much value in free, tighten the message and limits.
+
+Recommended free positioning:
+Sandbox
+- demo mode
+- 1 live API provider
+- limited saved runs
+- basic comparison
+- no advanced scoring
+- no premium exports
+
+Pro should feel like the real working tier:
+Pro
+- multiple providers
+- unlimited saved runs
+- winner recommendation
+- export tools
+- deeper comparison workflow
+
+Studio should feel team-oriented:
+Studio
+- shared workspaces
+- review links
+- organization
+- more advanced decision support
+
+If the current UI already has pricing cards, revise the language and plan value framing accordingly.
+
+==================================================
+11. UPDATE THE PRODUCT DESCRIPTION / ABOUT COPY
+==================================================
+
+Use this revised description in the appropriate section:
+
+AI AgentLab is a founder-friendly AI decision studio that helps you compare prompts and models side by side, measure quality, speed, and cost in one view, and choose the best version to ship — without scripts, spreadsheets, or switching between tools.
+
+Why it matters:
+Choosing an AI model is usually guesswork. Founders end up testing the same prompt in multiple tabs, comparing answers manually, and losing track of what was best, fastest, or cheapest. AI AgentLab turns that into one workflow: run once, compare everything, get a recommendation, and export the winner.
+
+==================================================
+12. UI / UX IMPROVEMENTS
+==================================================
+
+Refine the interface so it feels:
+- premium
+- visual
+- founder-friendly
+- simple
+- trustworthy
+- product-focused, not infra-heavy
+
+Design refinements:
+- stronger hierarchy in summary sections
+- more polished empty states
+- better emphasis on winner selection
+- cleaner section labels
+- subtle premium styling for export and decision panels
+- keep lots of whitespace and rounded cards
+
+==================================================
+13. DO NOT BREAK EXISTING CORE FUNCTIONALITY
+==================================================
+
+Preserve the current:
+- comparison flow
+- demo mode
+- history
+- API connection settings
+- provider architecture
+- side-by-side result cards
+
+This is a refinement pass, not a rebuild.
+
+==================================================
+14. FINAL DELIVERABLE
+==================================================
+
+Update the existing AI AgentLab app so that:
+- messaging is sharper
+- positioning is more differentiated
+- Winner Engine is the core feature
+- export feels more valuable
+- the product feels like a decision tool for founders, not just another prompt playground
+
+After making the changes, also update any README or internal product summary text so the branding and positioning stay consistent.

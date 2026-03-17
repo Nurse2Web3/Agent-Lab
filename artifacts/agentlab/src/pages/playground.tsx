@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRunComparison, useSaveRun } from "@workspace/api-client-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Save, Copy, Loader2, Star, Check, AlertCircle, Clock, DollarSign, Database, Tag, FlaskConical, Sparkles } from "lucide-react";
+import { Play, Save, Copy, Loader2, Star, AlertCircle, Clock, DollarSign, Database, Tag, FlaskConical, Sparkles, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -100,7 +100,7 @@ export default function Playground() {
           <div className="glass-card p-6 rounded-2xl space-y-6 sticky top-24">
             <div>
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <FlaskConical className="w-5 h-5 text-primary" /> Test Configuration
+                <FlaskConical className="w-5 h-5 text-primary" /> Compare Setup
               </h2>
               
               <div className="flex flex-wrap gap-2 mb-6">
@@ -187,7 +187,7 @@ export default function Playground() {
               disabled={isPending}
             >
               {isPending ? (
-                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Running Simulation...</>
+                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Comparing providers...</>
               ) : (
                 <><Play className="mr-2 h-5 w-5 fill-current" /> Run Comparison</>
               )}
@@ -205,13 +205,13 @@ export default function Playground() {
         {/* Right Column: Results */}
         <div className="flex-1 min-w-0">
           {!response && !isPending && (
-            <div className="h-full min-h-[600px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/50 rounded-3xl bg-secondary/20">
-              <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-4 text-muted-foreground shadow-inner">
+            <div className="h-full min-h-[600px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/40 rounded-3xl bg-secondary/10">
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 text-primary">
                 <Sparkles className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">No active simulation</h3>
-              <p className="text-muted-foreground max-w-sm">
-                Enter a prompt and select providers on the left to start comparing AI outputs side-by-side.
+              <h3 className="text-xl font-bold mb-3">Ready to compare</h3>
+              <p className="text-muted-foreground max-w-sm leading-relaxed">
+                Write a prompt, choose your providers, and run. You'll get outputs, scores, and a recommended winner — side by side.
               </p>
             </div>
           )}
@@ -238,28 +238,50 @@ export default function Playground() {
           {response && !isPending && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               
-              {/* Summary Panel */}
-              <div className="glass-panel p-6 rounded-2xl flex flex-wrap gap-6 items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Recommended Winner</h3>
-                  <div className="flex items-center gap-2">
-                    <ProviderIcon provider={response.recommendedWinner} className="w-5 h-5 text-primary" />
-                    <span className="text-lg font-bold">{response.recommendedWinner}</span>
+              {/* Winner Engine Panel */}
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 overflow-hidden shadow-lg shadow-primary/10">
+                <div className="px-6 py-3 border-b border-primary/20 flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold text-primary uppercase tracking-wider">Winner Engine</span>
+                </div>
+                <div className="p-6 flex flex-wrap gap-6 items-center justify-between">
+                  <div className="flex-1 min-w-[160px]">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Recommended Winner</p>
+                    <div className="flex items-center gap-3">
+                      <ProviderIcon provider={response.recommendedWinner} className="w-6 h-6 text-primary" />
+                      <span className="text-2xl font-bold tracking-tight">{response.recommendedWinner}</span>
+                      <span className="text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-full font-semibold">Ship This 🏆</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Best balance of quality, speed &amp; cost</p>
                   </div>
-                </div>
-                <div className="h-10 w-px bg-border hidden md:block" />
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Fastest</h3>
-                  <span className="text-base font-semibold">{response.fastest}</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Cheapest</h3>
-                  <span className="text-base font-semibold">{response.cheapest}</span>
-                </div>
-                <div className="flex-1 flex justify-end">
-                   <Button variant="outline" size="sm" onClick={() => copyToClipboard(JSON.stringify(response, null, 2), "Results JSON")}>
-                     <Copy className="w-4 h-4 mr-2" /> Export JSON
-                   </Button>
+
+                  <div className="flex gap-6 flex-wrap">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Best Quality</p>
+                      <span className="text-sm font-semibold">{response.bestQuality}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Fastest</p>
+                      <span className="text-sm font-semibold">{response.fastest}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Cheapest</p>
+                      <span className="text-sm font-semibold">{response.cheapest}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-primary/20 w-full mt-2 pt-4 flex flex-wrap gap-2">
+                    <p className="text-xs font-semibold text-muted-foreground w-full mb-1 uppercase tracking-wider">Ready to Ship</p>
+                    <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => copyToClipboard(prompt, "Prompt")}>
+                      <Copy className="w-3 h-3 mr-1.5" /> Copy Prompt
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => copyToClipboard(JSON.stringify({ prompt, systemPrompt, providers: selectedProviders, temperature: temperature[0] }, null, 2), "Settings JSON")}>
+                      <Copy className="w-3 h-3 mr-1.5" /> Copy Settings
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => copyToClipboard(JSON.stringify(response, null, 2), "API Payload")}>
+                      <Copy className="w-3 h-3 mr-1.5" /> Copy API Payload
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -340,7 +362,7 @@ export default function Playground() {
                           disabled={isSaving}
                         >
                           <Save className="w-4 h-4 mr-2" /> 
-                          {response.recommendedWinner === result.provider ? "Save Winner" : "Select as Winner"}
+                          {response.recommendedWinner === result.provider ? "Save as Winner 🏆" : "Save This Run"}
                         </Button>
                       </CardFooter>
                     </Card>
