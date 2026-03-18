@@ -1,0 +1,196 @@
+Paste this into Replit:
+
+```text
+Please update AI AgentLab to add the missing AI providers and clearly show them on the website based on the user’s tier.
+
+GOAL
+Add support for these providers:
+- Kimi
+- OpenAI
+- Claude
+
+The website and app should make it obvious which providers are included in each tier.
+
+PLAN ACCESS RULES
+
+AI AgentLab Trial
+- 2 providers only
+- 3 total comparisons
+- no exports
+- no saved history
+- included providers:
+  - Google Gemini
+  - Grok
+
+AI AgentLab Pro
+- 100 comparisons per month
+- included providers:
+  - Google Gemini
+  - Grok
+  - Kimi
+
+AI AgentLab Premium
+- 300 comparisons per month
+- includes everything in Pro plus:
+  - OpenAI
+  - Claude
+- total providers in Premium:
+  - Google Gemini
+  - Grok
+  - Kimi
+  - OpenAI
+  - Claude
+
+IMPORTANT
+Premium must include all Pro providers automatically.
+
+PROVIDER INTEGRATION REQUIREMENTS
+
+Please add provider integration support for:
+- Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+Use environment variables only for provider keys.
+Do not hard-code secrets in the frontend.
+
+Environment variable names:
+- GEMINI_API_KEY
+- GROK_API_KEY
+- KIMI_API_KEY
+- OPENAI_API_KEY
+- ANTHROPIC_API_KEY
+
+Implementation requirements:
+- Create a provider adapter/service for each provider
+- Normalize responses into one common format for comparison
+- Each provider result should support:
+  - provider name
+  - model name
+  - output text
+  - latency
+  - token usage when available
+  - estimated cost when available
+  - error state
+
+Suggested structure:
+- /lib/providers/gemini.ts
+- /lib/providers/grok.ts
+- /lib/providers/kimi.ts
+- /lib/providers/openai.ts
+- /lib/providers/claude.ts
+- /lib/providers/types.ts
+- /lib/providers/router.ts
+
+WEBSITE DISPLAY REQUIREMENTS
+
+1. HERO SECTION
+Below the main hero copy, add a clean provider strip that shows:
+Gemini | Grok | Kimi | OpenAI | Claude
+
+Use a line like:
+Compare prompts across leading AI providers in one workspace
+
+2. PRICING CARDS
+Update each pricing card so customers can clearly see which providers are included.
+
+Trial card:
+Included providers:
+- Gemini
+- Grok
+
+Pro card:
+Included providers:
+- Gemini
+- Grok
+- Kimi
+
+Premium card:
+Included providers:
+- Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+Use clean pills, badges, or checkmarks so this is easy to scan.
+
+3. PLAN COMPARISON SECTION
+Add or update a comparison table below pricing with rows for:
+- number of comparisons
+- included providers
+- exports
+- saved history
+- advanced scoring
+
+Use this provider row:
+- Trial: Gemini, Grok
+- Pro: Gemini, Grok, Kimi
+- Premium: Gemini, Grok, Kimi, OpenAI, Claude
+
+4. DASHBOARD / ACCOUNT AREA
+Show the user’s current plan and available providers inside the app.
+
+Examples:
+Current plan: AI AgentLab Trial
+Available providers:
+- Gemini
+- Grok
+
+Current plan: AI AgentLab Pro
+Available providers:
+- Gemini
+- Grok
+- Kimi
+
+Current plan: AI AgentLab Premium
+Available providers:
+- Gemini
+- Grok
+- Kimi
+- OpenAI
+- Claude
+
+5. UPGRADE MODAL
+When Trial ends, show:
+Title:
+Your AI AgentLab Trial has ended
+
+Body:
+You’ve used your 3 free comparisons. Upgrade to Pro for Gemini, Grok, and Kimi, or go Premium to unlock OpenAI, Claude, and deeper comparison power.
+
+Buttons:
+- Upgrade to Pro
+- Go Premium
+
+PROVIDER GATING LOGIC
+
+Trial users:
+- can only call Gemini and Grok
+- max 3 total comparisons
+
+Pro users:
+- can call Gemini, Grok, and Kimi
+- max 100 comparisons per month
+
+Premium users:
+- can call Gemini, Grok, Kimi, OpenAI, and Claude
+- max 300 comparisons per month
+
+If a provider is not included in the user’s plan, hide or disable it in the UI.
+
+DESIGN DIRECTION
+- Keep the current modern SaaS design
+- Keep Trial, Pro, and Premium naming
+- Keep Pro highlighted as recommended
+- Make Premium feel like the top tier because it includes OpenAI and Claude
+- Do not use the word playground
+- Keep provider names visible, polished, and easy to understand
+
+If any current copy conflicts with this structure, replace it with this version.
+```
+
+After Replit updates it, check three things:
+Trial only shows Gemini and Grok, Pro adds Kimi, and Premium shows all five providers.

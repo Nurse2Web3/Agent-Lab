@@ -188,17 +188,17 @@ function ExhaustedBanner() {
         <Lock className="w-8 h-8 text-muted-foreground" />
       </div>
       <div>
-        <h3 className="text-xl font-bold mb-2">Trial complete</h3>
+        <h3 className="text-xl font-bold mb-2">Your Ai AgentLab Trial has ended</h3>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-          You've used all 3 trial comparisons. Upgrade to Ai AgentLab Pro to keep testing with 100 comparisons per month.
+          You've used your 3 free comparisons. Upgrade to Pro for Gemini, Grok, and Kimi, or go Premium to unlock OpenAI, Claude, and deeper comparison power.
         </p>
       </div>
       <div className="flex flex-col gap-2 max-w-xs mx-auto">
         <Button className="w-full h-11 rounded-xl font-semibold" asChild>
-          <Link href="/pricing">See plans <ArrowRight className="ml-2 w-4 h-4" /></Link>
+          <Link href="/pricing">Upgrade to Pro <ArrowRight className="ml-2 w-4 h-4" /></Link>
         </Button>
-        <Button variant="outline" className="w-full h-11 rounded-xl text-sm" asChild>
-          <Link href="/pricing">Upgrade to Pro — $29/mo</Link>
+        <Button variant="outline" className="w-full h-11 rounded-xl text-sm font-semibold" asChild>
+          <Link href="/pricing">Go Premium</Link>
         </Button>
       </div>
     </div>

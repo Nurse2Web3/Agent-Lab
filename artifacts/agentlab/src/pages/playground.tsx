@@ -269,36 +269,52 @@ export default function Playground() {
             {/* Providers */}
             <div className="space-y-3 pt-2 border-t border-border/40">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Providers</p>
-              {PROVIDERS.map((p) => {
-                const requiresUpgrade = !p.plan.includes("sandbox");
-                const planLabel = p.plan.includes("studio") && !p.plan.includes("pro") ? "Premium" : "Pro";
-                return (
-                  <div key={p.id} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-2.5">
-                      <Checkbox
-                        id={`prov-${p.id}`}
-                        checked={selectedProviders.includes(p.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) setSelectedProviders([...selectedProviders, p.id]);
-                          else setSelectedProviders(selectedProviders.filter((id) => id !== p.id));
-                        }}
-                      />
-                      <label htmlFor={`prov-${p.id}`} className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                        <ProviderIcon provider={p.id} className="w-4 h-4" />
-                        {p.name}
-                      </label>
-                      {requiresUpgrade && (
-                        <span className="text-[10px] font-semibold text-primary/70 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded">
-                          {planLabel}
+              {(() => {
+                const userPlan = billingStatus?.plan ?? "sandbox";
+                const planAllowlist: Record<string, string[]> = {
+                  sandbox: ["Gemini", "Grok"],
+                  pro: ["Gemini", "Grok", "Kimi"],
+                  studio: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
+                };
+                const allowed = new Set(planAllowlist[userPlan] ?? planAllowlist["sandbox"]);
+                return PROVIDERS.map((p) => {
+                  const isLocked = !allowed.has(p.id);
+                  const upgradeTo = p.plan.includes("pro") ? "Pro" : "Premium";
+                  return (
+                    <div key={p.id} className={`flex items-center justify-between group ${isLocked ? "opacity-50" : ""}`}>
+                      <div className="flex items-center gap-2.5">
+                        <Checkbox
+                          id={`prov-${p.id}`}
+                          checked={selectedProviders.includes(p.id) && !isLocked}
+                          disabled={isLocked}
+                          onCheckedChange={(checked) => {
+                            if (isLocked) return;
+                            if (checked) setSelectedProviders([...selectedProviders, p.id]);
+                            else setSelectedProviders(selectedProviders.filter((id) => id !== p.id));
+                          }}
+                        />
+                        <label
+                          htmlFor={`prov-${p.id}`}
+                          className={`text-sm font-medium flex items-center gap-2 ${isLocked ? "cursor-not-allowed" : "cursor-pointer"}`}
+                        >
+                          <ProviderIcon provider={p.id} className="w-4 h-4" />
+                          {p.name}
+                        </label>
+                        {isLocked && (
+                          <span className="text-[10px] font-semibold text-primary/70 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded">
+                            {upgradeTo}
+                          </span>
+                        )}
+                      </div>
+                      {!isLocked && (
+                        <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-60 transition-opacity font-mono">
+                          {p.model}
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-60 transition-opacity font-mono">
-                      {p.model}
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
 
             {/* Temperature */}

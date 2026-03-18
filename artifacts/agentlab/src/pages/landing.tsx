@@ -263,7 +263,7 @@ export default function Landing() {
               {
                 icon: Plug,
                 title: "Provider connections",
-                desc: "Connect providers when you are ready and compare real outputs across Gemini, Hugging Face models, and Grok-hosted models.",
+                desc: "Connect Gemini, Grok, Kimi, OpenAI, and Claude when you are ready and compare real outputs across the leading AI providers in one workspace.",
                 highlight: false,
               },
             ].map((feature, i) => (
