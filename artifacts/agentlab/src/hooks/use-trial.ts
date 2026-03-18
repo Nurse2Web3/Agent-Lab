@@ -1,0 +1,113 @@
+import { useState, useEffect, useCallback } from "react";
+
+const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
+const TRIAL_USER_ID_KEY = "trial_user_id";
+const TRIAL_USER_EMAIL_KEY = "trial_user_email";
+
+async function apiFetch(path: string, options?: RequestInit) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || res.statusText);
+  }
+  return res.json();
+}
+
+export interface TrialStatus {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  trialUsed: boolean;
+  comparisonsUsed: number;
+  comparisonsRemaining: number;
+  trialLimit: number;
+  exhausted: boolean;
+}
+
+export type TrialStage = "loading" | "signup" | "pending_verify" | "active" | "exhausted";
+
+export function useTrialStatus() {
+  const [stage, setStage] = useState<TrialStage>("loading");
+  const [status, setStatus] = useState<TrialStatus | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const userId = typeof window !== "undefined" ? localStorage.getItem(TRIAL_USER_ID_KEY) : null;
+
+  const refresh = useCallback(async () => {
+    const id = localStorage.getItem(TRIAL_USER_ID_KEY);
+    if (!id) {
+      setStage("signup");
+      return;
+    }
+    try {
+      const data: TrialStatus = await apiFetch(`/trial/status/${id}`);
+      setStatus(data);
+      if (data.exhausted) {
+        setStage("exhausted");
+      } else if (!data.emailVerified) {
+        setStage("pending_verify");
+      } else {
+        setStage("active");
+      }
+    } catch {
+      localStorage.removeItem(TRIAL_USER_ID_KEY);
+      setStage("signup");
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (stage === "pending_verify") {
+      const interval = setInterval(refresh, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [stage, refresh]);
+
+  async function getCaptcha(): Promise<{ question: string; token: string }> {
+    return apiFetch("/trial/captcha");
+  }
+
+  async function signup(opts: {
+    email: string;
+    captchaToken: string;
+    captchaAnswer: string;
+    deviceFingerprint: string;
+  }): Promise<{ alreadyVerified: boolean; _devVerifyUrl?: string }> {
+    const data = await apiFetch("/trial/signup", {
+      method: "POST",
+      body: JSON.stringify(opts),
+    });
+    localStorage.setItem(TRIAL_USER_ID_KEY, data.trialUserId);
+    localStorage.setItem(TRIAL_USER_EMAIL_KEY, opts.email);
+    setError(null);
+    if (data.alreadyVerified) {
+      await refresh();
+    } else {
+      setStage("pending_verify");
+    }
+    return { alreadyVerified: data.alreadyVerified, _devVerifyUrl: data._devVerifyUrl };
+  }
+
+  function notifyComparisonUsed() {
+    refresh();
+  }
+
+  return {
+    stage,
+    status,
+    error,
+    setError,
+    userId,
+    storedEmail: typeof window !== "undefined" ? localStorage.getItem(TRIAL_USER_EMAIL_KEY) : null,
+    signup,
+    getCaptcha,
+    refresh,
+    notifyComparisonUsed,
+  };
+}

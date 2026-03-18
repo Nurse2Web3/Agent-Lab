@@ -4,9 +4,15 @@ import { apiKeysTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { callGemini, callGroq, callKimi, callOpenAI, callClaude } from "../lib/providers/index.js";
 import { computeSummary } from "../lib/scoring.js";
+import { trialStorage } from "../trialStorage.js";
+import { billingStorage } from "../billingStorage.js";
 import type { ProviderResult } from "../lib/providers/types.js";
 
 const router: IRouter = Router();
+
+const BASE_USER_ID = "default-user";
+const TRIAL_PROVIDER_ALLOWLIST = new Set(["gemini", "grok"]);
+const TRIAL_LIMIT = 3;
 
 async function getApiKey(provider: string): Promise<string | undefined> {
   try {
@@ -18,16 +24,73 @@ async function getApiKey(provider: string): Promise<string | undefined> {
 }
 
 router.post("/compare", async (req, res) => {
-  const { prompt, systemPrompt, providers, temperature = 0.7 } = req.body as {
+  const { prompt, systemPrompt, providers, temperature = 0.7, trialUserId } = req.body as {
     prompt: string;
     systemPrompt?: string;
     providers: string[];
     temperature?: number;
+    trialUserId?: string;
   };
 
   if (!prompt || !providers || providers.length === 0) {
     res.status(400).json({ error: "prompt and providers are required" });
     return;
+  }
+
+  const plan = await billingStorage.getPlan(BASE_USER_ID);
+
+  if (plan === "sandbox") {
+    if (!trialUserId) {
+      res.status(403).json({
+        error: "A verified trial account is required to run comparisons.",
+        requiresTrialSignup: true,
+      });
+      return;
+    }
+
+    const trialUser = await trialStorage.getById(trialUserId);
+    if (!trialUser) {
+      res.status(403).json({
+        error: "Trial account not found. Please sign up for a trial.",
+        requiresTrialSignup: true,
+      });
+      return;
+    }
+    if (!trialUser.emailVerified) {
+      res.status(403).json({
+        error: "Please verify your email before running comparisons.",
+        requiresEmailVerification: true,
+      });
+      return;
+    }
+    if (trialUser.trialComparisonsUsed >= TRIAL_LIMIT) {
+      res.status(403).json({
+        error: "Your trial comparisons are exhausted. Please upgrade to continue.",
+        trialExhausted: true,
+      });
+      return;
+    }
+
+    const normalizedProviders = providers.map((p) => p.toLowerCase());
+    const disallowed = normalizedProviders.filter((p) => !TRIAL_PROVIDER_ALLOWLIST.has(p));
+    if (disallowed.length > 0) {
+      res.status(403).json({
+        error: `Trial accounts can only use Gemini and Grok. Upgrade to access: ${disallowed.join(", ")}.`,
+        requiresUpgrade: true,
+      });
+      return;
+    }
+  } else if (plan === "pro") {
+    const allowedForPro = new Set(["gemini", "grok", "kimi"]);
+    const normalizedProviders = providers.map((p) => p.toLowerCase());
+    const disallowed = normalizedProviders.filter((p) => !allowedForPro.has(p));
+    if (disallowed.length > 0) {
+      res.status(403).json({
+        error: `Upgrade to Premium to access: ${disallowed.join(", ")}.`,
+        requiresUpgrade: true,
+      });
+      return;
+    }
   }
 
   const calls: Promise<ProviderResult>[] = [];
@@ -69,6 +132,15 @@ router.post("/compare", async (req, res) => {
       error: `Provider failed: ${r.reason}`,
     } as ProviderResult;
   });
+
+  if (plan === "sandbox" && trialUserId) {
+    await trialStorage.incrementComparisons(trialUserId);
+    await trialStorage.log({
+      action: "compare",
+      email: (await trialStorage.getById(trialUserId))?.email,
+      deviceFingerprint: (await trialStorage.getById(trialUserId))?.deviceFingerprint ?? undefined,
+    });
+  }
 
   const summary = computeSummary(resolvedResults);
   res.json({ results: resolvedResults, ...summary });

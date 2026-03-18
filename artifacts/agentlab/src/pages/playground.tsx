@@ -15,6 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import { ProviderIcon } from "@/components/provider-icon";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useBillingStatus } from "@/hooks/use-billing";
+import { useTrialStatus } from "@/hooks/use-trial";
+import { TrialGate } from "@/components/trial-gate";
 
 const PROVIDERS = [
   { id: "Gemini",  name: "Google Gemini", model: "gemini-1.5-flash",            plan: ["sandbox", "pro", "studio"] },
@@ -129,6 +132,10 @@ export default function Playground() {
   const [temperature, setTemperature] = useState([0.7]);
   const [scores, setScores] = useState<Record<string, number>>({});
 
+  const { data: billingStatus, isLoading: billingLoading } = useBillingStatus();
+  const { stage, status: trialStatus, userId: trialUserId, notifyComparisonUsed } = useTrialStatus();
+  const isPaidPlan = !billingLoading && (billingStatus?.plan === "pro" || billingStatus?.plan === "studio");
+
   const { mutate: runCompare, data: response, isPending, error } = useRunComparison();
   const { mutate: saveToHistory, isPending: isSaving } = useSaveRun();
 
@@ -142,7 +149,18 @@ export default function Playground() {
       return;
     }
     setScores({});
-    runCompare({ data: { prompt, systemPrompt, providers: selectedProviders, temperature: temperature[0] } });
+    const extraFields = !isPaidPlan && trialUserId ? { trialUserId } : {};
+    runCompare(
+      { data: { prompt, systemPrompt, providers: selectedProviders, temperature: temperature[0], ...extraFields } as any },
+      {
+        onSuccess: () => {
+          if (!isPaidPlan) notifyComparisonUsed();
+        },
+        onError: (err: any) => {
+          toast({ title: "Comparison failed", description: err.message, variant: "destructive" });
+        },
+      }
+    );
   };
 
   const applyTemplate = (tpl: typeof TEMPLATES[0]) => {
@@ -191,6 +209,7 @@ export default function Playground() {
 
   /* ------------------------------------------------------------------ */
   return (
+    <TrialGate isPaidPlan={isPaidPlan}>
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col xl:flex-row gap-8">
 
@@ -575,5 +594,6 @@ export default function Playground() {
         </div>
       </div>
     </div>
+    </TrialGate>
   );
 }

@@ -26,21 +26,54 @@ artifacts/
 ├── agentlab/               # React + Vite frontend
 │   └── src/
 │       ├── pages/          # Landing, Playground, History, Pricing, Settings
-│       ├── components/     # Shared components (layout, provider-icon, ui/)
+│       ├── components/     # Shared components (layout, provider-icon, trial-gate, ui/)
+│       ├── hooks/          # use-billing.ts, use-trial.ts
+│       ├── lib/            # deviceFingerprint.ts
 │       └── index.css       # Theme variables + tailwind
 ├── api-server/             # Express 5 backend
 │   └── src/
 │       ├── lib/
-│       │   ├── providers/  # gemini.ts, huggingface.ts, groq.ts, types.ts
+│       │   ├── providers/        # gemini.ts, groq.ts, kimi.ts, openai.ts, claude.ts, config.ts
+│       │   ├── disposableEmailDomains.ts  # Blocklist of throwaway email domains
 │       │   ├── mockResponses.ts  # Demo mode fallbacks
-│       │   └── scoring.ts  # Winner calculation logic
-│       └── routes/         # compare.ts, history.ts, settings.ts, health.ts
+│       │   └── scoring.ts        # Winner calculation logic
+│       ├── middleware/
+│       │   └── rateLimiter.ts    # In-memory IP rate limiting
+│       ├── trialStorage.ts       # Trial DB operations
+│       └── routes/               # compare.ts, history.ts, settings.ts, billing.ts, trial.ts
 lib/
 ├── api-spec/openapi.yaml   # API contract (source of truth)
 ├── api-client-react/       # Generated React Query hooks
 ├── api-zod/                # Generated Zod schemas
 └── db/src/schema/          # history.ts, apiKeys.ts tables
 ```
+
+## Trial Abuse Protection
+
+The trial system is enforced on both frontend and backend:
+
+### Database Tables
+- `trial_users` — stores email, email_verified, trial_used, trial_comparisons_used, device_fingerprint, ip_address, verification_token
+- `trial_signup_log` — logs all signup/verify/compare/blocked actions for admin review
+
+### Backend Checks (routes/trial.ts + routes/compare.ts)
+1. **CAPTCHA** — server-generated math challenge (HMAC-signed, 10min TTL)
+2. **Disposable email blocking** — 200+ known throwaway domain blocklist
+3. **IP rate limiting** — max 5 signups per IP per hour (in-memory)
+4. **Device fingerprint check** — blocks same device from starting a new trial if previous trial was exhausted
+5. **Device signup frequency** — blocks >3 signup attempts from same device per 24h
+6. **Email verification** — UUID token stored in DB, expires in 1 hour; comparisons blocked until verified
+7. **Trial limit enforcement on API** — `/api/compare` checks trial_comparisons_used < 3 server-side
+8. **Provider allowlist** — trial users can only use Gemini and Grok, enforced server-side
+9. **Admin logs** — GET /api/trial/admin/logs returns last 200 suspicious events
+
+### Frontend (components/trial-gate.tsx + hooks/use-trial.ts)
+- `TrialGate` wraps the playground, shows signup form for new users
+- Device fingerprint = localStorage UUID + browser signal hash (userAgent, timezone, screen dims)
+- Polls `/api/trial/status/:userId` every 4s during pending_verify state
+- Shows remaining comparison dots (e.g. 3 dots, filled as used)
+- Shows upgrade prompt when trial exhausted
+- In dev mode: displays the verification link directly in the gate UI
 
 ## Pages
 
