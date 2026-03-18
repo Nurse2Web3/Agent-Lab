@@ -192,7 +192,7 @@ export default function Landing() {
                       <div className="h-2 rounded bg-secondary/60 w-1/2" />
                     </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
-                      {["Gemini", "Grok", "HF"].map((p) => (
+                      {["Gemini", "Grok", "Kimi"].map((p) => (
                         <div key={p} className="rounded-lg border border-border/50 p-3 bg-secondary/20">
                           <div className="text-xs font-medium mb-2 text-muted-foreground">{p}</div>
                           <div className="space-y-1">
@@ -358,13 +358,15 @@ export default function Landing() {
       <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Supported providers</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Start with free-friendly providers. Expand when ready.</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Five leading AI providers. One workspace.</h2>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6 mb-10">
             {[
-              { name: "Gemini", sub: "Balanced and a strong free-tier starting point", emoji: "✦" },
-              { name: "Hugging Face", sub: "Open-model variety and flexibility", emoji: "🤗" },
-              { name: "Grok", sub: "Speed-first comparisons", emoji: "⚡" },
+              { name: "Gemini", sub: "Balanced quality, strong free tier", emoji: "✦" },
+              { name: "Grok", sub: "Speed-first, low-latency outputs", emoji: "⚡" },
+              { name: "Kimi", sub: "Long-context reasoning", emoji: "🌙" },
+              { name: "OpenAI", sub: "GPT-4o, best-in-class quality", emoji: "◎" },
+              { name: "Claude", sub: "Nuanced, safe, thoughtful outputs", emoji: "✺" },
             ].map((p) => (
               <div key={p.name} className="glass-card rounded-2xl p-8 text-center group hover:border-primary/30 transition-colors">
                 <div className="text-3xl mb-4">{p.emoji}</div>

@@ -5,10 +5,6 @@ const geminiResponses = [
   "Gemini provides a balanced perspective here. The response is organized into clear sections, addressing the core question with supporting evidence and practical examples. This structured approach makes it ideal for technical documentation or detailed explanations.",
 ];
 
-const huggingFaceResponses = [
-  "Here's my take on this — drawing from a diverse range of open-source training data, this response reflects a more varied perspective. Open models like this often surface unexpected angles and creative approaches that proprietary models might smooth over. Worth considering the alternative viewpoints presented.",
-  "Based on the input, here's what I can provide: the topic spans multiple domains and the optimal answer depends heavily on context. From what I can infer, the most likely scenario involves several factors working together. Let me break down each component for clarity.",
-];
 
 const grokResponses = [
   "Direct answer: yes, this approach works. Key points: (1) speed matters most here, (2) the tradeoff is acceptable, (3) implement with minimal overhead. Grok delivers fast, concise outputs optimized for latency-sensitive applications.",
@@ -51,28 +47,6 @@ export function getMockGeminiResponse(prompt: string): ProviderResult {
   return {
     provider: "gemini",
     model: "gemini-1.5-flash",
-    text,
-    latencyMs,
-    estimatedCost,
-    tokenCount,
-    qualityScore: scores.quality,
-    clarityScore: scores.clarity,
-    toneScore: scores.tone,
-    overallScore: scores.overall,
-    isDemo: true,
-  };
-}
-
-export function getMockHuggingFaceResponse(prompt: string): ProviderResult {
-  const text = pickRandom(huggingFaceResponses) + "\n\nRegarding: " + prompt.slice(0, 80);
-  const latencyMs = Math.round(randomBetween(1500, 3500));
-  const tokenCount = Math.round(text.split(" ").length * 1.3);
-  const estimatedCost = Math.round(tokenCount * 0.0000005 * 10000) / 10000;
-  const scores = computeScores(text, "huggingface");
-
-  return {
-    provider: "huggingface",
-    model: "mistralai/Mistral-7B-Instruct-v0.3",
     text,
     latencyMs,
     estimatedCost,
