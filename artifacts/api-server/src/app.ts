@@ -16,13 +16,15 @@ app.post(
   async (req, res) => {
     const signature = req.headers["stripe-signature"];
     if (!signature) {
-      return res.status(400).json({ error: "Missing stripe-signature" });
+      res.status(400).json({ error: "Missing stripe-signature" });
+      return;
     }
     try {
       const sig = Array.isArray(signature) ? signature[0] : signature;
       if (!Buffer.isBuffer(req.body)) {
         console.error("STRIPE WEBHOOK ERROR: req.body is not a Buffer. webhook route must be BEFORE express.json()");
-        return res.status(500).json({ error: "Webhook processing error" });
+        res.status(500).json({ error: "Webhook processing error" });
+        return;
       }
       await WebhookHandlers.processWebhook(req.body as Buffer, sig);
       res.status(200).json({ received: true });

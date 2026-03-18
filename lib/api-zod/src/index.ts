@@ -1,2 +1,15 @@
 export * from "./generated/api";
-export * from "./generated/types";
+export type {
+  CompareRequest,
+  CompareResponse,
+  DeleteResponse,
+  HealthStatus,
+  HistoryItem,
+  HistoryListResponse,
+  ProviderResult,
+  ProviderStatus,
+  SaveApiKeyRequest,
+  SaveRunRequest,
+  SettingsResponse,
+  TestConnectionRequest,
+} from "./generated/types";

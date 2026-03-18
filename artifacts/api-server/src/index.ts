@@ -25,7 +25,7 @@ async function initStripe() {
 
   try {
     console.log("Initializing Stripe schema...");
-    await runMigrations({ databaseUrl, schema: "stripe" });
+    await runMigrations({ databaseUrl });
     console.log("Stripe schema ready");
 
     const stripeSync = await getStripeSync();
@@ -48,9 +48,11 @@ if (!rawPort) throw new Error("PORT environment variable is required but was not
 const port = Number(rawPort);
 if (Number.isNaN(port) || port <= 0) throw new Error(`Invalid PORT value: "${rawPort}"`);
 
-await ensureBillingTable();
-await initStripe();
+(async () => {
+  await ensureBillingTable();
+  await initStripe();
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+})();

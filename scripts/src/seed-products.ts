@@ -7,7 +7,7 @@ async function getStripe() {
   const authHeader = res._headers?.get?.("authorization") ?? "";
   const secretKey = authHeader.replace("Bearer ", "").trim();
   if (!secretKey) throw new Error("Could not get Stripe secret key from connector");
-  return new Stripe(secretKey, { apiVersion: "2025-03-31.basil" });
+  return new Stripe(secretKey, { apiVersion: "2026-02-25.clover" });
 }
 
 async function createProducts() {

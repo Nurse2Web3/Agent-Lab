@@ -32,16 +32,16 @@ async function getSecretKey(): Promise<string> {
 
 export async function getUncachableStripeClient(): Promise<Stripe> {
   const secretKey = await getSecretKey();
-  return new Stripe(secretKey, { apiVersion: "2025-03-31.basil" });
+  return new Stripe(secretKey, { apiVersion: "2026-02-25.clover" });
 }
 
 export async function getStripeSync(): Promise<StripeSync> {
   if (stripeSyncInstance) return stripeSyncInstance;
 
-  const stripe = await getUncachableStripeClient();
+  const secretKey = await getSecretKey();
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error("DATABASE_URL required");
 
-  stripeSyncInstance = new StripeSync({ stripe, databaseUrl });
+  stripeSyncInstance = new StripeSync({ stripeSecretKey: secretKey, poolConfig: { connectionString: databaseUrl } });
   return stripeSyncInstance;
 }

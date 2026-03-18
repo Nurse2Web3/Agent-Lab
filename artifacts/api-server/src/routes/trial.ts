@@ -55,41 +55,48 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
   const ip = getClientIp(req);
 
   if (!email || !email.includes("@")) {
-    return res.status(400).json({ error: "A valid email address is required." });
+    res.status(400).json({ error: "A valid email address is required." });
+    return;
   }
   if (!captchaToken || !captchaAnswer) {
-    return res.status(400).json({ error: "Please complete the CAPTCHA." });
+    res.status(400).json({ error: "Please complete the CAPTCHA." });
+    return;
   }
   if (!verifyCaptcha(captchaToken, captchaAnswer)) {
     await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: "captcha_failed" });
-    return res.status(400).json({ error: "Incorrect CAPTCHA answer. Please try again." });
+    res.status(400).json({ error: "Incorrect CAPTCHA answer. Please try again." });
+    return;
   }
 
   if (isDisposableEmail(email)) {
     await trialStorage.log({ action: "blocked_disposable", email, ipAddress: ip, deviceFingerprint, reason: "disposable_email_domain" });
-    return res.status(400).json({ error: "Please use a permanent email address. Temporary email services are not allowed." });
+    res.status(400).json({ error: "Please use a permanent email address. Temporary email services are not allowed." });
+    return;
   }
 
   const recentIpSignups = await trialStorage.countRecentSignupsByIp(ip, 60 * 60 * 1000);
   if (recentIpSignups >= 5) {
     await trialStorage.log({ action: "blocked_ip_reuse", email, ipAddress: ip, deviceFingerprint, reason: `ip_rate_limit_${recentIpSignups}` });
-    return res.status(429).json({ error: "Too many trial signups from this network. Please try again later." });
+    res.status(429).json({ error: "Too many trial signups from this network. Please try again later." });
+    return;
   }
 
   if (deviceFingerprint) {
     const deviceTrialUser = await trialStorage.getByDeviceFingerprint(deviceFingerprint);
     if (deviceTrialUser?.trialUsed) {
       await trialStorage.log({ action: "blocked_device", email, ipAddress: ip, deviceFingerprint, reason: "device_trial_exhausted" });
-      return res.status(403).json({
+      res.status(403).json({
         error: "A trial has already been used on this device.",
         upgrade: true,
       });
+      return;
     }
 
     const recentDeviceSignups = await trialStorage.countRecentSignupsByDevice(deviceFingerprint, 24 * 60 * 60 * 1000);
     if (recentDeviceSignups >= 3) {
       await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: `device_signup_count_${recentDeviceSignups}` });
-      return res.status(429).json({ error: "Too many trial attempts from this device. Please wait 24 hours or upgrade." });
+      res.status(429).json({ error: "Too many trial attempts from this device. Please wait 24 hours or upgrade." });
+      return;
     }
   }
 
@@ -98,7 +105,8 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
     trialUser = await trialStorage.createTrialUser({ email, deviceFingerprint, ipAddress: ip });
   } catch (err: any) {
     console.error("trial/signup db error:", err.message);
-    return res.status(500).json({ error: "Failed to create trial account. Please try again." });
+    res.status(500).json({ error: "Failed to create trial account. Please try again." });
+    return;
   }
 
   await trialStorage.log({ action: "signup", email, ipAddress: ip, deviceFingerprint, reason: "new_signup" });
@@ -113,13 +121,14 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
   console.log(`\n[TRIAL] Email verification for ${email}:\n  ${verifyUrl}\n`);
 
   if (trialUser.emailVerified) {
-    return res.json({
+    res.json({
       success: true,
       alreadyVerified: true,
       trialUserId: trialUser.id,
       comparisonsUsed: trialUser.trialComparisonsUsed,
       message: "This email has already been verified. Your trial is active.",
     });
+    return;
   }
 
   res.json({
@@ -133,7 +142,7 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
 });
 
 router.get("/trial/verify/:token", verifyRateLimiter, async (req, res) => {
-  const { token } = req.params;
+  const token = req.params.token as string;
   const ip = getClientIp(req);
 
   const trialUser = await trialStorage.verifyEmail(token);
@@ -141,9 +150,11 @@ router.get("/trial/verify/:token", verifyRateLimiter, async (req, res) => {
   if (!trialUser) {
     const stale = await trialStorage.getByToken(token);
     if (stale) {
-      return res.status(400).send(verifyPage("Verification Link Expired", "This link has expired. Please sign up again to get a new verification link.", false));
+      res.status(400).send(verifyPage("Verification Link Expired", "This link has expired. Please sign up again to get a new verification link.", false));
+      return;
     }
-    return res.status(404).send(verifyPage("Invalid Link", "This verification link is invalid or has already been used.", false));
+    res.status(404).send(verifyPage("Invalid Link", "This verification link is invalid or has already been used.", false));
+    return;
   }
 
   await trialStorage.log({ action: "verify", email: trialUser.email, ipAddress: ip, deviceFingerprint: trialUser.deviceFingerprint ?? undefined });
@@ -165,7 +176,8 @@ router.get("/trial/status/:userId", async (req, res) => {
   const trialUser = await trialStorage.getById(userId);
 
   if (!trialUser) {
-    return res.status(404).json({ error: "Trial account not found." });
+    res.status(404).json({ error: "Trial account not found." });
+    return;
   }
 
   const TRIAL_LIMIT = 3;

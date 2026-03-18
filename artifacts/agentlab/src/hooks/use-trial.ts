@@ -67,6 +67,7 @@ export function useTrialStatus() {
       const interval = setInterval(refresh, 4000);
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [stage, refresh]);
 
   async function getCaptcha(): Promise<{ question: string; token: string }> {

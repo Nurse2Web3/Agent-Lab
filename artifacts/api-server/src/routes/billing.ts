@@ -68,7 +68,7 @@ router.get("/billing/products", async (_req, res) => {
 router.post("/billing/checkout", async (req, res) => {
   try {
     const { priceId } = req.body;
-    if (!priceId) return res.status(400).json({ error: "priceId required" });
+    if (!priceId) { res.status(400).json({ error: "priceId required" }); return; }
 
     const stripe = await getUncachableStripeClient();
     const user = await billingStorage.ensureUser(BASE_USER_ID);
@@ -105,7 +105,8 @@ router.post("/billing/portal", async (req, res) => {
     const user = await billingStorage.ensureUser(BASE_USER_ID);
 
     if (!user.stripeCustomerId) {
-      return res.status(400).json({ error: "No billing account found. Subscribe to a plan first." });
+      res.status(400).json({ error: "No billing account found. Subscribe to a plan first." });
+      return;
     }
 
     const baseUrl = getBaseUrl(req);
