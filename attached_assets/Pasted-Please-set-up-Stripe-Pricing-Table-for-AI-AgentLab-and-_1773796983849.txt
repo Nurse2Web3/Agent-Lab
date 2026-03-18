@@ -1,0 +1,52 @@
+Please set up Stripe Pricing Table for AI AgentLab and embed it on the pricing section of the website.
+
+Goal:
+Use Stripe’s embeddable pricing table for paid plans only, so users can compare Pro and Premium and go directly to Stripe Checkout. Do not include Trial in Stripe’s pricing table because Trial is managed inside the app as a one-time free access state.
+
+Plans to include in Stripe Pricing Table:
+- AI AgentLab Pro — $29/month recurring
+- AI AgentLab Premium — $49/month recurring
+
+Do not include:
+- AI AgentLab Trial
+
+Requirements:
+1. Keep the current custom pricing page design and pricing copy on the website.
+2. Replace the paid plan CTA behavior so the paid buttons connect to Stripe’s pricing table or Stripe Checkout from the pricing table.
+3. If using Stripe’s embeddable pricing table component directly, place it in the pricing section below the headline and subheadline.
+4. If we keep the custom cards for design reasons, use the custom cards visually but connect their buttons to the Stripe checkout links for Pro and Premium.
+5. Trial should remain app-managed:
+   - 2 providers
+   - 3 comparisons
+   - no exports
+   - no saved history
+
+Preferred pricing section structure:
+- Card 1: AI AgentLab Trial
+  - shown as custom app-managed card only
+  - CTA: Start Trial
+- Card 2: AI AgentLab Pro
+  - paid Stripe plan
+- Card 3: AI AgentLab Premium
+  - paid Stripe plan
+
+Important:
+Do not create or charge Trial through Stripe.
+Only Pro and Premium should be paid Stripe subscription products.
+
+If embedding Stripe Pricing Table directly, use the Stripe embed code and place it in the pricing section of the site.
+Make sure it works on desktop and mobile.
+Keep styling clean and consistent with the site.
+
+Also:
+- Add a success/confirmation redirect after checkout
+- Make sure subscription checkout is for recurring monthly billing
+- Keep plan names exactly:
+  - AI AgentLab Pro
+  - AI AgentLab Premium
+
+If easier for layout consistency, keep the custom pricing cards and wire:
+- Upgrade to Pro → Pro Stripe checkout
+- Go Premium → Premium Stripe checkout
+
+Please implement the cleanest option that preserves the website design while using Stripe correctly for recurring subscriptions.

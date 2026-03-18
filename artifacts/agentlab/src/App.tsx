@@ -10,6 +10,7 @@ import Playground from "@/pages/playground";
 import History from "@/pages/history";
 import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
+import Success from "@/pages/success";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -30,6 +31,7 @@ function Router() {
         <Route path="/history" component={History} />
         <Route path="/settings" component={Settings} />
         <Route path="/pricing" component={Pricing} />
+        <Route path="/success" component={Success} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
