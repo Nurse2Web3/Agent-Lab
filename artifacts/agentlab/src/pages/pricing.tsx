@@ -228,6 +228,13 @@ export default function Pricing() {
                       {isPortaling ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                       Manage Subscription
                     </Button>
+                  ) : tier.key === "pro" ? (
+                    <div className="mb-6 flex justify-center [&>stripe-buy-button]:w-full">
+                      <stripe-buy-button
+                        buy-button-id="buy_btn_1TC8ZbCs26Gb3UhAKbarfXoH"
+                        publishable-key="pk_live_51TC2tOCs26Gb3UhACBGhYa1B0vyZGMzV5sTuxfVQXmhV27K0XdevRZyUMAX1wjAemXj0oaTkj8hEuMOEOZGaRMP000JvQvNjYw"
+                      />
+                    </div>
                   ) : (
                     <Button
                       className={`w-full h-12 text-sm font-semibold rounded-xl mb-6 ${tier.popular ? "shadow-lg shadow-primary/30" : ""}`}
