@@ -229,19 +229,41 @@ export default function Pricing() {
                       Manage Subscription
                     </Button>
                   ) : tier.key === "pro" ? (
-                    <div className="mb-6 flex justify-center [&>stripe-buy-button]:w-full">
-                      <stripe-buy-button
-                        buy-button-id="buy_btn_1TC8ZbCs26Gb3UhAKbarfXoH"
-                        publishable-key="pk_live_51TC2tOCs26Gb3UhACBGhYa1B0vyZGMzV5sTuxfVQXmhV27K0XdevRZyUMAX1wjAemXj0oaTkj8hEuMOEOZGaRMP000JvQvNjYw"
-                      />
-                    </div>
+                    import.meta.env.DEV ? (
+                      <a
+                        href="https://agent-lab.replit.app/pricing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mb-6 flex w-full items-center justify-center h-12 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-colors"
+                      >
+                        Upgrade to Pro →
+                      </a>
+                    ) : (
+                      <div className="mb-6 flex justify-center [&>stripe-buy-button]:w-full">
+                        <stripe-buy-button
+                          buy-button-id="buy_btn_1TC8ZbCs26Gb3UhAKbarfXoH"
+                          publishable-key="pk_live_51TC2tOCs26Gb3UhACBGhYa1B0vyZGMzV5sTuxfVQXmhV27K0XdevRZyUMAX1wjAemXj0oaTkj8hEuMOEOZGaRMP000JvQvNjYw"
+                        />
+                      </div>
+                    )
                   ) : tier.key === "studio" ? (
-                    <div className="mb-6 flex justify-center [&>stripe-buy-button]:w-full">
-                      <stripe-buy-button
-                        buy-button-id="buy_btn_1TC8jMCs26Gb3UhALojeQP5U"
-                        publishable-key="pk_live_51TC2tOCs26Gb3UhACBGhYa1B0vyZGMzV5sTuxfVQXmhV27K0XdevRZyUMAX1wjAemXj0oaTkj8hEuMOEOZGaRMP000JvQvNjYw"
-                      />
-                    </div>
+                    import.meta.env.DEV ? (
+                      <a
+                        href="https://agent-lab.replit.app/pricing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mb-6 flex w-full items-center justify-center h-12 rounded-xl border border-border text-foreground text-sm font-semibold hover:bg-secondary/50 transition-colors"
+                      >
+                        Get Premium →
+                      </a>
+                    ) : (
+                      <div className="mb-6 flex justify-center [&>stripe-buy-button]:w-full">
+                        <stripe-buy-button
+                          buy-button-id="buy_btn_1TC8jMCs26Gb3UhALojeQP5U"
+                          publishable-key="pk_live_51TC2tOCs26Gb3UhACBGhYa1B0vyZGMzV5sTuxfVQXmhV27K0XdevRZyUMAX1wjAemXj0oaTkj8hEuMOEOZGaRMP000JvQvNjYw"
+                        />
+                      </div>
+                    )
                   ) : (
                     <Button
                       className={`w-full h-12 text-sm font-semibold rounded-xl mb-6 ${tier.popular ? "shadow-lg shadow-primary/30" : ""}`}
