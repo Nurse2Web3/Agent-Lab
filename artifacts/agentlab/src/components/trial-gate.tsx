@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Shield, Loader2, CheckCircle2, ArrowRight, RefreshCw, AlertTriangle, Lock } from "lucide-react";
+import { Mail, Shield, Loader2, ArrowRight, RefreshCw, AlertTriangle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,16 @@ interface TrialGateProps {
   isPaidPlan: boolean;
 }
 
-function EmailForm({ onSignedUp }: { onSignedUp: (devUrl?: string) => void }) {
-  const { signup, getCaptcha, setError, error } = useTrialStatus();
+interface EmailFormProps {
+  signup: ReturnType<typeof useTrialStatus>["signup"];
+  getCaptcha: ReturnType<typeof useTrialStatus>["getCaptcha"];
+  error: string | null;
+  setError: (e: string | null) => void;
+  urlError: string | null;
+  onSignedUp: (devUrl?: string) => void;
+}
+
+function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }: EmailFormProps) {
   const [email, setEmail] = useState("");
   const [captcha, setCaptcha] = useState<{ question: string; token: string } | null>(null);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
@@ -112,10 +120,10 @@ function EmailForm({ onSignedUp }: { onSignedUp: (devUrl?: string) => void }) {
         )}
       </div>
 
-      {error && (
+      {(urlError || error) && (
         <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
           <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-          {error}
+          {error ?? urlError}
         </div>
       )}
 
@@ -223,7 +231,7 @@ function TrialCountBadge({ remaining, total }: { remaining: number; total: numbe
 }
 
 export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
-  const { stage, status, storedEmail, refresh, urlError } = useTrialStatus();
+  const { stage, status, storedEmail, refresh, signup, getCaptcha, error, setError, urlError } = useTrialStatus();
   const [devVerifyUrl, setDevVerifyUrl] = useState<string | undefined>();
   const [showGate, setShowGate] = useState(false);
 
@@ -285,13 +293,12 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
                   3 comparisons across Gemini and Grok. No credit card required.
                 </p>
               </div>
-              {urlError && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive mb-5">
-                  <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-                  {urlError}
-                </div>
-              )}
               <EmailForm
+                signup={signup}
+                getCaptcha={getCaptcha}
+                error={error}
+                setError={setError}
+                urlError={urlError}
                 onSignedUp={(url) => {
                   setDevVerifyUrl(url);
                 }}
