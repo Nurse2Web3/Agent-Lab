@@ -130,13 +130,17 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
     return;
   }
 
+  const isDev = process.env.NODE_ENV !== "production";
+
   try {
     await sendVerificationEmail(email, verifyUrl);
   } catch (err: any) {
     console.error("[TRIAL] Email send failed:", err.message);
+    if (!isDev) {
+      res.status(500).json({ error: "Failed to send verification email. Please try again in a moment." });
+      return;
+    }
   }
-
-  const isDev = process.env.NODE_ENV !== "production";
 
   res.json({
     success: true,
