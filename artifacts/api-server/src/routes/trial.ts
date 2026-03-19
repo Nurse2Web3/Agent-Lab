@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { createHmac, randomInt } from "crypto";
 import { trialStorage } from "../trialStorage.js";
 import { isDisposableEmail } from "../lib/disposableEmailDomains.js";
+import { sendVerificationEmail } from "../lib/email.js";
 import {
   signupRateLimiter,
   verifyRateLimiter,
@@ -118,8 +119,6 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
 
   const verifyUrl = `${baseUrl}/api/trial/verify/${trialUser.verificationToken}`;
 
-  console.log(`\n[TRIAL] Email verification for ${email}:\n  ${verifyUrl}\n`);
-
   if (trialUser.emailVerified) {
     res.json({
       success: true,
@@ -131,13 +130,22 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
     return;
   }
 
+  try {
+    await sendVerificationEmail(email, verifyUrl);
+  } catch (err: any) {
+    console.error("[TRIAL] Email send failed:", err.message);
+  }
+
+  console.log(`\n[TRIAL] Email verification for ${email}:\n  ${verifyUrl}\n`);
+
+  const isDev = process.env.NODE_ENV !== "production";
+
   res.json({
     success: true,
     alreadyVerified: false,
     trialUserId: trialUser.id,
-    verifyUrl,
     message: "Check your email for a verification link.",
-    _devVerifyUrl: verifyUrl,
+    ...(isDev ? { _devVerifyUrl: verifyUrl } : {}),
   });
 });
 
@@ -145,30 +153,26 @@ router.get("/trial/verify/:token", verifyRateLimiter, async (req, res) => {
   const token = req.params.token as string;
   const ip = getClientIp(req);
 
-  const trialUser = await trialStorage.verifyEmail(token);
-
-  if (!trialUser) {
-    const stale = await trialStorage.getByToken(token);
-    if (stale) {
-      res.status(400).send(verifyPage("Verification Link Expired", "This link has expired. Please sign up again to get a new verification link.", false));
-      return;
-    }
-    res.status(404).send(verifyPage("Invalid Link", "This verification link is invalid or has already been used.", false));
-    return;
-  }
-
-  await trialStorage.log({ action: "verify", email: trialUser.email, ipAddress: ip, deviceFingerprint: trialUser.deviceFingerprint ?? undefined });
-
   const baseUrl = (() => {
     const domain = process.env.REPLIT_DOMAINS?.split(",")[0];
     return domain ? `https://${domain}` : "http://localhost:3000";
   })();
 
-  res.send(verifyPage(
-    "Email Verified!",
-    `Your trial is now active. You have 3 comparisons to use. <a href="${baseUrl}/playground" style="color:#7c3aed;font-weight:bold;">Go to the playground &rarr;</a>`,
-    true
-  ));
+  const trialUser = await trialStorage.verifyEmail(token);
+
+  if (!trialUser) {
+    const existing = await trialStorage.getByToken(token);
+    if (existing) {
+      res.redirect(`${baseUrl}/playground?trialError=expired`);
+    } else {
+      res.redirect(`${baseUrl}/playground?trialError=invalid`);
+    }
+    return;
+  }
+
+  await trialStorage.log({ action: "verify", email: trialUser.email, ipAddress: ip, deviceFingerprint: trialUser.deviceFingerprint ?? undefined });
+
+  res.redirect(`${baseUrl}/playground?trialId=${trialUser.id}`);
 });
 
 router.get("/trial/status/:userId", async (req, res) => {
@@ -199,32 +203,5 @@ router.get("/trial/admin/logs", async (_req, res) => {
   res.json({ logs });
 });
 
-function verifyPage(title: string, body: string, success: boolean): string {
-  const color = success ? "#7c3aed" : "#dc2626";
-  const bg = success ? "#f5f3ff" : "#fef2f2";
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>${title} — Ai AgentLab</title>
-  <style>
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0f;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;}
-    .card{background:${bg};color:#1a1a2e;border-radius:16px;padding:48px 40px;max-width:480px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);}
-    h1{color:${color};margin:0 0 16px;font-size:28px;}
-    p{font-size:16px;line-height:1.6;color:#374151;}
-    a{color:${color};text-decoration:none;}
-    .icon{font-size:48px;margin-bottom:20px;}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="icon">${success ? "✅" : "❌"}</div>
-    <h1>${title}</h1>
-    <p>${body}</p>
-  </div>
-</body>
-</html>`;
-}
 
 export default router;

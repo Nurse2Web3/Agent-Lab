@@ -4,6 +4,20 @@ const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 const TRIAL_USER_ID_KEY = "trial_user_id";
 const TRIAL_USER_EMAIL_KEY = "trial_user_email";
 
+function consumeUrlTrialParams(): { trialId?: string; trialError?: string } {
+  const params = new URLSearchParams(window.location.search);
+  const trialId = params.get("trialId") ?? undefined;
+  const trialError = params.get("trialError") ?? undefined;
+  if (trialId || trialError) {
+    params.delete("trialId");
+    params.delete("trialError");
+    const newSearch = params.toString();
+    const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash;
+    window.history.replaceState(null, "", newUrl);
+  }
+  return { trialId, trialError };
+}
+
 async function apiFetch(path: string, options?: RequestInit) {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
@@ -33,6 +47,7 @@ export function useTrialStatus() {
   const [stage, setStage] = useState<TrialStage>("loading");
   const [status, setStatus] = useState<TrialStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   const userId = typeof window !== "undefined" ? localStorage.getItem(TRIAL_USER_ID_KEY) : null;
 
@@ -59,6 +74,15 @@ export function useTrialStatus() {
   }, []);
 
   useEffect(() => {
+    const { trialId, trialError } = consumeUrlTrialParams();
+    if (trialId) {
+      localStorage.setItem(TRIAL_USER_ID_KEY, trialId);
+    }
+    if (trialError === "expired") {
+      setUrlError("Your verification link has expired. Please sign up again to get a new one.");
+    } else if (trialError === "invalid") {
+      setUrlError("This verification link is invalid or has already been used.");
+    }
     refresh();
   }, [refresh]);
 
@@ -103,6 +127,7 @@ export function useTrialStatus() {
     stage,
     status,
     error,
+    urlError,
     setError,
     userId,
     storedEmail: typeof window !== "undefined" ? localStorage.getItem(TRIAL_USER_EMAIL_KEY) : null,

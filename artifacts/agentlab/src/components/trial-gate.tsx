@@ -223,7 +223,7 @@ function TrialCountBadge({ remaining, total }: { remaining: number; total: numbe
 }
 
 export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
-  const { stage, status, storedEmail, refresh } = useTrialStatus();
+  const { stage, status, storedEmail, refresh, urlError } = useTrialStatus();
   const [devVerifyUrl, setDevVerifyUrl] = useState<string | undefined>();
   const [showGate, setShowGate] = useState(false);
 
@@ -285,6 +285,12 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
                   3 comparisons across Gemini and Grok. No credit card required.
                 </p>
               </div>
+              {urlError && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive mb-5">
+                  <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                  {urlError}
+                </div>
+              )}
               <EmailForm
                 onSignedUp={(url) => {
                   setDevVerifyUrl(url);
