@@ -28,3 +28,8 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+RESEND_API_KEY = "re_ieUbTxYk_3qckLEH793zFcGsq3urJ7wUW"
