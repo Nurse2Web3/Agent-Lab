@@ -136,8 +136,6 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
     console.error("[TRIAL] Email send failed:", err.message);
   }
 
-  console.log(`\n[TRIAL] Email verification for ${email}:\n  ${verifyUrl}\n`);
-
   const isDev = process.env.NODE_ENV !== "production";
 
   res.json({
