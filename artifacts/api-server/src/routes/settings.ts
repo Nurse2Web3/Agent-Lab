@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { apiKeysTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
-import { callGemini, callGroq, callKimi, callOpenAI, callClaude, PROVIDER_CONFIG } from "../lib/providers/index.js";
+import { callGroq, callOpenAI, callClaude, PROVIDER_CONFIG } from "../lib/providers/index.js";
 
 const router: IRouter = Router();
 
@@ -58,12 +58,8 @@ router.post("/settings/test", async (req, res) => {
     const testPrompt = "Say hello in one sentence.";
     let result;
 
-    if (provider === "gemini") {
-      result = await callGemini({ prompt: testPrompt, apiKey });
-    } else if (provider === "grok") {
+    if (provider === "grok") {
       result = await callGroq({ prompt: testPrompt, apiKey });
-    } else if (provider === "kimi") {
-      result = await callKimi({ prompt: testPrompt, apiKey });
     } else if (provider === "openai") {
       result = await callOpenAI({ prompt: testPrompt, apiKey });
     } else if (provider === "claude") {

@@ -20,11 +20,9 @@ import { useTrialStatus } from "@/hooks/use-trial";
 import { TrialGate } from "@/components/trial-gate";
 
 const PROVIDERS = [
-  { id: "Gemini",  name: "Google Gemini", model: "gemini-1.5-flash",            plan: ["sandbox", "pro", "studio"] },
-  { id: "Grok",   name: "Grok",          model: "llama-3.1-8b-instant",         plan: ["sandbox", "pro", "studio"] },
-  { id: "Kimi",   name: "Kimi",          model: "moonshot-v1-8k",               plan: ["pro", "studio"] },
-  { id: "OpenAI", name: "OpenAI",        model: "gpt-4o",                        plan: ["studio"] },
-  { id: "Claude", name: "Claude",        model: "claude-3-5-sonnet-20241022",   plan: ["studio"] },
+  { id: "Grok",   name: "Grok",   model: "llama-3.1-8b-instant",       plan: ["sandbox", "pro", "studio"] },
+  { id: "OpenAI", name: "OpenAI", model: "gpt-4o-mini",                 plan: ["pro", "studio"] },
+  { id: "Claude", name: "Claude", model: "claude-3-5-sonnet-20241022",  plan: ["studio"] },
 ];
 
 const TEMPLATES = [
@@ -133,7 +131,7 @@ export default function Playground() {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(["Gemini", "Grok"]);
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(["Grok"]);
   const [temperature, setTemperature] = useState([0.7]);
   const [scores, setScores] = useState<Record<string, number>>({});
 
@@ -289,9 +287,9 @@ export default function Playground() {
               {(() => {
                 const userPlan = billingStatus?.plan ?? "sandbox";
                 const planAllowlist: Record<string, string[]> = {
-                  sandbox: ["Gemini", "Grok"],
-                  pro: ["Gemini", "Grok", "Kimi"],
-                  studio: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
+                  sandbox: ["Grok"],
+                  pro: ["Grok", "OpenAI"],
+                  studio: ["Grok", "OpenAI", "Claude"],
                 };
                 const allowed = new Set(planAllowlist[userPlan] ?? planAllowlist["sandbox"]);
                 return PROVIDERS.map((p) => {

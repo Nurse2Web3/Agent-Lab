@@ -6,7 +6,7 @@ import { ProviderIcon } from "@/components/provider-icon";
 import { useBillingStatus, useBillingProducts, useCheckout, useManageBilling } from "@/hooks/use-billing";
 import { useToast } from "@/hooks/use-toast";
 
-const PROVIDER_PILLS = ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"];
+const PROVIDER_PILLS = ["Grok", "OpenAI", "Claude"];
 
 const TIERS = [
   {
@@ -18,12 +18,12 @@ const TIERS = [
     badge: null,
     popular: false,
     tagline: "Try Ai AgentLab.",
-    desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Gemini and Grok.",
+    desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Grok.",
     cta: "Start Trial",
-    providers: ["Gemini", "Grok"],
+    providers: ["Grok"],
     features: [
       { label: "3 total comparisons", included: true },
-      { label: "2 starter providers (Gemini, Grok)", included: true },
+      { label: "1 starter provider (Grok)", included: true },
       { label: "Side-by-side output view", included: true },
       { label: "Basic speed visibility", included: true },
       { label: "Saved history", included: false },
@@ -40,17 +40,17 @@ const TIERS = [
     badge: "Recommended",
     popular: true,
     tagline: "For founders who need more.",
-    desc: "For founders and builders who want more comparisons and access to Gemini, Grok, and Kimi.",
+    desc: "For founders and builders who want more comparisons and access to Grok and OpenAI.",
     cta: "Upgrade to Pro",
-    providers: ["Gemini", "Grok", "Kimi"],
+    providers: ["Grok", "OpenAI"],
     features: [
       { label: "100 comparisons per month", included: true },
-      { label: "Gemini, Grok, and Kimi access", included: true },
+      { label: "Grok and OpenAI access", included: true },
       { label: "Saved test history", included: true },
       { label: "Side-by-side comparison view", included: true },
       { label: "Basic export support", included: true },
       { label: "Winner Engine recommendations", included: true },
-      { label: "OpenAI and Claude access", included: false },
+      { label: "Claude access", included: false },
       { label: "Advanced scoring", included: false },
     ],
   },
@@ -65,11 +65,11 @@ const TIERS = [
     tagline: "Full access. Deeper evaluation.",
     desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
     cta: "Get Premium",
-    providers: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
+    providers: ["Grok", "OpenAI", "Claude"],
     features: [
       { label: "Everything in Pro", included: true },
       { label: "300 comparisons per month", included: true },
-      { label: "OpenAI (GPT-4o) access", included: true },
+      { label: "OpenAI (GPT-4o mini) access", included: true },
       { label: "Claude access", included: true },
       { label: "Advanced scoring", included: true },
       { label: "Richer evaluation insights", included: true },
@@ -80,7 +80,7 @@ const TIERS = [
 
 const COMPARISON_ROWS = [
   { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "300 / month" },
-  { label: "Providers",         trial: "Gemini, Grok",                   pro: "Gemini, Grok, Kimi",            premium: "Gemini, Grok, Kimi, OpenAI, Claude" },
+  { label: "Providers",         trial: "Grok",                           pro: "Grok, OpenAI",                  premium: "Grok, OpenAI, Claude" },
   { label: "Saved history",     trial: "—",                              pro: "✓",                             premium: "✓" },
   { label: "Exports",           trial: "—",                              pro: "Basic",                         premium: "Full" },
   { label: "Advanced scoring",  trial: "—",                              pro: "—",                             premium: "✓" },

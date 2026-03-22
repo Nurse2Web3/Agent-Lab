@@ -198,7 +198,7 @@ function ExhaustedBanner() {
       <div>
         <h3 className="text-xl font-bold mb-2">Your Ai AgentLab Trial has ended</h3>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-          You've used your 3 free comparisons. Upgrade to Pro for Gemini, Grok, and Kimi, or go Premium to unlock OpenAI, Claude, and deeper comparison power.
+          You've used your 3 free comparisons. Upgrade to Pro to add OpenAI, or go Premium to unlock all 3 providers — Grok, OpenAI, and Claude.
         </p>
       </div>
       <div className="flex flex-col gap-2 max-w-xs mx-auto">
@@ -290,7 +290,7 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
                 </div>
                 <h2 className="text-xl font-bold mb-2">Start your free trial</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  3 comparisons across Gemini and Grok. No credit card required.
+                  3 comparisons with Grok. No credit card required.
                 </p>
               </div>
               <EmailForm

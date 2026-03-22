@@ -11,15 +11,6 @@ export interface ProviderConfig {
 }
 
 export const PROVIDER_CONFIG: Record<string, ProviderConfig> = {
-  gemini: {
-    id: "gemini",
-    label: "Gemini",
-    defaultModel: "gemini-1.5-flash",
-    fallbackModel: "gemini-1.0-pro",
-    plans: ["sandbox", "pro", "studio"],
-    active: true,
-    description: "Google's balanced and capable AI model.",
-  },
   grok: {
     id: "grok",
     label: "Grok",
@@ -29,23 +20,14 @@ export const PROVIDER_CONFIG: Record<string, ProviderConfig> = {
     active: true,
     description: "Ultra-fast inference. Speed-first comparisons.",
   },
-  kimi: {
-    id: "kimi",
-    label: "Kimi",
-    defaultModel: "moonshot-v1-8k",
-    fallbackModel: "moonshot-v1-32k",
-    plans: ["pro", "studio"],
-    active: true,
-    description: "Moonshot AI's Kimi — strong reasoning and long context.",
-  },
   openai: {
     id: "openai",
     label: "OpenAI",
-    defaultModel: "gpt-4o",
-    fallbackModel: "gpt-4o-mini",
-    plans: ["studio"],
+    defaultModel: "gpt-4o-mini",
+    fallbackModel: "gpt-4o",
+    plans: ["pro", "studio"],
     active: true,
-    description: "OpenAI's flagship GPT-4o model.",
+    description: "OpenAI's GPT-4o mini — fast, capable, cost-effective.",
   },
   claude: {
     id: "claude",

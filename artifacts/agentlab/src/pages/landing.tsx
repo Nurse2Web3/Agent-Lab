@@ -122,7 +122,7 @@ export default function Landing() {
             Compare outputs across leading AI providers in one workspace
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["Gemini", "Grok", "Kimi", "OpenAI", "Claude"].map((p) => (
+            {["Grok", "OpenAI", "Claude"].map((p) => (
               <span key={p} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium text-foreground/80 backdrop-blur-sm">
                 <ProviderIcon provider={p} className="w-3.5 h-3.5" />
                 {p}
@@ -192,7 +192,7 @@ export default function Landing() {
                       <div className="h-2 rounded bg-secondary/60 w-1/2" />
                     </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
-                      {["Gemini", "Grok", "Kimi"].map((p) => (
+                      {["Grok", "OpenAI", "Claude"].map((p) => (
                         <div key={p} className="rounded-lg border border-border/50 p-3 bg-secondary/20">
                           <div className="text-xs font-medium mb-2 text-muted-foreground">{p}</div>
                           <div className="space-y-1">
@@ -263,7 +263,7 @@ export default function Landing() {
               {
                 icon: Plug,
                 title: "Provider connections",
-                desc: "Connect Gemini, Grok, Kimi, OpenAI, and Claude when you are ready and compare real outputs across the leading AI providers in one workspace.",
+                desc: "Connect Grok, OpenAI, and Claude when you are ready and compare real outputs across the leading AI providers in one workspace.",
                 highlight: false,
               },
             ].map((feature, i) => (
@@ -323,7 +323,7 @@ export default function Landing() {
               </div>
               <div className="p-6 space-y-4">
                 {[
-                  { label: "Best Quality", value: "Gemini", bar: "w-[92%]", color: "bg-emerald-500/60" },
+                  { label: "Best Quality", value: "Claude", bar: "w-[92%]", color: "bg-emerald-500/60" },
                   { label: "Cheapest", value: "Grok", bar: "w-[78%]", color: "bg-sky-500/60" },
                   { label: "Fastest", value: "Grok", bar: "w-[95%]", color: "bg-violet-500/60" },
                 ].map((row) => (
@@ -358,14 +358,12 @@ export default function Landing() {
       <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Supported providers</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Five leading AI providers. One workspace.</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Three leading AI providers. One workspace.</h2>
 
-          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6 mb-10">
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
-              { name: "Gemini", sub: "Balanced quality, strong free tier", emoji: "✦" },
               { name: "Grok", sub: "Speed-first, low-latency outputs", emoji: "⚡" },
-              { name: "Kimi", sub: "Long-context reasoning", emoji: "🌙" },
-              { name: "OpenAI", sub: "GPT-4o, best-in-class quality", emoji: "◎" },
+              { name: "OpenAI", sub: "GPT-4o mini, fast and capable", emoji: "◎" },
               { name: "Claude", sub: "Nuanced, safe, thoughtful outputs", emoji: "✺" },
             ].map((p) => (
               <div key={p.name} className="glass-card rounded-2xl p-8 text-center group hover:border-primary/30 transition-colors">
@@ -421,22 +419,22 @@ export default function Landing() {
               {
                 name: "Ai AgentLab Trial",
                 price: "$0",
-                providers: ["Gemini", "Grok"],
-                desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Gemini and Grok.",
+                providers: ["Grok"],
+                desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Grok.",
                 highlight: false,
               },
               {
                 name: "Ai AgentLab Pro",
                 price: "$29/mo",
-                providers: ["Gemini", "Grok", "Kimi"],
-                desc: "For founders and builders who want more comparisons and access to Gemini, Grok, and Kimi.",
+                providers: ["Grok", "OpenAI"],
+                desc: "For founders and builders who want more comparisons and access to Grok and OpenAI.",
                 highlight: true,
               },
               {
                 name: "Ai AgentLab Premium",
                 price: "$49/mo",
-                providers: ["Gemini", "Grok", "Kimi", "OpenAI", "Claude"],
-                desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
+                providers: ["Grok", "OpenAI", "Claude"],
+                desc: "Advanced AI comparison with everything in Pro, plus Claude, deeper evaluation, and richer decision support.",
                 highlight: false,
               },
             ].map((plan) => (

@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { apiKeysTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
-import { callGemini, callGroq, callKimi, callOpenAI, callClaude } from "../lib/providers/index.js";
+import { callGroq, callOpenAI, callClaude } from "../lib/providers/index.js";
 import { computeSummary } from "../lib/scoring.js";
 import { trialStorage } from "../trialStorage.js";
 import { billingStorage } from "../billingStorage.js";
@@ -11,7 +11,8 @@ import type { ProviderResult } from "../lib/providers/types.js";
 const router: IRouter = Router();
 
 const BASE_USER_ID = "default-user";
-const TRIAL_PROVIDER_ALLOWLIST = new Set(["gemini", "grok"]);
+const TRIAL_PROVIDER_ALLOWLIST = new Set(["grok"]);
+const PRO_PROVIDER_ALLOWLIST   = new Set(["grok", "openai"]);
 const TRIAL_LIMIT = 3;
 
 async function getApiKey(provider: string): Promise<string | undefined> {
@@ -75,15 +76,14 @@ router.post("/compare", async (req, res) => {
     const disallowed = normalizedProviders.filter((p) => !TRIAL_PROVIDER_ALLOWLIST.has(p));
     if (disallowed.length > 0) {
       res.status(403).json({
-        error: `Trial accounts can only use Gemini and Grok. Upgrade to access: ${disallowed.join(", ")}.`,
+        error: `Trial accounts can only use Grok. Upgrade to Pro to access: ${disallowed.join(", ")}.`,
         requiresUpgrade: true,
       });
       return;
     }
   } else if (plan === "pro") {
-    const allowedForPro = new Set(["gemini", "grok", "kimi"]);
     const normalizedProviders = providers.map((p) => p.toLowerCase());
-    const disallowed = normalizedProviders.filter((p) => !allowedForPro.has(p));
+    const disallowed = normalizedProviders.filter((p) => !PRO_PROVIDER_ALLOWLIST.has(p));
     if (disallowed.length > 0) {
       res.status(403).json({
         error: `Upgrade to Premium to access: ${disallowed.join(", ")}.`,
@@ -100,12 +100,8 @@ router.post("/compare", async (req, res) => {
     const apiKey = await getApiKey(normalized);
     const opts = { prompt, systemPrompt, temperature, apiKey };
 
-    if (normalized === "gemini") {
-      calls.push(callGemini(opts));
-    } else if (normalized === "grok") {
+    if (normalized === "grok") {
       calls.push(callGroq(opts));
-    } else if (normalized === "kimi") {
-      calls.push(callKimi(opts));
     } else if (normalized === "openai") {
       calls.push(callOpenAI(opts));
     } else if (normalized === "claude") {
