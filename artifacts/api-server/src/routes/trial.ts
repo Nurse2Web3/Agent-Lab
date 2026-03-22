@@ -13,55 +13,34 @@ import {
 
 const router: IRouter = Router();
 
-const CAPTCHA_SECRET = process.env.TRIAL_CAPTCHA_SECRET ?? "agentlab-captcha-secret-change-in-prod";
-const CAPTCHA_TTL_MS = 10 * 60 * 1000;
 const MIN_FORM_TIME_MS = 3000;
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY ?? "";
 
-function makeCaptchaToken(answer: number, expiresAt: number): string {
-  return createHmac("sha256", CAPTCHA_SECRET)
-    .update(`${answer}:${expiresAt}`)
-    .digest("hex");
-}
-
-router.get("/trial/captcha", captchaRateLimiter, (_req, res) => {
-  const a = randomInt(1, 25);
-  const b = randomInt(1, 25);
-  const op = randomInt(0, 2);
-  let question: string;
-  let answer: number;
-  if (op === 0) {
-    question = `What is ${a} + ${b}?`;
-    answer = a + b;
-  } else if (op === 1) {
-    const big = Math.max(a, b);
-    const small = Math.min(a, b);
-    question = `What is ${big} - ${small}?`;
-    answer = big - small;
-  } else {
-    const factor = randomInt(2, 6);
-    question = `What is ${factor} × ${a}?`;
-    answer = factor * a;
+async function verifyTurnstile(token: string, ip?: string): Promise<boolean> {
+  if (!TURNSTILE_SECRET) {
+    console.warn("[TURNSTILE] No secret key configured — skipping verification");
+    return true;
   }
-  const expiresAt = Date.now() + CAPTCHA_TTL_MS;
-  const token = makeCaptchaToken(answer, expiresAt);
-  const formLoadedAt = Date.now();
-  res.json({
-    question,
-    token: `${expiresAt}:${token}`,
-    formLoadedAt,
-  });
-});
-
-function verifyCaptcha(token: string, answer: string): boolean {
-  const parts = token.split(":");
-  if (parts.length !== 2) return false;
-  const expiresAt = parseInt(parts[0], 10);
-  const tokenHash = parts[1];
-  if (Date.now() > expiresAt) return false;
-  const num = parseInt(answer, 10);
-  if (isNaN(num)) return false;
-  const expected = makeCaptchaToken(num, expiresAt);
-  return expected === tokenHash;
+  try {
+    const body = new URLSearchParams({
+      secret: TURNSTILE_SECRET,
+      response: token,
+      ...(ip ? { remoteip: ip } : {}),
+    });
+    const resp = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+    const data = await resp.json() as { success: boolean; "error-codes"?: string[] };
+    if (!data.success) {
+      console.warn("[TURNSTILE] Verification failed:", data["error-codes"]);
+    }
+    return data.success;
+  } catch (err) {
+    console.error("[TURNSTILE] Verification error:", err);
+    return false;
+  }
 }
 
 router.post("/trial/signup", signupRateLimiter, async (req, res) => {
