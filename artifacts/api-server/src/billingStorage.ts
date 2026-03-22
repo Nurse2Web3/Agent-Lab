@@ -115,6 +115,31 @@ export class BillingStorage {
     return result.rows;
   }
 
+  async getMonthlyUsage(userId: string): Promise<{ used: number; resetAt: Date }> {
+    const result = await db.execute(
+      sql`SELECT monthly_comparisons_used, monthly_reset_at FROM billing_users WHERE id = ${userId}`
+    );
+    const row = result.rows[0] as any;
+    if (!row) return { used: 0, resetAt: new Date() };
+    const resetAt = new Date(row.monthly_reset_at ?? Date.now());
+    const now = new Date();
+    const nextMonth = new Date(resetAt);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    if (now >= nextMonth) {
+      await db.execute(
+        sql`UPDATE billing_users SET monthly_comparisons_used = 0, monthly_reset_at = NOW() WHERE id = ${userId}`
+      );
+      return { used: 0, resetAt: now };
+    }
+    return { used: Number(row.monthly_comparisons_used ?? 0), resetAt };
+  }
+
+  async incrementMonthlyUsage(userId: string): Promise<void> {
+    await db.execute(
+      sql`UPDATE billing_users SET monthly_comparisons_used = COALESCE(monthly_comparisons_used, 0) + 1 WHERE id = ${userId}`
+    );
+  }
+
   private rowToUser(row: any): BillingUser {
     return {
       id: row.id,

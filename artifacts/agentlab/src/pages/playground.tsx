@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { useBillingStatus } from "@/hooks/use-billing";
 import { useTrialStatus } from "@/hooks/use-trial";
 import { TrialGate } from "@/components/trial-gate";
+import { Link } from "wouter";
 
 const PROVIDERS = [
   { id: "OpenAI", name: "OpenAI",                   model: "gpt-4o-mini",               plan: ["sandbox", "pro", "studio"] },
@@ -294,37 +295,44 @@ export default function Playground() {
                 const allowed = new Set(planAllowlist[userPlan] ?? planAllowlist["sandbox"]);
                 return PROVIDERS.map((p) => {
                   const isLocked = !allowed.has(p.id);
-                  const upgradeTo = p.plan.includes("pro") ? "Pro" : "Premium";
+                  const isGrok = p.id === "Grok";
                   return (
-                    <div key={p.id} className={`flex items-center justify-between group ${isLocked ? "opacity-50" : ""}`}>
-                      <div className="flex items-center gap-2.5">
-                        <Checkbox
-                          id={`prov-${p.id}`}
-                          checked={selectedProviders.includes(p.id) && !isLocked}
-                          disabled={isLocked}
-                          onCheckedChange={(checked) => {
-                            if (isLocked) return;
-                            if (checked) setSelectedProviders([...selectedProviders, p.id]);
-                            else setSelectedProviders(selectedProviders.filter((id) => id !== p.id));
-                          }}
-                        />
-                        <label
-                          htmlFor={`prov-${p.id}`}
-                          className={`text-sm font-medium flex items-center gap-2 ${isLocked ? "cursor-not-allowed" : "cursor-pointer"}`}
-                        >
-                          <ProviderIcon provider={p.id} className="w-4 h-4" />
-                          {p.name}
-                        </label>
-                        {isLocked && (
-                          <span className="text-[10px] font-semibold text-primary/70 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded">
-                            {upgradeTo}
+                    <div key={p.id}>
+                      <div className={`flex items-center justify-between group ${isLocked ? "opacity-60" : ""}`}>
+                        <div className="flex items-center gap-2.5">
+                          <Checkbox
+                            id={`prov-${p.id}`}
+                            checked={selectedProviders.includes(p.id) && !isLocked}
+                            disabled={isLocked}
+                            onCheckedChange={(checked) => {
+                              if (isLocked) return;
+                              if (checked) setSelectedProviders([...selectedProviders, p.id]);
+                              else setSelectedProviders(selectedProviders.filter((id) => id !== p.id));
+                            }}
+                          />
+                          <label
+                            htmlFor={`prov-${p.id}`}
+                            className={`text-sm font-medium flex items-center gap-2 ${isLocked ? "cursor-not-allowed" : "cursor-pointer"}`}
+                          >
+                            <ProviderIcon provider={p.id} className="w-4 h-4" />
+                            {p.name}
+                          </label>
+                          {isLocked && (
+                            <span className="text-[10px] font-semibold text-primary/70 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded">
+                              Pro
+                            </span>
+                          )}
+                        </div>
+                        {!isLocked && (
+                          <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-60 transition-opacity font-mono">
+                            {p.model}
                           </span>
                         )}
                       </div>
-                      {!isLocked && (
-                        <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-60 transition-opacity font-mono">
-                          {p.model}
-                        </span>
+                      {isLocked && isGrok && (
+                        <Link href="/pricing" className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-amber-400/90 hover:text-amber-400 transition-colors">
+                          <span>⚠️ MISSING: GROK THE ELON MODEL — Upgrade to Pro →</span>
+                        </Link>
                       )}
                     </div>
                   );

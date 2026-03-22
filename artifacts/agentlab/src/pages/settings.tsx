@@ -170,7 +170,7 @@ export default function Settings() {
             {/* Feature summary */}
             <div className="mt-6 pt-6 border-t border-border/40 grid sm:grid-cols-2 gap-3 text-sm">
               {[
-                { label: "Comparisons", sandbox: "3 total", pro: "100 / month", studio: "300 / month" },
+                { label: "Comparisons", sandbox: "3 total", pro: "100 / month", studio: "500 / month" },
                 { label: "Providers", sandbox: "2", pro: "3", studio: "3" },
                 { label: "Saved history", sandbox: "—", pro: "✓", studio: "✓" },
                 { label: "Exports", sandbox: "—", pro: "Basic", studio: "Full" },

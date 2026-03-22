@@ -67,7 +67,7 @@ const TIERS = [
     providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
     features: [
       { label: "Everything in Pro", included: true },
-      { label: "300 comparisons per month", included: true },
+      { label: "500 comparisons per month", included: true },
       { label: "OpenAI (GPT-4o mini) access", included: true },
       { label: "Claude access", included: true },
       { label: "Advanced scoring", included: true },
@@ -78,7 +78,7 @@ const TIERS = [
 ];
 
 const COMPARISON_ROWS = [
-  { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "300 / month" },
+  { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "500 / month" },
   { label: "Providers",         trial: "GPT + Claude",                   pro: "GPT + Claude + GROK",           premium: "GPT + Claude + GROK" },
   { label: "Saved history",     trial: "—",                              pro: "✓",                             premium: "✓" },
   { label: "Exports",           trial: "—",                              pro: "Basic",                         premium: "Full" },

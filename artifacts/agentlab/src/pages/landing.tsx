@@ -434,7 +434,7 @@ export default function Landing() {
                 name: "Ai AgentLab Premium",
                 price: "$49/mo",
                 providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
-                desc: "Full access — all 3 providers, 300 tests, advanced scoring, and richer evaluation.",
+                desc: "Full access — all 3 providers, 500 tests, advanced scoring, and richer evaluation.",
                 highlight: false,
               },
             ].map((plan) => (

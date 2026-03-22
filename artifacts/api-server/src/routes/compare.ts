@@ -14,6 +14,7 @@ const BASE_USER_ID = "default-user";
 const TRIAL_PROVIDER_ALLOWLIST = new Set(["openai", "claude"]);
 const PRO_PROVIDER_ALLOWLIST   = new Set(["openai", "claude", "grok"]);
 const TRIAL_LIMIT = 3;
+const MONTHLY_LIMITS: Record<string, number> = { pro: 100, studio: 500 };
 
 async function getApiKey(provider: string): Promise<string | undefined> {
   try {
@@ -81,15 +82,29 @@ router.post("/compare", async (req, res) => {
       });
       return;
     }
-  } else if (plan === "pro") {
+  } else if (plan === "pro" || plan === "studio") {
     const normalizedProviders = providers.map((p) => p.toLowerCase());
-    const disallowed = normalizedProviders.filter((p) => !PRO_PROVIDER_ALLOWLIST.has(p));
-    if (disallowed.length > 0) {
-      res.status(403).json({
-        error: `Upgrade to Premium to access: ${disallowed.join(", ")}.`,
-        requiresUpgrade: true,
-      });
-      return;
+    if (plan === "pro") {
+      const disallowed = normalizedProviders.filter((p) => !PRO_PROVIDER_ALLOWLIST.has(p));
+      if (disallowed.length > 0) {
+        res.status(403).json({
+          error: `Upgrade to Premium to access: ${disallowed.join(", ")}.`,
+          requiresUpgrade: true,
+        });
+        return;
+      }
+    }
+    const monthlyLimit = MONTHLY_LIMITS[plan];
+    if (monthlyLimit !== undefined) {
+      await billingStorage.ensureUser(BASE_USER_ID);
+      const { used } = await billingStorage.getMonthlyUsage(BASE_USER_ID);
+      if (used >= monthlyLimit) {
+        res.status(429).json({
+          error: `Monthly comparison limit reached (${monthlyLimit}). Resets at the start of next month.`,
+          limitReached: true,
+        });
+        return;
+      }
     }
   }
 
@@ -136,6 +151,8 @@ router.post("/compare", async (req, res) => {
       email: (await trialStorage.getById(trialUserId))?.email,
       deviceFingerprint: (await trialStorage.getById(trialUserId))?.deviceFingerprint ?? undefined,
     });
+  } else if (plan === "pro" || plan === "studio") {
+    await billingStorage.incrementMonthlyUsage(BASE_USER_ID);
   }
 
   const summary = computeSummary(resolvedResults);
