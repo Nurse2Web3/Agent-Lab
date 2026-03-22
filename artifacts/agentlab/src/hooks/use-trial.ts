@@ -104,7 +104,6 @@ export function useTrialStatus() {
   async function signup(opts: {
     email: string;
     captchaToken: string;
-    captchaAnswer: string;
     deviceFingerprint: string;
     website?: string;
     formLoadedAt?: number;

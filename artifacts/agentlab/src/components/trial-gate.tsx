@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Shield, Loader2, ArrowRight, RefreshCw, AlertTriangle, Lock } from "lucide-react";
+import { Mail, Shield, Loader2, ArrowRight, AlertTriangle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,9 @@ import { Link } from "wouter";
 import { useTrialStatus } from "@/hooks/use-trial";
 import { getCompositeFingerprint } from "@/lib/deviceFingerprint";
 import { CardActivationModal } from "@/components/card-activation-modal";
+import { Turnstile } from "@marsidev/react-turnstile";
+
+const TURNSTILE_SITE_KEY = "0x4AAAAAACuksF2bnJ4Rzaei";
 
 interface TrialGateProps {
   children: React.ReactNode;
@@ -16,57 +19,37 @@ interface TrialGateProps {
 
 interface EmailFormProps {
   signup: ReturnType<typeof useTrialStatus>["signup"];
-  getCaptcha: ReturnType<typeof useTrialStatus>["getCaptcha"];
   error: string | null;
   setError: (e: string | null) => void;
   urlError: string | null;
   onSignedUp: (devUrl?: string) => void;
 }
 
-function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }: EmailFormProps) {
+function EmailForm({ signup, error, setError, urlError, onSignedUp }: EmailFormProps) {
   const [email, setEmail] = useState("");
-  const [captcha, setCaptcha] = useState<{ question: string; token: string; formLoadedAt?: number } | null>(null);
-  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingCaptcha, setLoadingCaptcha] = useState(true);
   const [honeypot, setHoneypot] = useState("");
-
-  async function loadCaptcha() {
-    setLoadingCaptcha(true);
-    try {
-      const c = await getCaptcha();
-      setCaptcha(c);
-      setCaptchaAnswer("");
-    } catch {
-      setError("Failed to load CAPTCHA. Please refresh.");
-    } finally {
-      setLoadingCaptcha(false);
-    }
-  }
-
-  useEffect(() => {
-    loadCaptcha();
-  }, []);
+  const formLoadedAt = useRef(Date.now());
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !captcha || !captchaAnswer) return;
+    if (!email || !turnstileToken) return;
     setLoading(true);
     setError(null);
     try {
       const fp = getCompositeFingerprint();
       const result = await signup({
         email,
-        captchaToken: captcha.token,
-        captchaAnswer,
+        captchaToken: turnstileToken,
         deviceFingerprint: fp,
         website: honeypot,
-        formLoadedAt: captcha.formLoadedAt,
+        formLoadedAt: formLoadedAt.current,
       });
       onSignedUp(result._devVerifyUrl);
     } catch (err: any) {
       setError(err.message ?? "Signup failed. Please try again.");
-      await loadCaptcha();
+      setTurnstileToken(null);
     } finally {
       setLoading(false);
     }
@@ -99,40 +82,17 @@ function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }
         />
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Quick check</Label>
-        {loadingCaptcha ? (
-          <div className="h-11 flex items-center gap-2 text-muted-foreground text-sm">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Loading…
-          </div>
-        ) : (
-          <div className="flex gap-2 items-start">
-            <div className="flex-1 space-y-2">
-              <div className="text-sm font-mono bg-secondary/50 px-3 py-2 rounded-lg border border-border/40 text-foreground">
-                {captcha?.question}
-              </div>
-              <Input
-                type="number"
-                placeholder="Your answer"
-                value={captchaAnswer}
-                onChange={(e) => setCaptchaAnswer(e.target.value)}
-                required
-                className="h-11 bg-background/60 border-border/60"
-              />
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="mt-0.5 shrink-0"
-              onClick={loadCaptcha}
-              title="New question"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
+      <div className="flex justify-center">
+        <Turnstile
+          siteKey={TURNSTILE_SITE_KEY}
+          onSuccess={(token) => setTurnstileToken(token)}
+          onExpire={() => setTurnstileToken(null)}
+          onError={() => {
+            setTurnstileToken(null);
+            setError("CAPTCHA failed to load. Please refresh the page.");
+          }}
+          options={{ theme: "dark", size: "normal" }}
+        />
       </div>
 
       {(urlError || error) && (
@@ -145,7 +105,7 @@ function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }
       <Button
         type="submit"
         className="w-full h-11 font-semibold rounded-xl"
-        disabled={loading || loadingCaptcha || !captchaAnswer}
+        disabled={loading || !turnstileToken || !email}
       >
         {loading ? (
           <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Starting trial…</>
@@ -246,7 +206,7 @@ function TrialCountBadge({ remaining, total }: { remaining: number; total: numbe
 }
 
 export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
-  const { stage, status, storedEmail, refresh, signup, getCaptcha, error, setError, urlError, createSetupIntent, activateCard } = useTrialStatus();
+  const { stage, status, storedEmail, refresh, signup, error, setError, urlError, createSetupIntent, activateCard } = useTrialStatus();
   const [devVerifyUrl, setDevVerifyUrl] = useState<string | undefined>();
   const [showGate, setShowGate] = useState(false);
 
@@ -317,7 +277,6 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
               </div>
               <EmailForm
                 signup={signup}
-                getCaptcha={getCaptcha}
                 error={error}
                 setError={setError}
                 urlError={urlError}

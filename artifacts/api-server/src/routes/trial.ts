@@ -47,14 +47,12 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
   const {
     email,
     captchaToken,
-    captchaAnswer,
     deviceFingerprint,
     website,
     formLoadedAt,
   } = req.body as {
     email?: string;
     captchaToken?: string;
-    captchaAnswer?: string;
     deviceFingerprint?: string;
     website?: string;
     formLoadedAt?: number;
@@ -78,13 +76,14 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
     res.status(400).json({ error: "A valid email address is required." });
     return;
   }
-  if (!captchaToken || !captchaAnswer) {
+  if (!captchaToken) {
     res.status(400).json({ error: "Please complete the CAPTCHA." });
     return;
   }
-  if (!verifyCaptcha(captchaToken, captchaAnswer)) {
-    await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: "captcha_failed" });
-    res.status(400).json({ error: "Incorrect CAPTCHA answer. Please try again." });
+  const turnstileOk = await verifyTurnstile(captchaToken, ip);
+  if (!turnstileOk) {
+    await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: "turnstile_failed" });
+    res.status(400).json({ error: "CAPTCHA verification failed. Please try again." });
     return;
   }
 
