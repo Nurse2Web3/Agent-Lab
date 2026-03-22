@@ -6,6 +6,7 @@ import { callGroq, callOpenAI, callClaude } from "../lib/providers/index.js";
 import { computeSummary } from "../lib/scoring.js";
 import { trialStorage } from "../trialStorage.js";
 import { billingStorage } from "../billingStorage.js";
+import { trialCompareRateLimiter } from "../middleware/rateLimiter.js";
 import type { ProviderResult } from "../lib/providers/types.js";
 
 const router: IRouter = Router();
@@ -25,13 +26,25 @@ async function getApiKey(provider: string): Promise<string | undefined> {
   }
 }
 
-router.post("/compare", async (req, res) => {
-  const { prompt, systemPrompt, providers, temperature = 0.7, trialUserId } = req.body as {
+router.post("/compare", async (req, res, next) => {
+  const body = req.body as {
     prompt: string;
     systemPrompt?: string;
     providers: string[];
     temperature?: number;
     trialUserId?: string;
+    deviceFingerprint?: string;
+  };
+  if (body.trialUserId) return trialCompareRateLimiter(req, res, next);
+  return next();
+}, async (req, res) => {
+  const { prompt, systemPrompt, providers, temperature = 0.7, trialUserId, deviceFingerprint } = req.body as {
+    prompt: string;
+    systemPrompt?: string;
+    providers: string[];
+    temperature?: number;
+    trialUserId?: string;
+    deviceFingerprint?: string;
   };
 
   if (!prompt || !providers || providers.length === 0) {
@@ -71,6 +84,24 @@ router.post("/compare", async (req, res) => {
         trialExhausted: true,
       });
       return;
+    }
+
+    if (deviceFingerprint && trialUser.deviceFingerprint) {
+      const incomingBrowser = deviceFingerprint.includes(":") ? deviceFingerprint.split(":")[1] : deviceFingerprint;
+      const storedBrowser = trialUser.deviceFingerprint.includes(":") ? trialUser.deviceFingerprint.split(":")[1] : trialUser.deviceFingerprint;
+      if (incomingBrowser && storedBrowser && incomingBrowser !== storedBrowser) {
+        await trialStorage.log({
+          action: "suspicious",
+          email: trialUser.email,
+          deviceFingerprint,
+          reason: "device_fingerprint_mismatch",
+        });
+        res.status(403).json({
+          error: "This trial was registered on a different device.",
+          requiresUpgrade: true,
+        });
+        return;
+      }
     }
 
     const normalizedProviders = providers.map((p) => p.toLowerCase());

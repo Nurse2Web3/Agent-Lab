@@ -103,6 +103,8 @@ export function useTrialStatus() {
     captchaToken: string;
     captchaAnswer: string;
     deviceFingerprint: string;
+    website?: string;
+    formLoadedAt?: number;
   }): Promise<{ alreadyVerified: boolean; _devVerifyUrl?: string }> {
     const data = await apiFetch("/trial/signup", {
       method: "POST",

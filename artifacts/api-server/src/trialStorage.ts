@@ -80,6 +80,35 @@ export class TrialStorage {
     return this.rowToUser(result.rows[0]);
   }
 
+  async getVerifiedByDeviceFingerprint(fingerprint: string): Promise<TrialUser | null> {
+    const browserFp = fingerprint.includes(":") ? fingerprint.split(":")[1] : fingerprint;
+    const exactResult = await db.execute(sql`
+      SELECT * FROM trial_users
+      WHERE device_fingerprint = ${fingerprint} AND email_verified = true
+      LIMIT 1
+    `);
+    if (exactResult.rows[0]) return this.rowToUser(exactResult.rows[0]);
+    if (browserFp && browserFp !== fingerprint) {
+      const partialResult = await db.execute(sql`
+        SELECT * FROM trial_users
+        WHERE device_fingerprint LIKE ${"%" + browserFp} AND email_verified = true
+        LIMIT 1
+      `);
+      if (partialResult.rows[0]) return this.rowToUser(partialResult.rows[0]);
+    }
+    return null;
+  }
+
+  async getVerifiedByIp(ipAddress: string): Promise<TrialUser | null> {
+    const result = await db.execute(sql`
+      SELECT * FROM trial_users
+      WHERE ip_address = ${ipAddress} AND email_verified = true
+      LIMIT 1
+    `);
+    if (!result.rows[0]) return null;
+    return this.rowToUser(result.rows[0]);
+  }
+
   async verifyEmail(token: string): Promise<TrialUser | null> {
     const result = await db.execute(sql`
       UPDATE trial_users

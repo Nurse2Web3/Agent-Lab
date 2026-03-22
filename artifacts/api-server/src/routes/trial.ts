@@ -14,6 +14,7 @@ const router: IRouter = Router();
 
 const CAPTCHA_SECRET = process.env.TRIAL_CAPTCHA_SECRET ?? "agentlab-captcha-secret-change-in-prod";
 const CAPTCHA_TTL_MS = 10 * 60 * 1000;
+const MIN_FORM_TIME_MS = 3000;
 
 function makeCaptchaToken(answer: number, expiresAt: number): string {
   return createHmac("sha256", CAPTCHA_SECRET)
@@ -22,14 +23,31 @@ function makeCaptchaToken(answer: number, expiresAt: number): string {
 }
 
 router.get("/trial/captcha", captchaRateLimiter, (_req, res) => {
-  const a = randomInt(1, 15);
-  const b = randomInt(1, 15);
-  const answer = a + b;
+  const a = randomInt(1, 25);
+  const b = randomInt(1, 25);
+  const op = randomInt(0, 2);
+  let question: string;
+  let answer: number;
+  if (op === 0) {
+    question = `What is ${a} + ${b}?`;
+    answer = a + b;
+  } else if (op === 1) {
+    const big = Math.max(a, b);
+    const small = Math.min(a, b);
+    question = `What is ${big} - ${small}?`;
+    answer = big - small;
+  } else {
+    const factor = randomInt(2, 6);
+    question = `What is ${factor} × ${a}?`;
+    answer = factor * a;
+  }
   const expiresAt = Date.now() + CAPTCHA_TTL_MS;
   const token = makeCaptchaToken(answer, expiresAt);
+  const formLoadedAt = Date.now();
   res.json({
-    question: `What is ${a} + ${b}?`,
+    question,
     token: `${expiresAt}:${token}`,
+    formLoadedAt,
   });
 });
 
@@ -46,14 +64,35 @@ function verifyCaptcha(token: string, answer: string): boolean {
 }
 
 router.post("/trial/signup", signupRateLimiter, async (req, res) => {
-  const { email, captchaToken, captchaAnswer, deviceFingerprint } = req.body as {
+  const {
+    email,
+    captchaToken,
+    captchaAnswer,
+    deviceFingerprint,
+    website,
+    formLoadedAt,
+  } = req.body as {
     email?: string;
     captchaToken?: string;
     captchaAnswer?: string;
     deviceFingerprint?: string;
+    website?: string;
+    formLoadedAt?: number;
   };
 
   const ip = getClientIp(req);
+
+  if (website) {
+    await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: "honeypot_triggered" });
+    res.json({ success: true, alreadyVerified: false, trialUserId: "bot", message: "Check your email for a verification link." });
+    return;
+  }
+
+  if (formLoadedAt && Date.now() - formLoadedAt < MIN_FORM_TIME_MS) {
+    await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: "submitted_too_fast" });
+    res.status(400).json({ error: "Please take a moment to fill in the form." });
+    return;
+  }
 
   if (!email || !email.includes("@")) {
     res.status(400).json({ error: "A valid email address is required." });
@@ -75,29 +114,42 @@ router.post("/trial/signup", signupRateLimiter, async (req, res) => {
     return;
   }
 
-  const recentIpSignups = await trialStorage.countRecentSignupsByIp(ip, 60 * 60 * 1000);
-  if (recentIpSignups >= 5) {
-    await trialStorage.log({ action: "blocked_ip_reuse", email, ipAddress: ip, deviceFingerprint, reason: `ip_rate_limit_${recentIpSignups}` });
-    res.status(429).json({ error: "Too many trial signups from this network. Please try again later." });
-    return;
-  }
-
-  if (deviceFingerprint) {
-    const deviceTrialUser = await trialStorage.getByDeviceFingerprint(deviceFingerprint);
-    if (deviceTrialUser?.trialUsed) {
-      await trialStorage.log({ action: "blocked_device", email, ipAddress: ip, deviceFingerprint, reason: "device_trial_exhausted" });
+  const existingEmailUser = await trialStorage.getByEmail(email);
+  if (!existingEmailUser) {
+    const verifiedByIp = await trialStorage.getVerifiedByIp(ip);
+    if (verifiedByIp) {
+      await trialStorage.log({ action: "blocked_ip_reuse", email, ipAddress: ip, deviceFingerprint, reason: "ip_already_has_verified_trial" });
       res.status(403).json({
-        error: "A trial has already been used on this device.",
+        error: "A trial has already been used from this network. Each network is limited to one trial.",
         upgrade: true,
       });
       return;
     }
 
-    const recentDeviceSignups = await trialStorage.countRecentSignupsByDevice(deviceFingerprint, 24 * 60 * 60 * 1000);
-    if (recentDeviceSignups >= 3) {
-      await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: `device_signup_count_${recentDeviceSignups}` });
-      res.status(429).json({ error: "Too many trial attempts from this device. Please wait 24 hours or upgrade." });
+    const recentIpSignups = await trialStorage.countRecentSignupsByIp(ip, 24 * 60 * 60 * 1000);
+    if (recentIpSignups >= 2) {
+      await trialStorage.log({ action: "blocked_ip_reuse", email, ipAddress: ip, deviceFingerprint, reason: `ip_rate_limit_${recentIpSignups}` });
+      res.status(429).json({ error: "Too many trial signups from this network. Please try again tomorrow." });
       return;
+    }
+
+    if (deviceFingerprint) {
+      const verifiedByDevice = await trialStorage.getVerifiedByDeviceFingerprint(deviceFingerprint);
+      if (verifiedByDevice) {
+        await trialStorage.log({ action: "blocked_device", email, ipAddress: ip, deviceFingerprint, reason: "device_already_has_verified_trial" });
+        res.status(403).json({
+          error: "A trial has already been used on this device. Please upgrade to continue.",
+          upgrade: true,
+        });
+        return;
+      }
+
+      const recentDeviceSignups = await trialStorage.countRecentSignupsByDevice(deviceFingerprint, 24 * 60 * 60 * 1000);
+      if (recentDeviceSignups >= 2) {
+        await trialStorage.log({ action: "suspicious", email, ipAddress: ip, deviceFingerprint, reason: `device_signup_count_${recentDeviceSignups}` });
+        res.status(429).json({ error: "Too many trial attempts from this device. Please wait 24 hours or upgrade." });
+        return;
+      }
     }
   }
 
@@ -204,6 +256,5 @@ router.get("/trial/admin/logs", async (_req, res) => {
   const logs = await trialStorage.getRecentLogs(200);
   res.json({ logs });
 });
-
 
 export default router;

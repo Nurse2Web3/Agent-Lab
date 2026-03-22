@@ -24,10 +24,11 @@ interface EmailFormProps {
 
 function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }: EmailFormProps) {
   const [email, setEmail] = useState("");
-  const [captcha, setCaptcha] = useState<{ question: string; token: string } | null>(null);
+  const [captcha, setCaptcha] = useState<{ question: string; token: string; formLoadedAt?: number } | null>(null);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCaptcha, setLoadingCaptcha] = useState(true);
+  const [honeypot, setHoneypot] = useState("");
 
   async function loadCaptcha() {
     setLoadingCaptcha(true);
@@ -58,6 +59,8 @@ function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }
         captchaToken: captcha.token,
         captchaAnswer,
         deviceFingerprint: fp,
+        website: honeypot,
+        formLoadedAt: captcha.formLoadedAt,
       });
       onSignedUp(result._devVerifyUrl);
     } catch (err: any) {
@@ -70,6 +73,17 @@ function EmailForm({ signup, getCaptcha, error, setError, urlError, onSignedUp }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <div style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, pointerEvents: "none" }} aria-hidden="true">
+        <input
+          tabIndex={-1}
+          type="text"
+          name="website"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+          autoComplete="off"
+        />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="trial-email" className="text-sm font-medium">Email address</Label>
         <Input

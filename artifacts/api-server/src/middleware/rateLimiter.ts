@@ -46,10 +46,10 @@ function getClientIp(req: Request): string {
 }
 
 export const signupRateLimiter = createRateLimiter({
-  windowMs: 60 * 60 * 1000,
-  max: 5,
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 2,
   keyFn: getClientIp,
-  message: "Too many signup attempts from this IP. Please try again later.",
+  message: "Too many signup attempts from this IP. Please try again in 24 hours.",
 });
 
 export const verifyRateLimiter = createRateLimiter({
@@ -64,6 +64,16 @@ export const captchaRateLimiter = createRateLimiter({
   max: 20,
   keyFn: getClientIp,
   message: "Too many CAPTCHA requests. Please try again later.",
+});
+
+export const trialCompareRateLimiter = createRateLimiter({
+  windowMs: 20 * 1000,
+  max: 1,
+  keyFn: (req) => {
+    const body = req.body as { trialUserId?: string };
+    return `trial-compare:${getClientIp(req)}:${body.trialUserId ?? "unknown"}`;
+  },
+  message: "Please wait a moment before running another comparison.",
 });
 
 export { getClientIp };

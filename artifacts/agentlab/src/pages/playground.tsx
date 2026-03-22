@@ -19,6 +19,7 @@ import { useBillingStatus } from "@/hooks/use-billing";
 import { useTrialStatus } from "@/hooks/use-trial";
 import { TrialGate } from "@/components/trial-gate";
 import { Link } from "wouter";
+import { getCompositeFingerprint } from "@/lib/deviceFingerprint";
 
 const PROVIDERS = [
   { id: "OpenAI", name: "OpenAI",                   model: "gpt-4o-mini",               plan: ["sandbox", "pro", "studio"] },
@@ -153,7 +154,9 @@ export default function Playground() {
       return;
     }
     setScores({});
-    const extraFields = !isPaidPlan && trialUserId ? { trialUserId } : {};
+    const extraFields = !isPaidPlan && trialUserId
+      ? { trialUserId, deviceFingerprint: getCompositeFingerprint() }
+      : {};
     runCompare(
       { data: { prompt, systemPrompt, providers: selectedProviders, temperature: temperature[0], ...extraFields } as any },
       {
