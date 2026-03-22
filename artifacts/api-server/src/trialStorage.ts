@@ -6,6 +6,9 @@ export interface TrialUser {
   id: string;
   email: string;
   emailVerified: boolean;
+  cardVerified: boolean;
+  setupIntentId: string | null;
+  paymentMethodId: string | null;
   trialUsed: boolean;
   trialComparisonsUsed: number;
   deviceFingerprint: string | null;
@@ -99,6 +102,23 @@ export class TrialStorage {
     return null;
   }
 
+  async saveSetupIntent(userId: string, setupIntentId: string): Promise<void> {
+    await db.execute(sql`
+      UPDATE trial_users SET setup_intent_id = ${setupIntentId} WHERE id = ${userId}
+    `);
+  }
+
+  async activateCard(userId: string, paymentMethodId: string): Promise<TrialUser | null> {
+    const result = await db.execute(sql`
+      UPDATE trial_users
+      SET card_verified = true, payment_method_id = ${paymentMethodId}
+      WHERE id = ${userId}
+      RETURNING *
+    `);
+    if (!result.rows[0]) return null;
+    return this.rowToUser(result.rows[0]);
+  }
+
   async getVerifiedByIp(ipAddress: string): Promise<TrialUser | null> {
     const result = await db.execute(sql`
       SELECT * FROM trial_users
@@ -189,6 +209,9 @@ export class TrialStorage {
       id: row.id,
       email: row.email,
       emailVerified: row.email_verified,
+      cardVerified: row.card_verified ?? false,
+      setupIntentId: row.setup_intent_id ?? null,
+      paymentMethodId: row.payment_method_id ?? null,
       trialUsed: row.trial_used,
       trialComparisonsUsed: row.trial_comparisons_used,
       deviceFingerprint: row.device_fingerprint ?? null,

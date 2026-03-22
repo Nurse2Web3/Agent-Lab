@@ -3,6 +3,7 @@ import { createHmac, randomInt } from "crypto";
 import { trialStorage } from "../trialStorage.js";
 import { isDisposableEmail } from "../lib/disposableEmailDomains.js";
 import { sendVerificationEmail } from "../lib/email.js";
+import { getUncachableStripeClient } from "../stripeClient.js";
 import {
   signupRateLimiter,
   verifyRateLimiter,
@@ -244,12 +245,77 @@ router.get("/trial/status/:userId", async (req, res) => {
     id: trialUser.id,
     email: trialUser.email,
     emailVerified: trialUser.emailVerified,
+    cardVerified: trialUser.cardVerified,
     trialUsed: trialUser.trialUsed,
     comparisonsUsed: trialUser.trialComparisonsUsed,
     comparisonsRemaining: Math.max(0, TRIAL_LIMIT - trialUser.trialComparisonsUsed),
     trialLimit: TRIAL_LIMIT,
     exhausted: trialUser.trialComparisonsUsed >= TRIAL_LIMIT,
   });
+});
+
+router.post("/trial/setup-intent", async (req, res) => {
+  const { trialUserId } = req.body as { trialUserId?: string };
+  if (!trialUserId) {
+    res.status(400).json({ error: "trialUserId is required." });
+    return;
+  }
+
+  const trialUser = await trialStorage.getById(trialUserId);
+  if (!trialUser || !trialUser.emailVerified) {
+    res.status(403).json({ error: "Email must be verified before adding a card." });
+    return;
+  }
+  if (trialUser.cardVerified) {
+    res.json({ alreadyVerified: true });
+    return;
+  }
+
+  try {
+    const stripe = await getUncachableStripeClient();
+    const intent = await stripe.setupIntents.create({
+      usage: "off_session",
+      metadata: { trialUserId },
+    });
+    await trialStorage.saveSetupIntent(trialUserId, intent.id);
+    res.json({ clientSecret: intent.client_secret });
+  } catch (err: any) {
+    console.error("[TRIAL] SetupIntent creation failed:", err.message);
+    res.status(500).json({ error: "Failed to initialize card setup. Please try again." });
+  }
+});
+
+router.post("/trial/activate-card", async (req, res) => {
+  const { trialUserId, paymentMethodId } = req.body as {
+    trialUserId?: string;
+    paymentMethodId?: string;
+  };
+
+  if (!trialUserId || !paymentMethodId) {
+    res.status(400).json({ error: "trialUserId and paymentMethodId are required." });
+    return;
+  }
+
+  const trialUser = await trialStorage.getById(trialUserId);
+  if (!trialUser || !trialUser.emailVerified) {
+    res.status(403).json({ error: "Email must be verified first." });
+    return;
+  }
+
+  try {
+    const stripe = await getUncachableStripeClient();
+    const pm = await stripe.paymentMethods.retrieve(paymentMethodId);
+    if (!pm || pm.type !== "card") {
+      res.status(400).json({ error: "Invalid payment method." });
+      return;
+    }
+    const updated = await trialStorage.activateCard(trialUserId, paymentMethodId);
+    await trialStorage.log({ action: "verify", email: trialUser.email, reason: "card_activated" });
+    res.json({ success: true, cardVerified: updated?.cardVerified ?? true });
+  } catch (err: any) {
+    console.error("[TRIAL] Card activation failed:", err.message);
+    res.status(500).json({ error: "Failed to activate card. Please try again." });
+  }
 });
 
 router.get("/trial/admin/logs", async (_req, res) => {

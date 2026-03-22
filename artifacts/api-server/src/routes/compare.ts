@@ -78,6 +78,13 @@ router.post("/compare", async (req, res, next) => {
       });
       return;
     }
+    if (!trialUser.cardVerified) {
+      res.status(403).json({
+        error: "Please verify your identity with a card to activate your trial.",
+        requiresCardVerification: true,
+      });
+      return;
+    }
     if (trialUser.trialComparisonsUsed >= TRIAL_LIMIT) {
       res.status(403).json({
         error: "Your trial comparisons are exhausted. Please upgrade to continue.",

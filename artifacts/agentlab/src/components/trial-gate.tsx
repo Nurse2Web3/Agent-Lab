@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "wouter";
 import { useTrialStatus } from "@/hooks/use-trial";
 import { getCompositeFingerprint } from "@/lib/deviceFingerprint";
+import { CardActivationModal } from "@/components/card-activation-modal";
 
 interface TrialGateProps {
   children: React.ReactNode;
@@ -245,7 +246,7 @@ function TrialCountBadge({ remaining, total }: { remaining: number; total: numbe
 }
 
 export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
-  const { stage, status, storedEmail, refresh, signup, getCaptcha, error, setError, urlError } = useTrialStatus();
+  const { stage, status, storedEmail, refresh, signup, getCaptcha, error, setError, urlError, createSetupIntent, activateCard } = useTrialStatus();
   const [devVerifyUrl, setDevVerifyUrl] = useState<string | undefined>();
   const [showGate, setShowGate] = useState(false);
 
@@ -253,7 +254,7 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
     if (stage !== "loading") setShowGate(true);
   }, [stage]);
 
-  if (isPaidPlan || stage === "active" || stage === "exhausted") {
+  if (isPaidPlan || stage === "active" || stage === "exhausted" || stage === "needs_card") {
     return (
       <>
         {(stage === "active" && status) && (
@@ -266,6 +267,13 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
               Upgrade to Pro
             </Link>
           </div>
+        )}
+        {stage === "needs_card" && (
+          <CardActivationModal
+            createSetupIntent={createSetupIntent}
+            activateCard={activateCard}
+            userEmail={storedEmail}
+          />
         )}
         {stage === "exhausted" ? (
           <div className="max-w-md mx-auto mt-8">
@@ -304,7 +312,7 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
                 </div>
                 <h2 className="text-xl font-bold mb-2">Start your free trial</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  3 free comparisons — GPT + Claude. No credit card required.
+                  3 free comparisons — GPT + Claude. Card required to verify identity — <span className="text-emerald-400 font-medium">$0 charged</span>.
                 </p>
               </div>
               <EmailForm

@@ -34,6 +34,7 @@ export interface TrialStatus {
   id: string;
   email: string;
   emailVerified: boolean;
+  cardVerified: boolean;
   trialUsed: boolean;
   comparisonsUsed: number;
   comparisonsRemaining: number;
@@ -41,7 +42,7 @@ export interface TrialStatus {
   exhausted: boolean;
 }
 
-export type TrialStage = "loading" | "signup" | "pending_verify" | "active" | "exhausted";
+export type TrialStage = "loading" | "signup" | "pending_verify" | "needs_card" | "active" | "exhausted";
 
 export function useTrialStatus() {
   const [stage, setStage] = useState<TrialStage>("loading");
@@ -64,6 +65,8 @@ export function useTrialStatus() {
         setStage("exhausted");
       } else if (!data.emailVerified) {
         setStage("pending_verify");
+      } else if (!data.cardVerified) {
+        setStage("needs_card");
       } else {
         setStage("active");
       }
@@ -94,7 +97,7 @@ export function useTrialStatus() {
     return undefined;
   }, [stage, refresh]);
 
-  async function getCaptcha(): Promise<{ question: string; token: string }> {
+  async function getCaptcha(): Promise<{ question: string; token: string; formLoadedAt?: number }> {
     return apiFetch("/trial/captcha");
   }
 
@@ -121,6 +124,30 @@ export function useTrialStatus() {
     return { alreadyVerified: data.alreadyVerified, _devVerifyUrl: data._devVerifyUrl };
   }
 
+  async function createSetupIntent(): Promise<string> {
+    const id = localStorage.getItem(TRIAL_USER_ID_KEY);
+    if (!id) throw new Error("No trial account found.");
+    const data = await apiFetch("/trial/setup-intent", {
+      method: "POST",
+      body: JSON.stringify({ trialUserId: id }),
+    });
+    if (data.alreadyVerified) {
+      await refresh();
+      throw new Error("ALREADY_VERIFIED");
+    }
+    return data.clientSecret as string;
+  }
+
+  async function activateCard(paymentMethodId: string): Promise<void> {
+    const id = localStorage.getItem(TRIAL_USER_ID_KEY);
+    if (!id) throw new Error("No trial account found.");
+    await apiFetch("/trial/activate-card", {
+      method: "POST",
+      body: JSON.stringify({ trialUserId: id, paymentMethodId }),
+    });
+    await refresh();
+  }
+
   function notifyComparisonUsed() {
     refresh();
   }
@@ -136,6 +163,8 @@ export function useTrialStatus() {
     signup,
     getCaptcha,
     refresh,
+    createSetupIntent,
+    activateCard,
     notifyComparisonUsed,
   };
 }
