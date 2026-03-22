@@ -4,6 +4,13 @@ import { computeScores } from "./utils.js";
 
 const MODEL = "llama-3.1-8b-instant";
 
+const INPUT_COST_PER_M = 0.05;
+const OUTPUT_COST_PER_M = 0.08;
+
+function calcCost(inputTokens: number, outputTokens: number) {
+  return (inputTokens * INPUT_COST_PER_M + outputTokens * OUTPUT_COST_PER_M) / 1_000_000;
+}
+
 export async function callGroq(options: ProviderCallOptions): Promise<ProviderResult> {
   const { prompt, systemPrompt, temperature = 0.7, apiKey } = options;
 
@@ -39,21 +46,30 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
 
     const data = await response.json() as {
       choices?: { message?: { content?: string } }[];
-      usage?: { total_tokens?: number };
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
     };
     const text = data.choices?.[0]?.message?.content ?? "";
-    const tokenCount = data.usage?.total_tokens ?? Math.round(text.split(" ").length * 1.3);
+    const inputTokens = data.usage?.prompt_tokens ?? Math.round(text.split(" ").length * 0.9);
+    const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
+    const tokenCount = inputTokens + outputTokens;
     const latencyMs = Date.now() - start;
-    const estimatedCost = Math.round(tokenCount * 0.0000002 * 10000) / 10000;
+    const rawCost = calcCost(inputTokens, outputTokens);
+    const estimatedCost = Math.round(rawCost * 10000) / 10000;
+    const dollarCost = `$${rawCost.toFixed(6)}`;
     const scores = computeScores(text, "grok");
+    const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
     return {
       provider: "grok",
       model: MODEL,
       text,
       latencyMs,
-      estimatedCost,
+      inputTokens,
+      outputTokens,
       tokenCount,
+      estimatedCost,
+      dollarCost,
+      costPerQuality,
       qualityScore: scores.quality,
       clarityScore: scores.clarity,
       toneScore: scores.tone,

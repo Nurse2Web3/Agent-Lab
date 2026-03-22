@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Play, Save, Copy, Loader2, Star, AlertCircle, Clock,
   DollarSign, Database, Tag, Sparkles, Trophy, CheckCircle2,
-  ArrowRight, Zap, ChevronRight
+  ArrowRight, Zap, ChevronRight, Download, TrendingDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,9 +29,14 @@ const PROVIDERS = [
 
 const TEMPLATES = [
   {
-    name: "Support Bot",
-    prompt: "A customer is complaining about a delayed refund. Write a polite, empathetic response.",
+    name: "Customer Support",
+    prompt: "Customer: My order hasn't arrived and support is ignoring me!\nWrite a professional, empathetic support reply in under 100 words. Be helpful, concise, and solution-focused. End with next steps.",
     sys: "You are an expert customer success manager. Keep it brief and professional.",
+  },
+  {
+    name: "Summarization",
+    prompt: "Summarize this content in 3 bullet points max. Keep key facts, remove fluff:\n\nAI is changing how startups build products. Founders now test multiple models before committing to one. The rise of open-source models has dramatically lowered the cost of experimentation. Teams that move fast with AI are shipping 3x faster than those that don't.",
+    sys: "You are a concise editor. Bullet points only, no padding.",
   },
   {
     name: "Code Review",
@@ -192,6 +197,18 @@ export default function Playground() {
   const copy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copied", description: `${label} copied to clipboard.` });
+  };
+
+  const downloadCSV = () => {
+    if (!response?.csvExport) return;
+    const blob = new Blob([response.csvExport], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `agentlab-comparison-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported", description: "Results downloaded as CSV." });
   };
 
   /* ------------------------------------------------------------------ */
@@ -419,6 +436,7 @@ export default function Playground() {
                         { label: "Best Quality", value: response.bestQuality, icon: CheckCircle2 },
                         { label: "Fastest",       value: response.fastest,      icon: Zap },
                         { label: "Cheapest",      value: response.cheapest,     icon: DollarSign },
+                        { label: "Best Value",    value: (response as any).bestValue ?? response.cheapest, icon: TrendingDown },
                       ].map(({ label, value, icon: Icon }) => (
                         <div key={label} className="min-w-[80px]">
                           <div className="flex items-center gap-1 mb-1">
@@ -458,6 +476,13 @@ export default function Playground() {
                         onClick={() => copy(JSON.stringify(response, null, 2), "API Payload")}
                       >
                         <Copy className="w-3 h-3 mr-1.5" /> Copy API Payload
+                      </Button>
+                      <Button
+                        variant="outline" size="sm" className="h-8 text-xs rounded-lg"
+                        onClick={downloadCSV}
+                        disabled={!(response as any).csvExport}
+                      >
+                        <Download className="w-3 h-3 mr-1.5" /> Export CSV
                       </Button>
                       <Button
                         size="sm" className="h-8 text-xs rounded-lg shadow-sm shadow-primary/20"
@@ -541,12 +566,20 @@ export default function Playground() {
                               </div>
                               <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
                                 <DollarSign className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-xs font-mono font-medium">${result.estimatedCost.toFixed(5)}</span>
+                                <span className="text-xs font-mono font-medium">{(result as any).dollarCost ?? `$${result.estimatedCost.toFixed(5)}`}</span>
                               </div>
                               <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
                                 <Database className="w-3 h-3 text-muted-foreground" />
                                 <span className="text-xs font-mono font-medium">{result.tokenCount} tokens</span>
                               </div>
+                              {(result as any).costPerQuality !== undefined && (
+                                <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
+                                  <TrendingDown className="w-3 h-3 text-muted-foreground" />
+                                  <span className="text-xs font-mono font-medium">
+                                    {((result as any).costPerQuality * 1000000).toFixed(2)}μ$/pt
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </CardHeader>
 

@@ -4,6 +4,13 @@ import { PROVIDER_CONFIG } from "./config.js";
 
 const cfg = PROVIDER_CONFIG.kimi;
 
+const INPUT_COST_PER_M = 1.20;
+const OUTPUT_COST_PER_M = 1.20;
+
+function calcCost(inputTokens: number, outputTokens: number) {
+  return (inputTokens * INPUT_COST_PER_M + outputTokens * OUTPUT_COST_PER_M) / 1_000_000;
+}
+
 export async function callKimi(options: ProviderCallOptions): Promise<ProviderResult> {
   const { prompt, systemPrompt, temperature = 0.7, apiKey } = options;
 
@@ -19,7 +26,6 @@ export async function callKimi(options: ProviderCallOptions): Promise<ProviderRe
     }
     messages.push({ role: "user", content: prompt });
 
-    // Kimi uses an OpenAI-compatible API at api.moonshot.cn
     const response = await fetch("https://api.moonshot.cn/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -40,21 +46,30 @@ export async function callKimi(options: ProviderCallOptions): Promise<ProviderRe
 
     const data = await response.json() as {
       choices?: { message?: { content?: string } }[];
-      usage?: { total_tokens?: number };
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
     };
     const text = data.choices?.[0]?.message?.content ?? "";
-    const tokenCount = data.usage?.total_tokens ?? Math.round(text.split(" ").length * 1.3);
+    const inputTokens = data.usage?.prompt_tokens ?? Math.round(text.split(" ").length * 0.9);
+    const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
+    const tokenCount = inputTokens + outputTokens;
     const latencyMs = Date.now() - start;
-    const estimatedCost = Math.round(tokenCount * 0.0000014 * 10000) / 10000;
+    const rawCost = calcCost(inputTokens, outputTokens);
+    const estimatedCost = Math.round(rawCost * 10000) / 10000;
+    const dollarCost = `$${rawCost.toFixed(6)}`;
     const scores = computeScores(text, "kimi");
+    const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
     return {
       provider: "kimi",
       model: cfg.defaultModel,
       text,
       latencyMs,
-      estimatedCost,
+      inputTokens,
+      outputTokens,
       tokenCount,
+      estimatedCost,
+      dollarCost,
+      costPerQuality,
       qualityScore: scores.quality,
       clarityScore: scores.clarity,
       toneScore: scores.tone,
@@ -74,17 +89,26 @@ function getMockKimiResponse(prompt: string): ProviderResult {
   ];
   const text = responses[Math.floor(Math.random() * responses.length)] + " Prompt context: " + prompt.slice(0, 60);
   const latencyMs = Math.round(600 + Math.random() * 800);
-  const tokenCount = Math.round(text.split(" ").length * 1.3);
-  const estimatedCost = Math.round(tokenCount * 0.0000014 * 10000) / 10000;
+  const inputTokens = Math.round(text.split(" ").length * 0.9);
+  const outputTokens = Math.round(text.split(" ").length * 0.4);
+  const tokenCount = inputTokens + outputTokens;
+  const rawCost = calcCost(inputTokens, outputTokens);
+  const estimatedCost = Math.round(rawCost * 10000) / 10000;
+  const dollarCost = `$${rawCost.toFixed(6)}`;
   const scores = computeScores(text, "kimi");
+  const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
   return {
     provider: "kimi",
     model: cfg.defaultModel,
     text,
     latencyMs,
-    estimatedCost,
+    inputTokens,
+    outputTokens,
     tokenCount,
+    estimatedCost,
+    dollarCost,
+    costPerQuality,
     qualityScore: scores.quality,
     clarityScore: scores.clarity,
     toneScore: scores.tone,

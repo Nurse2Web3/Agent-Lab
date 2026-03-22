@@ -3,13 +3,18 @@ export interface ProviderResult {
   model: string;
   text: string;
   latencyMs: number;
-  estimatedCost: number;
+  inputTokens: number;
+  outputTokens: number;
   tokenCount: number;
+  estimatedCost: number;
+  dollarCost: string;
+  costPerQuality: number;
   qualityScore: number;
   clarityScore: number;
   toneScore: number;
   overallScore: number;
   isDemo: boolean;
+  error?: string;
 }
 
 export interface ProviderCallOptions {
