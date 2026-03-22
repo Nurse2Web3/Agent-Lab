@@ -5,6 +5,9 @@ import { StripeSync } from "stripe-replit-sync";
 let stripeSyncInstance: StripeSync | null = null;
 
 async function getSecretKey(): Promise<string> {
+  if (process.env.STRIPE_API_KEY) {
+    return process.env.STRIPE_API_KEY;
+  }
   if (process.env.STRIPE_SECRET_KEY) {
     return process.env.STRIPE_SECRET_KEY;
   }
