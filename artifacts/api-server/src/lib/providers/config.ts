@@ -11,21 +11,12 @@ export interface ProviderConfig {
 }
 
 export const PROVIDER_CONFIG: Record<string, ProviderConfig> = {
-  grok: {
-    id: "grok",
-    label: "Grok",
-    defaultModel: "llama-3.1-8b-instant",
-    fallbackModel: "llama3-8b-8192",
-    plans: ["sandbox", "pro", "studio"],
-    active: true,
-    description: "Ultra-fast inference. Speed-first comparisons.",
-  },
   openai: {
     id: "openai",
     label: "OpenAI",
     defaultModel: "gpt-4o-mini",
     fallbackModel: "gpt-4o",
-    plans: ["pro", "studio"],
+    plans: ["sandbox", "pro", "studio"],
     active: true,
     description: "OpenAI's GPT-4o mini — fast, capable, cost-effective.",
   },
@@ -34,9 +25,18 @@ export const PROVIDER_CONFIG: Record<string, ProviderConfig> = {
     label: "Claude",
     defaultModel: "claude-3-5-sonnet-20241022",
     fallbackModel: "claude-3-haiku-20240307",
-    plans: ["studio"],
+    plans: ["sandbox", "pro", "studio"],
     active: true,
     description: "Anthropic's Claude — thoughtful, safety-focused, and precise.",
+  },
+  grok: {
+    id: "grok",
+    label: "GROK THE ELON MODEL 🥇",
+    defaultModel: "grok-beta",
+    fallbackModel: "grok-beta",
+    plans: ["pro", "studio"],
+    active: true,
+    description: "xAI's Grok Beta — the model everyone's talking about.",
   },
 };
 

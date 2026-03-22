@@ -2,10 +2,11 @@ import { ProviderCallOptions, ProviderResult } from "./types.js";
 import { getMockGroqResponse } from "../mockResponses.js";
 import { computeScores } from "./utils.js";
 
-const MODEL = "llama-3.1-8b-instant";
+const MODEL = "grok-beta";
+const BASE_URL = "https://api.x.ai/v1";
 
-const INPUT_COST_PER_M = 0.05;
-const OUTPUT_COST_PER_M = 0.08;
+const INPUT_COST_PER_M  = 5.00;
+const OUTPUT_COST_PER_M = 15.00;
 
 function calcCost(inputTokens: number, outputTokens: number) {
   return (inputTokens * INPUT_COST_PER_M + outputTokens * OUTPUT_COST_PER_M) / 1_000_000;
@@ -26,7 +27,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
     }
     messages.push({ role: "user", content: prompt });
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch(`${BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
@@ -41,7 +42,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
     });
 
     if (!response.ok) {
-      throw new Error(`Grok API error: ${response.status}`);
+      throw new Error(`xAI API error: ${response.status}`);
     }
 
     const data = await response.json() as {
@@ -49,14 +50,14 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
       usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
     };
     const text = data.choices?.[0]?.message?.content ?? "";
-    const inputTokens = data.usage?.prompt_tokens ?? Math.round(text.split(" ").length * 0.9);
+    const inputTokens  = data.usage?.prompt_tokens    ?? Math.round(text.split(" ").length * 0.9);
     const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
-    const tokenCount = inputTokens + outputTokens;
-    const latencyMs = Date.now() - start;
-    const rawCost = calcCost(inputTokens, outputTokens);
+    const tokenCount   = inputTokens + outputTokens;
+    const latencyMs    = Date.now() - start;
+    const rawCost      = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
-    const dollarCost = `$${rawCost.toFixed(6)}`;
-    const scores = computeScores(text, "grok");
+    const dollarCost    = `$${rawCost.toFixed(6)}`;
+    const scores        = computeScores(text, "grok");
     const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
     return {
@@ -72,7 +73,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
       costPerQuality,
       qualityScore: scores.quality,
       clarityScore: scores.clarity,
-      toneScore: scores.tone,
+      toneScore:    scores.tone,
       overallScore: scores.overall,
       isDemo: false,
     };

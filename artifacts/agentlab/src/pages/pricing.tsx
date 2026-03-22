@@ -6,7 +6,7 @@ import { ProviderIcon } from "@/components/provider-icon";
 import { useBillingStatus, useBillingProducts, useCheckout, useManageBilling } from "@/hooks/use-billing";
 import { useToast } from "@/hooks/use-toast";
 
-const PROVIDER_PILLS = ["Grok", "OpenAI", "Claude"];
+const PROVIDER_PILLS = ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"];
 
 const TIERS = [
   {
@@ -18,12 +18,12 @@ const TIERS = [
     badge: null,
     popular: false,
     tagline: "Try Ai AgentLab.",
-    desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Grok.",
+    desc: "Try Ai AgentLab with 3 side-by-side AI comparisons — GPT + Claude (upgrade for GROK - THE ELON MODEL 🥇).",
     cta: "Start Trial",
-    providers: ["Grok"],
+    providers: ["OpenAI", "Claude"],
     features: [
       { label: "3 total comparisons", included: true },
-      { label: "1 starter provider (Grok)", included: true },
+      { label: "GPT + Claude (2 providers)", included: true },
       { label: "Side-by-side output view", included: true },
       { label: "Basic speed visibility", included: true },
       { label: "Saved history", included: false },
@@ -40,17 +40,16 @@ const TIERS = [
     badge: "Recommended",
     popular: true,
     tagline: "For founders who need more.",
-    desc: "For founders and builders who want more comparisons and access to Grok and OpenAI.",
+    desc: "🔥 UPGRADE PRO ($29): Unlock GROK THE ELON MODEL + 100 tests.",
     cta: "Upgrade to Pro",
-    providers: ["Grok", "OpenAI"],
+    providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
     features: [
       { label: "100 comparisons per month", included: true },
-      { label: "Grok and OpenAI access", included: true },
+      { label: "GPT + Claude + GROK (all 3)", included: true },
       { label: "Saved test history", included: true },
       { label: "Side-by-side comparison view", included: true },
       { label: "Basic export support", included: true },
       { label: "Winner Engine recommendations", included: true },
-      { label: "Claude access", included: false },
       { label: "Advanced scoring", included: false },
     ],
   },
@@ -65,7 +64,7 @@ const TIERS = [
     tagline: "Full access. Deeper evaluation.",
     desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
     cta: "Get Premium",
-    providers: ["Grok", "OpenAI", "Claude"],
+    providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
     features: [
       { label: "Everything in Pro", included: true },
       { label: "300 comparisons per month", included: true },
@@ -80,7 +79,7 @@ const TIERS = [
 
 const COMPARISON_ROWS = [
   { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "300 / month" },
-  { label: "Providers",         trial: "Grok",                           pro: "Grok, OpenAI",                  premium: "Grok, OpenAI, Claude" },
+  { label: "Providers",         trial: "GPT + Claude",                   pro: "GPT + Claude + GROK",           premium: "GPT + Claude + GROK" },
   { label: "Saved history",     trial: "—",                              pro: "✓",                             premium: "✓" },
   { label: "Exports",           trial: "—",                              pro: "Basic",                         premium: "Full" },
   { label: "Advanced scoring",  trial: "—",                              pro: "—",                             premium: "✓" },

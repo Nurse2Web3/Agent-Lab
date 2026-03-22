@@ -11,8 +11,8 @@ import type { ProviderResult } from "../lib/providers/types.js";
 const router: IRouter = Router();
 
 const BASE_USER_ID = "default-user";
-const TRIAL_PROVIDER_ALLOWLIST = new Set(["grok"]);
-const PRO_PROVIDER_ALLOWLIST   = new Set(["grok", "openai"]);
+const TRIAL_PROVIDER_ALLOWLIST = new Set(["openai", "claude"]);
+const PRO_PROVIDER_ALLOWLIST   = new Set(["openai", "claude", "grok"]);
 const TRIAL_LIMIT = 3;
 
 async function getApiKey(provider: string): Promise<string | undefined> {
@@ -76,7 +76,7 @@ router.post("/compare", async (req, res) => {
     const disallowed = normalizedProviders.filter((p) => !TRIAL_PROVIDER_ALLOWLIST.has(p));
     if (disallowed.length > 0) {
       res.status(403).json({
-        error: `Trial accounts can only use Grok. Upgrade to Pro to access: ${disallowed.join(", ")}.`,
+        error: `Trial accounts can only use GPT and Claude. Upgrade to Pro to unlock GROK THE ELON MODEL 🥇: ${disallowed.join(", ")}.`,
         requiresUpgrade: true,
       });
       return;

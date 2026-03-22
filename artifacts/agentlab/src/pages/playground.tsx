@@ -20,9 +20,9 @@ import { useTrialStatus } from "@/hooks/use-trial";
 import { TrialGate } from "@/components/trial-gate";
 
 const PROVIDERS = [
-  { id: "Grok",   name: "Grok",   model: "llama-3.1-8b-instant",       plan: ["sandbox", "pro", "studio"] },
-  { id: "OpenAI", name: "OpenAI", model: "gpt-4o-mini",                 plan: ["pro", "studio"] },
-  { id: "Claude", name: "Claude", model: "claude-3-5-sonnet-20241022",  plan: ["studio"] },
+  { id: "OpenAI", name: "OpenAI",                   model: "gpt-4o-mini",               plan: ["sandbox", "pro", "studio"] },
+  { id: "Claude", name: "Claude",                   model: "claude-3-5-sonnet-20241022", plan: ["sandbox", "pro", "studio"] },
+  { id: "Grok",   name: "GROK THE ELON MODEL 🥇",   model: "grok-beta",                 plan: ["pro", "studio"] },
 ];
 
 const TEMPLATES = [
@@ -131,7 +131,7 @@ export default function Playground() {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(["Grok"]);
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(["OpenAI", "Claude"]);
   const [temperature, setTemperature] = useState([0.7]);
   const [scores, setScores] = useState<Record<string, number>>({});
 
@@ -287,9 +287,9 @@ export default function Playground() {
               {(() => {
                 const userPlan = billingStatus?.plan ?? "sandbox";
                 const planAllowlist: Record<string, string[]> = {
-                  sandbox: ["Grok"],
-                  pro: ["Grok", "OpenAI"],
-                  studio: ["Grok", "OpenAI", "Claude"],
+                  sandbox: ["OpenAI", "Claude"],
+                  pro: ["OpenAI", "Claude", "Grok"],
+                  studio: ["OpenAI", "Claude", "Grok"],
                 };
                 const allowed = new Set(planAllowlist[userPlan] ?? planAllowlist["sandbox"]);
                 return PROVIDERS.map((p) => {

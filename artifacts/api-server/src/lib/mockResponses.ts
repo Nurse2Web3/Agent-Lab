@@ -40,8 +40,8 @@ function computeScores(provider: string) {
 }
 
 export function getMockGroqResponse(prompt: string): ProviderResult {
-  const INPUT_COST_PER_M  = 0.05;
-  const OUTPUT_COST_PER_M = 0.08;
+  const INPUT_COST_PER_M  = 5.00;
+  const OUTPUT_COST_PER_M = 15.00;
   const text = pickRandom(grokResponses) + " Input summary: " + prompt.slice(0, 60);
   const latencyMs    = Math.round(randomBetween(200, 600));
   const inputTokens  = Math.round(text.split(" ").length * 0.9);
@@ -55,7 +55,7 @@ export function getMockGroqResponse(prompt: string): ProviderResult {
 
   return {
     provider: "grok",
-    model: "llama-3.1-8b-instant",
+    model: "grok-beta",
     text,
     latencyMs,
     inputTokens,

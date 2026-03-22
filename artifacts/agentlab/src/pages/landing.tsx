@@ -122,7 +122,7 @@ export default function Landing() {
             Compare outputs across leading AI providers in one workspace
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["Grok", "OpenAI", "Claude"].map((p) => (
+            {["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"].map((p) => (
               <span key={p} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium text-foreground/80 backdrop-blur-sm">
                 <ProviderIcon provider={p} className="w-3.5 h-3.5" />
                 {p}
@@ -192,7 +192,7 @@ export default function Landing() {
                       <div className="h-2 rounded bg-secondary/60 w-1/2" />
                     </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
-                      {["Grok", "OpenAI", "Claude"].map((p) => (
+                      {["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"].map((p) => (
                         <div key={p} className="rounded-lg border border-border/50 p-3 bg-secondary/20">
                           <div className="text-xs font-medium mb-2 text-muted-foreground">{p}</div>
                           <div className="space-y-1">
@@ -323,7 +323,7 @@ export default function Landing() {
               </div>
               <div className="p-6 space-y-4">
                 {[
-                  { label: "Best Quality", value: "Claude", bar: "w-[92%]", color: "bg-emerald-500/60" },
+                  { label: "Best Quality", value: "GROK 🥇", bar: "w-[92%]", color: "bg-emerald-500/60" },
                   { label: "Cheapest", value: "Grok", bar: "w-[78%]", color: "bg-sky-500/60" },
                   { label: "Fastest", value: "Grok", bar: "w-[95%]", color: "bg-violet-500/60" },
                 ].map((row) => (
@@ -362,9 +362,9 @@ export default function Landing() {
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
-              { name: "Grok", sub: "Speed-first, low-latency outputs", emoji: "⚡" },
-              { name: "OpenAI", sub: "GPT-4o mini, fast and capable", emoji: "◎" },
+              { name: "OpenAI", sub: "GPT-4o mini — fast and cost-effective", emoji: "◎" },
               { name: "Claude", sub: "Nuanced, safe, thoughtful outputs", emoji: "✺" },
+              { name: "GROK THE ELON MODEL 🥇", sub: "The model everyone's talking about", emoji: "⚡" },
             ].map((p) => (
               <div key={p.name} className="glass-card rounded-2xl p-8 text-center group hover:border-primary/30 transition-colors">
                 <div className="text-3xl mb-4">{p.emoji}</div>
@@ -419,22 +419,22 @@ export default function Landing() {
               {
                 name: "Ai AgentLab Trial",
                 price: "$0",
-                providers: ["Grok"],
-                desc: "Try Ai AgentLab with 3 side-by-side AI comparisons using Grok.",
+                providers: ["OpenAI", "Claude"],
+                desc: "3 free comparisons — GPT + Claude (upgrade for GROK - THE ELON MODEL 🥇).",
                 highlight: false,
               },
               {
                 name: "Ai AgentLab Pro",
                 price: "$29/mo",
-                providers: ["Grok", "OpenAI"],
-                desc: "For founders and builders who want more comparisons and access to Grok and OpenAI.",
+                providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
+                desc: "🔥 UPGRADE PRO ($29): Unlock GROK THE ELON MODEL + 100 tests.",
                 highlight: true,
               },
               {
                 name: "Ai AgentLab Premium",
                 price: "$49/mo",
-                providers: ["Grok", "OpenAI", "Claude"],
-                desc: "Advanced AI comparison with everything in Pro, plus Claude, deeper evaluation, and richer decision support.",
+                providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
+                desc: "Full access — all 3 providers, 300 tests, advanced scoring, and richer evaluation.",
                 highlight: false,
               },
             ].map((plan) => (

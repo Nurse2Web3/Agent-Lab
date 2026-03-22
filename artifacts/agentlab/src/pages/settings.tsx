@@ -18,9 +18,9 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_PROVIDERS: Record<string, string[]> = {
-  sandbox: ["Grok"],
-  pro: ["Grok", "OpenAI"],
-  studio: ["Grok", "OpenAI", "Claude"],
+  sandbox: ["OpenAI", "Claude"],
+  pro: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
+  studio: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
 };
 
 const PLAN_COLORS: Record<string, string> = {
@@ -171,7 +171,7 @@ export default function Settings() {
             <div className="mt-6 pt-6 border-t border-border/40 grid sm:grid-cols-2 gap-3 text-sm">
               {[
                 { label: "Comparisons", sandbox: "3 total", pro: "100 / month", studio: "300 / month" },
-                { label: "Providers", sandbox: "1", pro: "2", studio: "3" },
+                { label: "Providers", sandbox: "2", pro: "3", studio: "3" },
                 { label: "Saved history", sandbox: "—", pro: "✓", studio: "✓" },
                 { label: "Exports", sandbox: "—", pro: "Basic", studio: "Full" },
                 { label: "Winner Engine", sandbox: "—", pro: "✓", studio: "✓" },
