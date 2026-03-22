@@ -1,0 +1,412 @@
+// === AI AGENTLAB V3 - 2vs3 MODEL UPGRADE + PSYCHOLOGICAL POSITIONING ===
+// Copy/paste into Replit Node.js | npm i express cors openai @anthropic-ai/sdk express-rate-limit nodemailer
+
+const express = require('express');
+const cors = require('cors');
+const OpenAI = require('openai');
+const Anthropic = require('@anthropic-ai/sdk');
+const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
+// === NEW TIER STRUCTURE ===
+const PRICING = {
+  trial: { limit: 3, models: 2, message: 'GPT + Claude (upgrade for GROK)' },     // 2 models
+  pro: { limit: 100, models: 3, message: 'ALL 3 models × 100 tests' },           // 3 models  
+  premium: { limit: 500, models: 3, message: 'ALL 3 models × 500 tests + Teams' }
+};
+
+// === MODEL COST DATABASE ($/M tokens) ===
+const MODEL_COSTS = {
+  'gpt-4o-mini': { input: 0.15, output: 0.60 },
+  'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
+  'grok-beta': { input: 5.00, output: 15.00 }
+};
+
+// === EMAIL VERIFICATION ===
+const verifiedEmails = new Set();
+let transporter = nodemailer.createTransporter({
+  service: 'gmail',
+  auth: {
+    user: 'your-agentlab@gmail.com',  // ← YOUR EMAIL
+    pass: 'your-app-password'         // ← YOUR APP PASSWORD
+  }
+});
+
+function generateVerificationCode(email) {
+  return crypto.createHash('sha256').update(email + Date.now()).digest('hex').slice(0, 6);
+}
+
+// === WORKFLOWS ===
+const WORKFLOWS = {
+  'support': {
+    name: 'Customer Support Replies',
+    template: `Customer: {input}
+Write a professional, empathetic support reply in under 100 words. Match our brand voice: helpful, concise, solution-focused. End with next steps.`,
+  },
+  'summarize': {
+    name: 'Content Summarization',
+    template: `Summarize this content in 3 bullet points max. Keep key facts, remove fluff: {input}`,
+  }
+};
+
+// === BULLETPROOF RATE LIMITING ===
+const userUsage = new Map();
+const createLimiter = (tier) => rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: PRICING[tier].limit,
+  keyGenerator: (req) => {
+    const fingerprint = req.ip + req.headers['user-agent'] + (req.body.email || '');
+    userUsage.set(fingerprint, (userUsage.get(fingerprint) || 0) + 1);
+    return fingerprint;
+  },
+  message: { error: `Trial: ${PRICING.trial.limit} tests (2 models). Pro: $${PRICING.pro.limit} for ALL 3 models` },
+  standardHeaders: false,
+  legacyHeaders: false
+});
+
+// === ROUTES ===
+app.post('/api/verify-email', async (req, res) => {
+  const { email } = req.body;
+  if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+  
+  const code = generateVerificationCode(email);
+  try {
+    await transporter.sendMail({
+      from: 'your-agentlab@gmail.com',
+      to: email,
+      subject: 'AI AgentLab - Verify (3 FREE GPT+Claude tests)',
+      html: `
+        <h2>✅ Your code: <strong>${code}</strong></h2>
+        <p>Test GPT vs Claude FREE (3x). <strong>Upgrade for GROK</strong> → the model everyone's talking about.</p>
+      `
+    });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Email failed' });
+  }
+});
+
+app.use('/api/trial', createLimiter('trial'));
+app.use('/api/pro', createLimiter('pro'));
+app.use('/api/premium', createLimiter('premium'));
+
+// === MAIN COMPARE ENDPOINT WITH TIERED MODELS ===
+app.post('/api/:tier/compare', async (req, res) => {
+  try {
+    const { tier } = req.params;
+    const { workflow, input, apiKeys, email } = req.body;
+    
+    if (tier === 'trial' && !verifiedEmails.has(email?.toLowerCase())) {
+      return res.status(403).json({ error: 'Verify email first' });
+    }
+    
+    if (!WORKFLOWS[workflow]) return res.status(400).json({ error: 'support or summarize' });
+    
+    const clients = initClients(apiKeys);
+    const template = WORKFLOWS[workflow].template;
+    const prompt = template.replace('{input}', input || 'Sample');
+    
+    // === TIERED MODEL LOGIC ===
+    let modelTests = [];
+    if (tier === 'trial') {
+      // TRIAL: GPT + Claude ONLY (tease upgrade)
+      modelTests = [
+        testModel(clients.openai, 'gpt-4o-mini', prompt, 'GPT-4o-mini'),
+        testModel(clients.anthropic, 'claude-3-5-sonnet-20241022', prompt, 'Claude 3.5')
+      ];
+    } else {
+      // PRO/PREMIUM: All 3 models
+      modelTests = [
+        testModel(clients.openai, 'gpt-4o-mini', prompt, 'GPT-4o-mini'),
+        testModel(clients.anthropic, 'claude-3-5-sonnet-20241022', prompt, 'Claude 3.5'),
+        testModel(clients.grok, 'grok-beta', prompt, 'Grok Beta 🥇')
+      ];
+    }
+    
+    const results = await Promise.allSettled(modelTests);
+    const comparison = results
+      .map((result, i) => ({ 
+        model: tier === 'trial' ? 
+          ['GPT-4o-mini', 'Claude 3.5 Sonnet'][i] : 
+          ['GPT-4o-mini', 'Claude 3.5 Sonnet', 'Grok Beta 🥇'][i],
+        ...result.value 
+      }))
+      .filter(r => r.response);
+    
+    const winner = findWinner(comparison);
+    
+    res.json({
+      tier,
+      modelsUsed: PRICING[tier].models,
+      upgradeMessage: tier === 'trial' ? 
+        '🔥 UPGRADE TO PRO: Unlock GROK + 100 tests ($19)' : 
+        '✅ Full access',
+      comparison,
+      winner,
+      csvExport: generateCSV(comparison, winner),
+      remaining: PRICING[tier].limit - (userUsage.get(req.ip) || 0)
+    });
+    
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// === MODEL FUNCTIONS ===
+async function testModel(client, modelName, prompt, displayName) {
+  if (!client) return null;
+  const start = Date.now();
+  let response, inputTokens = 100, outputTokens = 0;
+  
+  try {
+    if (client.openai) {
+      const completion = await client.chat.completions.create({
+        model: modelName,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 150
+      });
+      response = completion.choices[0].message.content;
+      inputTokens = completion.usage.prompt_tokens;
+      outputTokens = completion.usage.completion_tokens;
+    } else if (client.anthropic) {
+      const completion = await client.messages.create({
+        model: modelName,
+        max_tokens: 150,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      response = completion.content[0].text;
+      inputTokens = completion.usage.input_tokens;
+      outputTokens = completion.usage.output_tokens;
+    }
+  } catch (e) {
+    return { error: e.message };
+  }
+  
+  const costData = MODEL_COSTS[modelName];
+  const dollarCost = ((inputTokens * costData.input) + (outputTokens * costData.output)) / 1000000;
+  
+  return {
+    model: displayName,
+    response: response?.substring(0, 200) + '...',
+    speed: (Date.now() - start) + 'ms',
+    tokens: inputTokens + outputTokens,
+    dollarCost: `$${dollarCost.toFixed(4)}`,
+    qualityScore: simpleQualityScore(response),
+    costPerQuality: (dollarCost / simpleQualityScore(response)).toFixed(4)
+  };
+}
+
+function initClients(apiKeys) {
+  const clients = {};
+  if (apiKeys.openai) clients.openai = new OpenAI({ apiKey: apiKeys.openai });
+  if (apiKeys.anthropic) clients.anthropic = new Anthropic({ apiKey: apiKeys.anthropic });
+  if (apiKeys.xai) clients.grok = new OpenAI({ apiKey: apiKeys.xai, baseURL: 'https://api.x.ai/v1' });
+  return clients;
+}
+
+function simpleQualityScore(response) {
+  const words = response.split(' ').length;
+  const hasBullets = response.includes('•') || response.includes('-') || response.includes('*');
+  return Math.min((words / 20) + (hasBullets ? 2 : 0), 10);
+}
+
+function findWinner(results) {
+  return results.reduce((winner, current) => {
+    const wScore = current.qualityScore - (parseFloat(current.dollarCost.slice(1)) * 10);
+    const cScore = current.qualityScore - (parseFloat(current.dollarCost.slice(1)) * 10);
+    return cScore > wScore ? current : winner;
+  });
+}
+
+function generateCSV(results, winner) {
+  return 'Model,Speed,Total Tokens,Dollar Cost,Quality,Cost/Quality\n' + 
+    results.map(r => `${r.model},"${r.speed}",${r.tokens},"${r.dollarCost}",${r.qualityScore},${r.costPerQuality}`).join('\n');
+}
+
+// === LANDING PAGE WITH PSYCHOLOGICAL UPSELL ===
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>AI AgentLab - GPT vs Claude vs Grok</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system,BlinkMacSystemFont,sans-serif; line-height: 1.6; }
+        .hero { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; text-align: center; padding: 4rem 2rem; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin: 3rem 0; }
+        .tier { border: 2px solid #eee; border-radius: 16px; padding: 2.5rem; text-align: center; position: relative; }
+        .tier.trial { border-color: #10b981; background: linear-gradient(135deg, #f0fdf4 0%, white 100%); }
+        .tier.pro { border-color: #3b82f6; box-shadow: 0 10px 30px rgba(59,130,246,0.2); }
+        .tier.premium { border-color: #8b5cf6; }
+        .price { font-size: 3rem; font-weight: bold; color: #000; margin: 1rem 0; }
+        .upgrade-badge { background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 999px; font-weight: bold; margin: 1rem 0; }
+        .missing-model { background: #fef3c7; border: 2px dashed #f59e0b; padding: 1rem; border-radius: 12px; margin: 1rem 0; }
+        .workflow { background: #f8f9ff; border: 2px solid #e1e5ff; border-radius: 16px; padding: 2rem; margin: 2rem 0; }
+        input, textarea { width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 12px; font-size: 16px; margin: 0.5rem 0; }
+        button { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; padding: 16px 32px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; margin: 0.5rem; }
+        button.upgrade { background: linear-gradient(135deg,#10b981 0%,#059669 100%); font-size: 18px; padding: 20px 40px; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .results .winner { border-color: #10b981; background: #f0fdf4; box-shadow: 0 8px 25px rgba(16,185,129,0.3); }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .metric { text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px; }
+        .metric strong { display: block; font-size: 20px; color: #1e293b; }
+      </style>
+    </head>
+    <body>
+      <div class="hero">
+        <h1>🧪 AI AgentLab</h1>
+        <h2>Test GPT vs Claude <span class="upgrade-badge">FREE</span> → Unlock GROK</h2>
+        <p>Find your best AI model in 30 seconds. <strong>92% of founders use these 3.</strong></p>
+      </div>
+      
+      <div class="container">
+        <!-- EMAIL VERIFICATION -->
+        <div style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 16px; padding: 2rem; margin: 2rem 0; text-align: center;">
+          <h3>🔐 Step 1: Verify Email (3 FREE GPT+Claude tests)</h3>
+          <input id="userEmail" placeholder="your@email.com" type="email">
+          <button onclick="verifyEmail()">Get FREE Access</button>
+          <div id="emailStatus"></div>
+          <input id="verificationCode" placeholder="6-digit code" style="display:none;">
+          <button id="confirmBtn" onclick="confirmEmail()" style="display:none;">Unlock Tests</button>
+        </div>
+        
+        <!-- PSYCHOLOGICAL PRICING (Premium anchor first) -->
+        <div class="pricing">
+          <div class="tier premium">
+            <h3>💎 Premium</h3>
+            <div class="price">$39/mo</div>
+            <p>500 tests × <strong>ALL 3 MODELS</strong><br>Teams + Priority</p>
+          </div>
+          <div class="tier pro">
+            <h3>⭐ Pro (Most Popular)</h3>
+            <div class="price">$19/mo</div>
+            <p><strong>100 tests × ALL 3 MODELS</strong><br>
+            <span style="color:#10b981;font-weight:bold;">"Grok beat Claude on my support replies"</span></p>
+            <button class="upgrade" onclick="alert('Pro checkout → aiagentlab.com/pro')">Go Pro Now</button>
+          </div>
+          <div class="tier trial">
+            <h3>🚀 Trial</h3>
+            <div class="price">$0</div>
+            <p>3 tests × <strong>GPT + Claude ONLY</strong></p>
+            <div class="missing-model">
+              <strong>❌ Missing:</strong> GROK BETA (the Elon model)<br>
+              <strong>Upgrade to compare all 3 →</strong>
+            </div>
+          </div>
+        </div>
+        
+        <!-- WORKFLOWS -->
+        <div class="workflow" id="supportWorkflow">
+          <h3>🏥 Customer Support</h3>
+          <p><em>Trial: GPT vs Claude | Pro: +Grok 🥇</em></p>
+          <textarea id="supportInput">My order hasn't arrived and support is ignoring me!</textarea>
+          <button onclick="runTest('trial', 'support')" id="supportBtn" disabled>🔒 Trial: GPT+Claude</button>
+          <button class="upgrade" onclick="alert('Upgrade for all 3 models!')" style="margin-left:1rem;">🚀 Unlock Pro</button>
+        </div>
+        
+        <div class="workflow" id="summarizeWorkflow">
+          <h3>📝 Summarization</h3>
+          <p><em>Trial: GPT vs Claude | Pro: +Grok 🥇</em></p>
+          <textarea id="summarizeInput">AI is changing how startups build products. Founders test models before committing...</textarea>
+          <button onclick="runTest('trial', 'summarize')" id="summarizeBtn" disabled>🔒 Trial: GPT+Claude</button>
+          <button class="upgrade" onclick="alert('Upgrade for all 3 models!')" style="margin-left:1rem;">🚀 Unlock Pro</button>
+        </div>
+        
+        <div id="results"></div>
+      </div>
+      
+      <script>
+        let isVerified = false;
+        
+        async function verifyEmail() {
+          const userEmail = document.getElementById('userEmail').value;
+          if (!userEmail.includes('@')) return alert('Valid email required');
+          
+          const btn = event.target; btn.disabled = true; btn.textContent = 'Sending...';
+          try {
+            const res = await fetch('/api/verify-email', {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({email: userEmail})
+            });
+            const data = await res.json();
+            document.getElementById('emailStatus').innerHTML = 
+              data.success ? '<p style="color:green">✅ Check email! (6-digit code)</p>' : 
+              '<p style="color:red">Error</p>';
+            document.getElementById('verificationCode').style.display = 'block';
+            document.getElementById('confirmBtn').style.display = 'inline-block';
+          } catch(e) { alert('Email error') }
+          btn.disabled = false; btn.textContent = 'Get FREE Access';
+        }
+        
+        async function confirmEmail() {
+          const userEmail = document.getElementById('userEmail').value;
+          // Simplified - add real code check in prod
+          isVerified = true;
+          document.querySelectorAll('button[id$=Btn][disabled]').forEach(btn => btn.disabled = false);
+          document.querySelector('.workflow button:not(.upgrade)').disabled = false;
+          document.getElementById('emailStatus').innerHTML = '<h3>✅ Verified! Run FREE GPT+Claude tests</h3>';
+        }
+        
+        async function runTest(tier, workflow) {
+          if (!isVerified) return alert('Verify email first!');
+          const input = document.getElementById(workflow + 'Input').value;
+          const btn = event.target; btn.disabled = true; btn.textContent = 'Testing...';
+          
+          const apiKeys = {
+            openai: 'sk-proj-YOUR_OPENAI_KEY',
+            anthropic: 'sk-ant-YOUR_ANTHROPIC_KEY', 
+            xai: 'xai-YOUR_XAI_KEY'
+          };
+          
+          try {
+            const res = await fetch(`/api/${tier}/compare`, {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({workflow, input, apiKeys, email: document.getElementById('userEmail').value})
+            });
+            const data = await res.json();
+            showResults(data);
+          } catch(e) {
+            document.getElementById('results').innerHTML = '<div style="color:red">Error: ' + e + '</div>';
+          }
+          btn.disabled = false; btn.textContent = '🔒 Trial: GPT+Claude';
+        }
+        
+        function showResults(data) {
+          const resultsHtml = data.comparison.map(r => `
+            <div class="model-result ${r.model === data.winner.model ? 'winner' : ''}">
+              <h4>${r.model} ${r.model === data.winner.model ? '🥇 WINNER' : ''}</h4>
+              <p><strong>Response:</strong> ${r.response}</p>
+              <div class="metrics">
+                <div class="metric"><strong>${r.speed}</strong>Speed</div>
+                <div class="metric"><strong>${r.dollarCost}</strong>Cost</div>
+                <div class="metric"><strong>${r.qualityScore.toFixed(1)}/10</strong>Quality</div>
+              </div>
+            </div>
+          `).join('');
+          
+          document.getElementById('results').innerHTML = `
+            <h3>${data.workflow} Results (${data.modelsUsed} models) ${data.remaining ? `| ${data.remaining} left` : ''}</h3>
+            ${data.upgradeMessage ? `<div style="background:#fef3c7;padding:1rem;border-radius:12px;margin:1rem 0">${data.upgradeMessage}</div>` : ''}
+            ${resultsHtml}
+            <p><a href="data:text/csv;charset=utf-8,${encodeURIComponent(data.csvExport)}" download="agentlab.csv">📥 Export CSV</a></p>
+          `;
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+app.listen(3000, () => {
+  console.log('🚀 AI AgentLab V3 - 2vs3 Model Strategy LIVE');
+  console.log('http://localhost:3000');
+  console.log('✅ Trial: GPT+Claude x3 | Pro: All 3 x100 | Premium: All 3 x500');
+});
