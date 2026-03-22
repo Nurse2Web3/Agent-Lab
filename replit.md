@@ -1,22 +1,26 @@
-# AI AgentLab
+# Ai AgentLab
 
 ## Overview
 
-AI AgentLab is a founder-friendly AI comparison and testing studio. It helps users compare prompts across multiple AI providers, score outputs, view speed and estimated cost, save winners, and export the best version for production use.
+Ai AgentLab is a founder-friendly AI comparison studio. Users can compare prompts side-by-side across multiple AI models (GPT-4o, Claude, Grok), score outputs, and see speed + cost breakdowns.
 
-**Tagline:** Test AI agents. Compare outputs. Ship with confidence.
+**Tagline:** Compare AI models side-by-side. Find what works. Ship faster.
+
+## Tiers
+
+- **Trial** — $0, 3 comparisons, GPT-4o + Claude only
+- **Pro** — $29/mo, 100 comparisons/mo, adds GROK THE ELON MODEL 🥇
+- **Premium (Studio)** — $49/mo, 500 comparisons/mo, all 3 models
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **Frontend**: React + Vite + Tailwind CSS (artifacts/agentlab)
-- **Backend**: Express 5 (artifacts/api-server)
+- **Monorepo**: pnpm workspaces
+- **Frontend**: React + Vite + Tailwind CSS (`artifacts/agentlab`)
+- **Backend**: Express 5 (`artifacts/api-server`)
 - **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
+- **Email**: Resend (from: `noreply@nurse2web3.com`)
+- **Payments**: Stripe (subscriptions + card verification)
+- **CAPTCHA**: Cloudflare Turnstile (site key: `0x4AAAAAACuksF2bnJ4Rzaei`)
 - **Animations**: Framer Motion
 
 ## Structure
@@ -26,110 +30,73 @@ artifacts/
 ├── agentlab/               # React + Vite frontend
 │   └── src/
 │       ├── pages/          # Landing, Playground, History, Pricing, Settings
-│       ├── components/     # Shared components (layout, provider-icon, trial-gate, ui/)
+│       ├── components/     # trial-gate.tsx, card-activation-modal.tsx, ui/
 │       ├── hooks/          # use-billing.ts, use-trial.ts
-│       ├── lib/            # deviceFingerprint.ts
-│       └── index.css       # Theme variables + tailwind
+│       └── lib/            # deviceFingerprint.ts
 ├── api-server/             # Express 5 backend
 │   └── src/
 │       ├── lib/
-│       │   ├── providers/        # gemini.ts, groq.ts, kimi.ts, openai.ts, claude.ts, config.ts
-│       │   ├── disposableEmailDomains.ts  # Blocklist of throwaway email domains
-│       │   ├── mockResponses.ts  # Demo mode fallbacks
-│       │   └── scoring.ts        # Winner calculation logic
+│       │   ├── providers/        # openai.ts, claude.ts, groq.ts (xAI grok-beta)
+│       │   ├── email.ts          # Resend magic link emails
+│       │   └── disposableEmailDomains.ts
 │       ├── middleware/
-│       │   └── rateLimiter.ts    # In-memory IP rate limiting
-│       ├── trialStorage.ts       # Trial DB operations
-│       └── routes/               # compare.ts, history.ts, settings.ts, billing.ts, trial.ts
-lib/
-├── api-spec/openapi.yaml   # API contract (source of truth)
-├── api-client-react/       # Generated React Query hooks
-├── api-zod/                # Generated Zod schemas
-└── db/src/schema/          # history.ts, apiKeys.ts tables
+│       │   └── rateLimiter.ts    # IP + device rate limiting
+│       ├── trialStorage.ts       # Trial DB operations (card_verified, setup_intent_id)
+│       ├── billingStorage.ts     # Monthly usage tracking
+│       └── routes/               # compare.ts, trial.ts, billing.ts, history.ts
 ```
 
-## Trial Abuse Protection
+## Trial Abuse Protection (6 layers)
 
-The trial system is enforced on both frontend and backend:
-
-### Database Tables
-- `trial_users` — stores email, email_verified, trial_used, trial_comparisons_used, device_fingerprint, ip_address, verification_token
-- `trial_signup_log` — logs all signup/verify/compare/blocked actions for admin review
-
-### Backend Checks (routes/trial.ts + routes/compare.ts)
-1. **CAPTCHA** — server-generated math challenge (HMAC-signed, 10min TTL)
-2. **Disposable email blocking** — 200+ known throwaway domain blocklist
-3. **IP rate limiting** — max 5 signups per IP per hour (in-memory)
-4. **Device fingerprint check** — blocks same device from starting a new trial if previous trial was exhausted
-5. **Device signup frequency** — blocks >3 signup attempts from same device per 24h
-6. **Email verification** — UUID token stored in DB, expires in 1 hour; comparisons blocked until verified
-7. **Trial limit enforcement on API** — `/api/compare` checks trial_comparisons_used < 3 server-side
-8. **Provider allowlist** — trial users can only use Gemini and Grok, enforced server-side
-9. **Admin logs** — GET /api/trial/admin/logs returns last 200 suspicious events
-
-### Frontend (components/trial-gate.tsx + hooks/use-trial.ts)
-- `TrialGate` wraps the playground, shows signup form for new users
-- Device fingerprint = localStorage UUID + browser signal hash (userAgent, timezone, screen dims)
-- Polls `/api/trial/status/:userId` every 4s during pending_verify state
-- Shows remaining comparison dots (e.g. 3 dots, filled as used)
-- Shows upgrade prompt when trial exhausted
-- In dev mode: displays the verification link directly in the gate UI
-
-## Pages
-
-1. **Landing** (`/`) — Marketing page with hero, features, workflow, pricing preview, FAQ
-2. **Playground** (`/playground`) — Main comparison tool: prompt input, provider selection, results cards
-3. **History** (`/history`) — Saved test runs with search, delete, reopen
-4. **Settings** (`/settings`) — API key management for Gemini, HuggingFace, Groq (+ future OpenAI, Anthropic)
-5. **Pricing** (`/pricing`) — 3 tier cards: Sandbox ($0), Pro ($19/mo), Studio ($49/mo)
-
-## API Routes
-
-- `POST /api/compare` — Run prompt comparison across selected providers
-- `GET /api/history` — Get all saved runs
-- `POST /api/history` — Save a run
-- `DELETE /api/history/:id` — Delete a run
-- `GET /api/settings` — Get provider connection statuses
-- `POST /api/settings` — Save an API key
-- `POST /api/settings/test` — Test a provider connection
-
-## Providers
-
-- **Gemini**: Google's Gemini 1.5 Flash — balanced, organized outputs
-- **HuggingFace**: Mistral-7B-Instruct — open-source, variable outputs
-- **Groq**: LLaMA 3.1 8B Instant — fast, concise outputs
-- **OpenAI / Anthropic**: Coming soon placeholders in settings
-
-## Demo Mode
-
-If no API keys are present, the app automatically returns realistic mock responses. Each provider has distinct demo output styles:
-- Gemini = balanced and organized
-- HuggingFace = more variable / open-model style
-- Groq = fast and concise
-
-## Adding API Keys
-
-API keys are stored securely in the PostgreSQL database (server-side only). Never exposed to the frontend.
-
-To add keys:
-1. Go to Settings page
-2. Enter the API key for each provider
-3. Click Save Key
-4. Click Test Connection to verify
-
-Environment variables needed for providers:
-- Keys are stored in `api_keys` DB table, NOT in environment variables
+1. **Cloudflare Turnstile** — invisible managed CAPTCHA, verified server-side
+2. **Honeypot field** — hidden form field catches bots
+3. **Timing check** — rejects submissions < 3s after form load
+4. **Disposable email blocking** — 200+ throwaway domain blocklist
+5. **IP + device fingerprint blocking** — max 2 signups per IP/device per 24h; permanent block after verified trial
+6. **Stripe card verification** — SetupIntent ($0 charge) required to activate trial; verifies real human identity
 
 ## Database Tables
 
 - `history` — saved comparison runs
-- `api_keys` — provider API keys (stored server-side only)
+- `api_keys` — provider API keys (server-side only)
+- `billing_users` — Stripe customer + subscription IDs
+- `trial_users` — email, email_verified, card_verified, setup_intent_id, payment_method_id, device_fingerprint, ip_address
+- `trial_signup_log` — audit log for all suspicious/blocked events
 
-## Scoring Algorithm
+## Key Secrets
 
-Results are scored on:
-- Quality (40% weight for winner calculation)
-- Speed / latency (30%)
-- Cost efficiency (30%)
+- `STRIPE_API_KEY` — Stripe live secret key (user-added)
+- `STRIPE_SECRET_KEY` — legacy/integration key (superseded by STRIPE_API_KEY)
+- `RESEND_API_KEY` — Resend email service
+- `TURNSTILE_SECRET_KEY` — Cloudflare Turnstile secret
+- `ANTHROPIC_API_KEY` — Claude API
 
-Each card also shows: qualityScore, clarityScore, toneScore, overallScore (1–5 scale)
+## Trial Flow
+
+1. User enters email on Playground → Cloudflare Turnstile verifies
+2. Magic link sent via Resend from `noreply@nurse2web3.com`
+3. User clicks link → redirected back with `trialId` in URL
+4. Card activation modal appears (Stripe Elements, $0 charge, dark theme)
+5. Card confirmed → trial active → 3 comparisons unlocked
+
+## Stripe Configuration
+
+- Stripe publishable key: `pk_live_51TC2tOCs26Gb3UhACBGhYa1B0vyZGMzV5sTuxfVQXmhV27K0XdevRZyUMAX1wjAemXj0oaTkj8hEuMOEOZGaRMP000JvQvNjYw`
+- Pro Buy Button: `buy_btn_1TC8ZbCs26Gb3UhAKbarfXoH`
+- Premium Buy Button: `buy_btn_1TC8jMCs26Gb3UhALojeQP5U`
+- Tier key for Premium in DB: `"studio"`
+
+## Providers (API routes)
+
+- `POST /api/compare` — run comparison (checks trial/plan limits)
+- `POST /api/trial/signup` — create trial user (Turnstile + abuse checks)
+- `POST /api/trial/setup-intent` — create Stripe SetupIntent for card verification
+- `POST /api/trial/activate-card` — confirm card, activate trial
+- `GET /api/trial/status/:id` — check trial stage + card_verified
+- `GET /api/billing/status` — check paid subscription status
+
+## Notes
+
+- Brand name: "Ai AgentLab" (lowercase 'i' is intentional)
+- Stripe webhook synced via `stripe-replit-sync`
+- stripeClient.ts checks `STRIPE_API_KEY` before `STRIPE_SECRET_KEY`
