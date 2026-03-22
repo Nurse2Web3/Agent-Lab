@@ -1,0 +1,318 @@
+// === COMPLETE AI AGENTLAB REVISION WITH COST TRACKING ===
+// Copy/paste into Replit Node.js | npm i express cors openai @anthropic-ai/sdk express-rate-limit
+
+const express = require('express');
+const cors = require('cors');
+const OpenAI = require('openai');
+const Anthropic = require('@anthropic-ai/sdk');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
+// === PRICING TIERS ===
+const PRICING = {
+  trial: { limit: 10, models: ['gpt-4o-mini', 'claude-3-5-sonnet', 'grok-beta'] },
+  pro: { limit: 100, models: ['gpt-4o-mini', 'claude-3-5-sonnet', 'grok-beta'] },
+  premium: { limit: 500, models: ['gpt-4o-mini', 'claude-3-5-sonnet', 'grok-beta'] }
+};
+
+// === MODEL COST DATABASE ($/M tokens) ===
+const MODEL_COSTS = {
+  'gpt-4o-mini': { input: 0.15, output: 0.60 },
+  'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
+  'grok-beta': { input: 5.00, output: 15.00 }
+};
+
+// === WORKFLOW TEMPLATES ===
+const WORKFLOWS = {
+  'support': {
+    name: 'Customer Support Replies',
+    template: `Customer: {input}
+Write a professional, empathetic support reply in under 100 words. Match our brand voice: helpful, concise, solution-focused. End with next steps.`,
+    metrics: ['quality', 'speed', 'cost']
+  },
+  'summarize': {
+    name: 'Content Summarization',
+    template: `Summarize this content in 3 bullet points max. Keep key facts, remove fluff: {input}`,
+    metrics: ['quality', 'speed', 'cost']
+  }
+};
+
+// Rate limiting per tier
+const createLimiter = (limit) => rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: limit,
+  message: `Tier limit (${limit}) reached. Upgrade at aiagentlab.com/pricing`
+});
+
+app.use('/api/trial', createLimiter(10));
+app.use('/api/pro', createLimiter(100));
+app.use('/api/premium', createLimiter(500));
+
+// Init clients
+function initClients(apiKeys) {
+  const clients = {};
+  if (apiKeys.openai) clients.openai = new OpenAI({ apiKey: apiKeys.openai });
+  if (apiKeys.anthropic) clients.anthropic = new Anthropic({ apiKey: apiKeys.anthropic });
+  if (apiKeys.xai) clients.grok = new OpenAI({ apiKey: apiKeys.xai, baseURL: 'https://api.x.ai/v1' });
+  return clients;
+}
+
+// === MAIN COMPARE ENDPOINT ===
+app.post('/api/:tier/compare', async (req, res) => {
+  try {
+    const { tier } = req.params;
+    const { workflow, input, apiKeys } = req.body;
+    
+    if (!WORKFLOWS[workflow]) return res.status(400).json({ error: 'Use "support" or "summarize"' });
+    if (!PRICING[tier]) return res.status(400).json({ error: 'Use /trial, /pro, or /premium' });
+    
+    const clients = initClients(apiKeys);
+    if (Object.keys(clients).length === 0) return res.status(400).json({ error: 'Need 1+ API key' });
+    
+    const template = WORKFLOWS[workflow].template;
+    const prompt = template.replace('{input}', input || 'Sample customer message');
+    
+    // Test all 3 models
+    const results = await Promise.allSettled([
+      testModel(clients.openai, 'gpt-4o-mini', prompt),
+      testModel(clients.anthropic, 'claude-3-5-sonnet-20241022', prompt, 'Claude 3.5 Sonnet'),
+      testModel(clients.grok, 'grok-beta', prompt, 'Grok Beta')
+    ]);
+    
+    const comparison = results
+      .map((result, i) => ({ model: ['GPT-4o-mini', 'Claude 3.5 Sonnet', 'Grok Beta'][i], ...result.value }))
+      .filter(r => r.response);
+    
+    const winner = findWinner(comparison);
+    
+    res.json({
+      tier,
+      workflow: WORKFLOWS[workflow].name,
+      prompt,
+      comparison,
+      winner,
+      csvExport: generateCSV(comparison, winner)
+    });
+    
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// === MODEL TESTING WITH COST ===
+async function testModel(client, modelName, prompt, displayName = modelName) {
+  if (!client) return null;
+  
+  const start = Date.now();
+  let response, inputTokens = 100, outputTokens = 0;
+  
+  try {
+    if (client.openai) {
+      const completion = await client.chat.completions.create({
+        model: modelName,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 150
+      });
+      response = completion.choices[0].message.content;
+      inputTokens = completion.usage.prompt_tokens;
+      outputTokens = completion.usage.completion_tokens;
+    } else if (client.anthropic) {
+      const completion = await client.messages.create({
+        model: modelName,
+        max_tokens: 150,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      response = completion.content[0].text;
+      inputTokens = completion.usage.input_tokens;
+      outputTokens = completion.usage.output_tokens;
+    }
+  } catch (e) {
+    return { error: e.message };
+  }
+  
+  const costData = MODEL_COSTS[modelName];
+  const dollarCost = ((inputTokens * costData.input) + (outputTokens * costData.output)) / 1000000;
+  
+  return {
+    model: displayName,
+    response: response?.substring(0, 200) + '...',
+    speed: Date.now() - start + 'ms',
+    tokens: inputTokens + outputTokens,
+    dollarCost: `$${dollarCost.toFixed(4)}`,
+    qualityScore: simpleQualityScore(response),
+    costPerQuality: (dollarCost / simpleQualityScore(response)).toFixed(4)
+  };
+}
+
+function simpleQualityScore(response) {
+  const words = response.split(' ').length;
+  const hasBullets = response.includes('•') || response.includes('-') || response.includes('*');
+  return Math.min((words / 20) + (hasBullets ? 2 : 0), 10);
+}
+
+function findWinner(results) {
+  return results.reduce((winner, current) => {
+    const winnerScore = current.qualityScore - (parseFloat(current.dollarCost.slice(1)) * 10);
+    const currentScore = current.qualityScore - (parseFloat(current.dollarCost.slice(1)) * 10);
+    return currentScore > winnerScore ? current : winner;
+  });
+}
+
+function generateCSV(results, winner) {
+  return 'Model,Speed,Total Tokens,Dollar Cost,Quality,Cost/Quality\n' + 
+    results.map(r => `${r.model},"${r.speed}",${r.tokens},"${r.dollarCost}",${r.qualityScore},${r.costPerQuality}`).join('\n');
+}
+
+// === LANDING PAGE ===
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>AI AgentLab - Find Your Best AI Model</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system,BlinkMacSystemFont,sans-serif; line-height: 1.6; color: #333; }
+        .hero { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; text-align: center; padding: 4rem 2rem; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 3rem 0; }
+        .tier { border: 2px solid #eee; border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s; }
+        .tier:hover { border-color: #667eea; transform: translateY(-2px); }
+        .price { font-size: 2.5rem; font-weight: bold; color: #000; margin: 1rem 0; }
+        .workflow { background: #f8f9ff; border: 2px solid #e1e5ff; border-radius: 12px; padding: 2rem; margin: 2rem 0; }
+        textarea { width: 100%; height: 100px; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; margin: 1rem 0; }
+        button { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; padding: 14px 32px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        button:hover { transform: scale(1.05); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .results { margin-top: 2rem; }
+        .model-result { background: white; border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; }
+        .winner { border-color: #10b981; background: #f0fdf4; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
+        .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; font-size: 14px; margin-top: 1rem; }
+        .metric { text-align: center; padding: 0.5rem; }
+        .metric strong { display: block; font-size: 18px; color: #333; }
+        @media (max-width: 768px) { .metrics { grid-template-columns: 1fr; } }
+      </style>
+    </head>
+    <body>
+      <div class="hero">
+        <h1>🧪 AI AgentLab</h1>
+        <h2>Find the best AI model for your product in 30 seconds</h2>
+        <p>Customer support or summarization — test GPT, Claude, Grok with real costs</p>
+      </div>
+      
+      <div class="container">
+        <div class="pricing">
+          <div class="tier">
+            <h3>🚀 Trial</h3>
+            <div class="price">$0</div>
+            <p>10 comparisons/mo<br>3 models</p>
+          </div>
+          <div class="tier">
+            <h3>⭐ Pro</h3>
+            <div class="price">$19/mo</div>
+            <p>100 comparisons/mo<br>Cost optimization</p>
+          </div>
+          <div class="tier">
+            <h3>💎 Premium</h3>
+            <div class="price">$39/mo</div>
+            <p>500 comparisons/mo<br>Teams + priority</p>
+          </div>
+        </div>
+        
+        <div class="workflow">
+          <h3>🏥 Customer Support</h3>
+          <p>Which model writes better replies? (paste customer message)</p>
+          <textarea id="supportInput">My order hasn't arrived and support is ignoring me!</textarea>
+          <button onclick="runTest('trial', 'support')">Test 3 Models →</button>
+        </div>
+        
+        <div class="workflow">
+          <h3>📝 Summarization</h3>
+          <p>Which model summarizes better? (paste article)</p>
+          <textarea id="summarizeInput">AI is changing how startups build products. Founders now test multiple models before committing...</textarea>
+          <button onclick="runTest('trial', 'summarize')">Test 3 Models →</button>
+        </div>
+        
+        <div id="results" class="results"></div>
+      </div>
+      
+      <script>
+        async function runTest(tier, workflow) {
+          const input = document.getElementById(workflow + 'Input').value;
+          const btn = event.target;
+          btn.disabled = true;
+          btn.textContent = 'Testing...';
+          
+          // Replace with YOUR API keys
+          const apiKeys = {
+            openai: 'sk-proj-...',      // Your OpenAI key
+            anthropic: 'sk-ant-...',    // Your Anthropic key  
+            xai: 'xai-...'             // Your xAI key
+          };
+          
+          try {
+            const res = await fetch(\`/api/\${tier}/compare\`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({workflow, input, apiKeys})
+            });
+            const data = await res.json();
+            showResults(data);
+          } catch (e) {
+            document.getElementById('results').innerHTML = '<div style="color:red">Error: ' + e.message + '</div>';
+          }
+          
+          btn.disabled = false;
+          btn.textContent = 'Test 3 Models →';
+        }
+        
+        function showResults(data) {
+          const resultsHtml = data.comparison.map(r => \`
+            <div class="model-result \${r.model === data.winner.model ? 'winner' : ''}">
+              <h4>\${r.model} \${r.model === data.winner.model ? '🥇 WINNER' : ''}</h4>
+              <p><strong>Response:</strong> \${r.response}</p>
+              <div class="metrics">
+                <div class="metric">
+                  <strong>\${r.speed}</strong>
+                  Speed
+                </div>
+                <div class="metric">
+                  <strong>\${r.dollarCost}</strong>
+                  Cost
+                </div>
+                <div class="metric">
+                  <strong>\${r.qualityScore.toFixed(1)}/10</strong>
+                  Quality
+                </div>
+              </div>
+              <p><small>Cost/Quality: \${r.costPerQuality}</small></p>
+            </div>
+          \`).join('');
+          
+          document.getElementById('results').innerHTML = \`
+            <h3>Results: \${data.workflow} (\${data.tier} tier)</h3>
+            \${resultsHtml}
+            <p><a href="data:text/csv;charset=utf-8,\${encodeURIComponent(data.csvExport)}" download="agentlab-results.csv">📥 Export CSV</a> | 
+            <a href="#" onclick="copyResults()">📋 Copy Results</a></p>
+          \`;
+        }
+        
+        function copyResults() {
+          navigator.clipboard.writeText(document.querySelector('.results p').textContent);
+          alert('Results copied!');
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+app.listen(3000, () => {
+  console.log('🚀 AI AgentLab shipped! http://localhost:3000');
+  console.log('💡 Add your API keys to the frontend script');
+  console.log('💰 Pricing: Trial $0 (10), Pro $19 (100), Premium $39 (500)');
+});
