@@ -19,7 +19,7 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
   if (!client) return;
 
   const { error } = await client.emails.send({
-    from: "Ai AgentLab <onboarding@resend.dev>",
+    from: "Ai AgentLab <noreply@nurse2web3.com>",
     to,
     subject: "AI AgentLab - 3 FREE GPT+Claude Tests (Unlock GROK THE ELON MODEL)",
     html: buildEmailHtml(verifyUrl),
