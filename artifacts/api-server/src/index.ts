@@ -27,18 +27,21 @@ async function initStripe() {
     console.log("Initializing Stripe schema...");
     await runMigrations({ databaseUrl });
     console.log("Stripe schema ready");
+  } catch (error) {
+    console.warn("Stripe schema migration skipped:", (error as Error).message);
+    return;
+  }
 
+  try {
     const stripeSync = await getStripeSync();
-
     const webhookBaseUrl = `https://${process.env.REPLIT_DOMAINS?.split(",")[0]}`;
     await stripeSync.findOrCreateManagedWebhook(`${webhookBaseUrl}/api/stripe/webhook`);
     console.log("Stripe webhook configured");
-
     stripeSync.syncBackfill()
       .then(() => console.log("Stripe data synced"))
-      .catch((err) => console.error("Stripe sync error:", err));
+      .catch((err: Error) => console.warn("Stripe sync skipped:", err.message));
   } catch (error) {
-    console.error("Stripe init error (non-fatal):", error);
+    console.warn("Stripe webhook setup skipped (update STRIPE_SECRET_KEY to enable):", (error as Error).message);
   }
 }
 
