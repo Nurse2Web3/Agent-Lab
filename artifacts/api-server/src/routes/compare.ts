@@ -17,13 +17,20 @@ const PRO_PROVIDER_ALLOWLIST   = new Set(["openai", "claude", "grok"]);
 const TRIAL_LIMIT = 3;
 const MONTHLY_LIMITS: Record<string, number> = { pro: 100, studio: 500 };
 
+const ENV_KEY_MAP: Record<string, string> = {
+  openai: "OPENAI_API_KEY",
+  claude: "ANTHROPIC_API_KEY",
+  grok: "XAI_API_KEY",
+};
+
 async function getApiKey(provider: string): Promise<string | undefined> {
   try {
     const rows = await db.select().from(apiKeysTable).where(eq(apiKeysTable.provider, provider));
-    return rows[0]?.encryptedKey;
+    if (rows[0]?.encryptedKey) return rows[0].encryptedKey;
   } catch {
-    return undefined;
   }
+  const envKey = ENV_KEY_MAP[provider.toLowerCase()];
+  return envKey ? process.env[envKey] : undefined;
 }
 
 router.post("/compare", async (req, res, next) => {
@@ -195,6 +202,52 @@ router.post("/compare", async (req, res, next) => {
 
   const summary = computeSummary(resolvedResults);
   res.json({ results: resolvedResults, ...summary });
+});
+
+router.post("/compare/demo", (_req, res) => {
+  const demoResults = [
+    {
+      provider: "openai",
+      model: "gpt-4o-mini",
+      text: "Starting a startup begins with finding a real problem worth solving. Talk to at least 20 potential customers before writing a single line of code. Validate your idea with a simple landing page or prototype. Focus on one narrow market first—it's easier to expand than to pivot from a broad failure. Revenue is the only real validation.",
+      latencyMs: 820,
+      estimatedCost: 0.0002,
+      tokenCount: 78,
+      qualityScore: 87,
+      clarityScore: 91,
+      toneScore: 85,
+      overallScore: 88,
+      isDemo: true,
+    },
+    {
+      provider: "claude",
+      model: "claude-3-5-sonnet-20241022",
+      text: "The most important thing when starting a startup is to deeply understand your customer's pain, not your solution. Begin with problem discovery: conduct structured interviews, observe how people currently work around the problem, and look for patterns. A startup that solves a hair-on-fire problem with a mediocre solution beats a polished product solving a vitamin problem every time. Speed of learning beats speed of building.",
+      latencyMs: 1140,
+      estimatedCost: 0.0008,
+      tokenCount: 92,
+      qualityScore: 94,
+      clarityScore: 93,
+      toneScore: 90,
+      overallScore: 93,
+      isDemo: true,
+    },
+    {
+      provider: "grok",
+      model: "grok-beta",
+      text: "Ship fast, learn faster. The best way to start is to get your MVP in front of real users within 30 days—no exceptions. Most startup advice is noise. Focus on three things: a specific customer who desperately needs your solution, a monetizable problem (not just interesting), and a unfair advantage that makes you the right person to build it. Everything else is a distraction.",
+      latencyMs: 670,
+      estimatedCost: 0.0004,
+      tokenCount: 81,
+      qualityScore: 82,
+      clarityScore: 90,
+      toneScore: 88,
+      overallScore: 86,
+      isDemo: true,
+    },
+  ];
+  const summary = computeSummary(demoResults as any);
+  res.json({ results: demoResults, ...summary, isDemo: true });
 });
 
 export default router;

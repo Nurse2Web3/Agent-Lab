@@ -96,7 +96,7 @@ export default function Landing() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" className="h-14 px-8 text-base rounded-full bg-secondary/50 backdrop-blur border-border/50 hover:bg-secondary" asChild>
-            <Link href="/playground">
+            <Link href="/playground?demo=true">
               View Demo
             </Link>
           </Button>

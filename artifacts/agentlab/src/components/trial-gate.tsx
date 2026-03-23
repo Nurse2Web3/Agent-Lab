@@ -28,6 +28,7 @@ interface EmailFormProps {
 function EmailForm({ signup, error, setError, urlError, onSignedUp }: EmailFormProps) {
   const [email, setEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReady, setTurnstileReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const formLoadedAt = useRef(Date.now());
@@ -82,17 +83,23 @@ function EmailForm({ signup, error, setError, urlError, onSignedUp }: EmailFormP
         />
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-2">
         <Turnstile
           siteKey={TURNSTILE_SITE_KEY}
-          onSuccess={(token) => setTurnstileToken(token)}
+          onSuccess={(token) => { setTurnstileToken(token); setTurnstileReady(true); }}
           onExpire={() => setTurnstileToken(null)}
           onError={() => {
             setTurnstileToken(null);
-            setError("CAPTCHA failed to load. Please refresh the page.");
+            setError("Security check failed to load. Please refresh the page.");
           }}
           options={{ theme: "dark", size: "normal" }}
         />
+        {!turnstileReady && !turnstileToken && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Completing security check… button will unlock
+          </p>
+        )}
       </div>
 
       {(urlError || error) && (
@@ -209,12 +216,13 @@ export function TrialGate({ children, isPaidPlan }: TrialGateProps) {
   const { stage, status, storedEmail, refresh, signup, error, setError, urlError, createSetupIntent, activateCard } = useTrialStatus();
   const [devVerifyUrl, setDevVerifyUrl] = useState<string | undefined>();
   const [showGate, setShowGate] = useState(false);
+  const isDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo");
 
   useEffect(() => {
     if (stage !== "loading") setShowGate(true);
   }, [stage]);
 
-  if (isPaidPlan || stage === "active" || stage === "exhausted" || stage === "needs_card") {
+  if (isDemo || isPaidPlan || stage === "active" || stage === "exhausted" || stage === "needs_card") {
     return (
       <>
         {(stage === "active" && status) && (

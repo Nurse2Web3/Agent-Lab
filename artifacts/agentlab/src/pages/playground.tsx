@@ -129,6 +129,9 @@ function LoadingStages({ count }: { count: number }) {
   );
 }
 
+const DEMO_PROMPT = "What's the best way to start a startup as a non-technical founder?";
+const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
+
 export default function Playground() {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
@@ -136,13 +139,32 @@ export default function Playground() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>(["OpenAI", "Claude"]);
   const [temperature, setTemperature] = useState([0.7]);
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [demoResponse, setDemoResponse] = useState<any>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const isDemoMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo");
 
   const { data: billingStatus, isLoading: billingLoading } = useBillingStatus();
   const { stage, status: trialStatus, userId: trialUserId, notifyComparisonUsed } = useTrialStatus();
   const isPaidPlan = !billingLoading && (billingStatus?.plan === "pro" || billingStatus?.plan === "studio");
 
-  const { mutate: runCompare, data: response, isPending, error } = useRunComparison();
+  const { mutate: runCompare, data: realResponse, isPending: realPending, error } = useRunComparison();
   const { mutate: saveToHistory, isPending: isSaving } = useSaveRun();
+
+  const response = isDemoMode ? demoResponse : realResponse;
+  const isPending = isDemoMode ? demoLoading : realPending;
+
+  useEffect(() => {
+    if (!isDemoMode) return;
+    setPrompt(DEMO_PROMPT);
+    setSelectedProviders(["OpenAI", "Claude", "Grok"]);
+    setDemoLoading(true);
+    fetch(`${API_BASE}/compare/demo`, { method: "POST", headers: { "Content-Type": "application/json" } })
+      .then((r) => r.json())
+      .then((data) => setDemoResponse(data))
+      .catch(() => {})
+      .finally(() => setDemoLoading(false));
+  }, [isDemoMode]);
 
   const handleRun = () => {
     if (!prompt) {
@@ -151,6 +173,16 @@ export default function Playground() {
     }
     if (selectedProviders.length === 0) {
       toast({ title: "Provider required", description: "Select at least one provider.", variant: "destructive" });
+      return;
+    }
+    if (isDemoMode) {
+      setDemoResponse(null);
+      setDemoLoading(true);
+      fetch(`${API_BASE}/compare/demo`, { method: "POST", headers: { "Content-Type": "application/json" } })
+        .then((r) => r.json())
+        .then((data) => setDemoResponse(data))
+        .catch(() => toast({ title: "Demo failed", description: "Could not load demo results.", variant: "destructive" }))
+        .finally(() => setDemoLoading(false));
       return;
     }
     setScores({});
