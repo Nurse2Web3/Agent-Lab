@@ -201,7 +201,7 @@ export default function Pricing() {
                     {tier.period && <span className="text-muted-foreground text-sm">{tier.period}</span>}
                   </div>
 
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">{tier.desc}</p>
+                  <p className="text-sm text-foreground/75 leading-relaxed mb-5">{tier.desc}</p>
 
                   {/* Provider pills */}
                   <div className="mb-6">
