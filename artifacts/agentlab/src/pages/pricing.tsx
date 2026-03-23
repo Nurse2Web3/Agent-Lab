@@ -60,7 +60,7 @@ const TIERS = [
     name: "Ai AgentLab Premium",
     price: "$49",
     period: "/month",
-    badge: null,
+    badge: "Scale",
     popular: false,
     tagline: "Full access. Deeper evaluation.",
     desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
@@ -170,7 +170,7 @@ export default function Pricing() {
                 className={`relative flex flex-col rounded-3xl border backdrop-blur-sm transition-all ${
                   tier.popular
                     ? "border-primary/50 bg-card/70 ring-1 ring-primary/30 shadow-2xl shadow-primary/20 z-10 scale-[1.03]"
-                    : "border-border/40 bg-card/30 hover:bg-card/50 hover:border-border/70"
+                    : "border-border/70 bg-card/30 hover:bg-card/50 hover:border-border"
                 }`}
               >
                 {tier.badge && !isCurrent && (

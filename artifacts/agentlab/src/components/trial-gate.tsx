@@ -29,9 +29,26 @@ function EmailForm({ signup, error, setError, urlError, onSignedUp }: EmailFormP
   const [email, setEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileReady, setTurnstileReady] = useState(false);
+  const [turnstileKey, setTurnstileKey] = useState(0);
+  const [turnstileStuck, setTurnstileStuck] = useState(false);
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const formLoadedAt = useRef(Date.now());
+
+  useEffect(() => {
+    if (turnstileReady || turnstileToken) return;
+    setTurnstileStuck(false);
+    const timer = setTimeout(() => setTurnstileStuck(true), 10_000);
+    return () => clearTimeout(timer);
+  }, [turnstileReady, turnstileToken, turnstileKey]);
+
+  function retryTurnstile() {
+    setTurnstileToken(null);
+    setTurnstileReady(false);
+    setTurnstileStuck(false);
+    setError(null);
+    setTurnstileKey((k) => k + 1);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,20 +102,34 @@ function EmailForm({ signup, error, setError, urlError, onSignedUp }: EmailFormP
 
       <div className="flex flex-col items-center gap-2">
         <Turnstile
+          key={turnstileKey}
           siteKey={TURNSTILE_SITE_KEY}
-          onSuccess={(token) => { setTurnstileToken(token); setTurnstileReady(true); }}
-          onExpire={() => setTurnstileToken(null)}
+          onSuccess={(token) => { setTurnstileToken(token); setTurnstileReady(true); setTurnstileStuck(false); }}
+          onExpire={() => { setTurnstileToken(null); setTurnstileReady(false); }}
           onError={() => {
             setTurnstileToken(null);
-            setError("Security check failed to load. Please refresh the page.");
+            setTurnstileReady(false);
+            setError("Security check failed to load. Try refreshing or click Retry below.");
           }}
           options={{ theme: "dark", size: "normal" }}
         />
-        {!turnstileReady && !turnstileToken && (
+        {!turnstileReady && !turnstileToken && !turnstileStuck && (
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <Loader2 className="w-3 h-3 animate-spin" />
             Completing security check… button will unlock
           </p>
+        )}
+        {turnstileStuck && !turnstileReady && !turnstileToken && (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p className="text-xs text-yellow-500">Security check is taking longer than expected.</p>
+            <button
+              type="button"
+              onClick={retryTurnstile}
+              className="text-xs font-medium text-primary underline underline-offset-2 flex items-center gap-1 hover:text-primary/80"
+            >
+              <RefreshCw className="w-3 h-3" /> Retry security check
+            </button>
+          </div>
         )}
       </div>
 
