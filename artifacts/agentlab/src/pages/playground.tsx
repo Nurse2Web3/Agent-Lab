@@ -22,9 +22,10 @@ import { Link } from "wouter";
 import { getCompositeFingerprint } from "@/lib/deviceFingerprint";
 
 const PROVIDERS = [
-  { id: "OpenAI", name: "OpenAI",                   model: "gpt-4o-mini",               plan: ["sandbox", "pro", "studio"] },
-  { id: "Claude", name: "Claude",                   model: "claude-3-5-sonnet-20241022", plan: ["sandbox", "pro", "studio"] },
-  { id: "Grok",   name: "GROK THE ELON MODEL 🥇",   model: "grok-beta",                 plan: ["pro", "studio"] },
+  { id: "OpenAI",      name: "OpenAI",                   model: "gpt-4o-mini",               plan: ["sandbox", "pro", "studio"] },
+  { id: "Claude",      name: "Claude",                   model: "claude-3-5-sonnet-20241022", plan: ["sandbox", "pro", "studio"] },
+  { id: "Grok",        name: "GROK THE ELON MODEL 🥇",   model: "grok-beta",                 plan: ["pro", "studio"] },
+  { id: "Perplexity",  name: "Perplexity",               model: "sonar-pro",                 plan: ["studio"] },
 ];
 
 const TEMPLATES = [
@@ -329,7 +330,7 @@ export default function Playground() {
                 const planAllowlist: Record<string, string[]> = {
                   sandbox: ["OpenAI", "Claude"],
                   pro: ["OpenAI", "Claude", "Grok"],
-                  studio: ["OpenAI", "Claude", "Grok"],
+                  studio: ["OpenAI", "Claude", "Grok", "Perplexity"],
                 };
                 const allowed = new Set(planAllowlist[userPlan] ?? planAllowlist["sandbox"]);
                 return PROVIDERS.map((p) => {
@@ -358,7 +359,7 @@ export default function Playground() {
                           </label>
                           {isLocked && (
                             <span className="text-[10px] font-semibold text-primary/70 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded">
-                              Pro
+                              {p.id === "Perplexity" ? "Premium" : "Pro"}
                             </span>
                           )}
                         </div>
@@ -371,6 +372,11 @@ export default function Playground() {
                       {isLocked && isGrok && (
                         <Link href="/pricing" className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-amber-400/90 hover:text-amber-400 transition-colors">
                           <span>⚠️ MISSING: GROK THE ELON MODEL — Upgrade to Pro →</span>
+                        </Link>
+                      )}
+                      {isLocked && p.id === "Perplexity" && (
+                        <Link href="/pricing" className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-cyan-400/90 hover:text-cyan-400 transition-colors">
+                          <span>⚠️ Perplexity Sonar Pro — Premium only →</span>
                         </Link>
                       )}
                     </div>

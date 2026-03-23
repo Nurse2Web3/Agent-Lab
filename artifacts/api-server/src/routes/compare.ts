@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { apiKeysTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
-import { callGroq, callOpenAI, callClaude } from "../lib/providers/index.js";
+import { callGroq, callOpenAI, callClaude, callPerplexity } from "../lib/providers/index.js";
 import { computeSummary } from "../lib/scoring.js";
 import { trialStorage } from "../trialStorage.js";
 import { billingStorage } from "../billingStorage.js";
@@ -12,8 +12,9 @@ import type { ProviderResult } from "../lib/providers/types.js";
 const router: IRouter = Router();
 
 const BASE_USER_ID = "default-user";
-const TRIAL_PROVIDER_ALLOWLIST = new Set(["openai", "claude"]);
-const PRO_PROVIDER_ALLOWLIST   = new Set(["openai", "claude", "grok"]);
+const TRIAL_PROVIDER_ALLOWLIST  = new Set(["openai", "claude"]);
+const PRO_PROVIDER_ALLOWLIST    = new Set(["openai", "claude", "grok"]);
+const STUDIO_PROVIDER_ALLOWLIST = new Set(["openai", "claude", "grok", "perplexity"]);
 const TRIAL_LIMIT = 3;
 const MONTHLY_LIMITS: Record<string, number> = { pro: 100, studio: 500 };
 
@@ -21,6 +22,7 @@ const ENV_KEY_MAP: Record<string, string> = {
   openai: "OPENAI_API_KEY",
   claude: "ANTHROPIC_API_KEY",
   grok: "XAI_API_KEY",
+  perplexity: "PERPLEXITY_API_KEY",
 };
 
 async function getApiKey(provider: string): Promise<string | undefined> {
@@ -139,6 +141,16 @@ router.post("/compare", async (req, res, next) => {
         return;
       }
     }
+    if (plan === "studio") {
+      const disallowed = normalizedProviders.filter((p) => !STUDIO_PROVIDER_ALLOWLIST.has(p));
+      if (disallowed.length > 0) {
+        res.status(403).json({
+          error: `Provider not available: ${disallowed.join(", ")}.`,
+          requiresUpgrade: true,
+        });
+        return;
+      }
+    }
     const monthlyLimit = MONTHLY_LIMITS[plan];
     if (monthlyLimit !== undefined) {
       await billingStorage.ensureUser(BASE_USER_ID);
@@ -166,6 +178,8 @@ router.post("/compare", async (req, res, next) => {
       calls.push(callOpenAI(opts));
     } else if (normalized === "claude") {
       calls.push(callClaude(opts));
+    } else if (normalized === "perplexity") {
+      calls.push(callPerplexity(opts));
     }
   }
 

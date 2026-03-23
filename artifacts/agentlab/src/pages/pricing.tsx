@@ -65,12 +65,12 @@ const TIERS = [
     tagline: "Full access. Deeper evaluation.",
     desc: "Advanced AI comparison with everything in Pro, plus OpenAI, Claude, deeper evaluation, and richer decision support.",
     cta: "Get Premium",
-    providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
+    providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇", "Perplexity"],
     features: [
       { label: "Everything in Pro", included: true },
       { label: "500 comparisons per month", included: true },
-      { label: "OpenAI (GPT-4o mini) access", included: true },
-      { label: "Claude access", included: true },
+      { label: "All 4 providers (GPT, Claude, Grok, Perplexity)", included: true },
+      { label: "Perplexity Sonar Pro (web-grounded AI)", included: true },
       { label: "Advanced scoring", included: true },
       { label: "Richer evaluation insights", included: true },
       { label: "Premium export and comparison workflow", included: true },
@@ -80,7 +80,7 @@ const TIERS = [
 
 const COMPARISON_ROWS = [
   { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "500 / month" },
-  { label: "Providers",         trial: "GPT + Claude",                   pro: "GPT + Claude + GROK",           premium: "GPT + Claude + GROK" },
+  { label: "Providers",         trial: "GPT + Claude",                   pro: "GPT + Claude + GROK",           premium: "GPT + Claude + GROK + Perplexity" },
   { label: "Saved history",     trial: "—",                              pro: "✓",                             premium: "✓" },
   { label: "Exports",           trial: "—",                              pro: "Basic",                         premium: "Full" },
   { label: "Advanced scoring",  trial: "—",                              pro: "—",                             premium: "✓" },

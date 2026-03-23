@@ -1,4 +1,4 @@
-import { Bot, Cpu, Zap, Cloud, Sparkles, Brain } from "lucide-react";
+import { Bot, Cpu, Zap, Cloud, Sparkles, Brain, Globe } from "lucide-react";
 
 export function ProviderIcon({ provider, className = "w-5 h-5" }: { provider: string, className?: string }) {
   const normalized = provider.toLowerCase();
@@ -11,6 +11,9 @@ export function ProviderIcon({ provider, className = "w-5 h-5" }: { provider: st
   }
   if (normalized.includes("grok")) {
     return <Zap className={`${className} text-red-500`} />;
+  }
+  if (normalized.includes("perplexity")) {
+    return <Globe className={`${className} text-cyan-400`} />;
   }
   if (normalized.includes("kimi") || normalized.includes("moonshot")) {
     return <Brain className={`${className} text-cyan-400`} />;
