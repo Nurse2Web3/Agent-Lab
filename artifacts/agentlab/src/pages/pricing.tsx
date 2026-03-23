@@ -94,7 +94,7 @@ export default function Pricing() {
   const { mutate: managePortal, isPending: isPortaling } = useManageBilling();
   const { toast } = useToast();
 
-  const currentPlan = billingStatus?.plan ?? "sandbox";
+  const currentPlan = billingStatus?.plan ?? "free";
 
   function getPriceId(planName: string): string | undefined {
     if (!productsData?.products) return undefined;
@@ -139,7 +139,7 @@ export default function Pricing() {
         </div>
 
         {/* Current plan banner */}
-        {currentPlan !== "sandbox" && (
+        {(currentPlan === "pro" || currentPlan === "studio") && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="max-w-5xl mx-auto mb-8 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between gap-4">
             <p className="text-sm font-medium">
@@ -160,7 +160,7 @@ export default function Pricing() {
         {/* Cards */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch mt-4">
           {TIERS.map((tier, i) => {
-            const isCurrent = tier.planKey === currentPlan || (!tier.planKey && currentPlan === "sandbox");
+            const isCurrent = tier.planKey === currentPlan || (!tier.planKey && (currentPlan === "sandbox" || currentPlan === "free"));
             return (
               <motion.div
                 key={tier.key}
