@@ -151,3 +151,123 @@
     @apply bg-muted-foreground/50;
   }
 }
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  nav,
+  header,
+  aside,
+  .print\:hidden,
+  [class*="trial-gate"],
+  [data-radix-popper-content-wrapper] {
+    display: none !important;
+  }
+
+  .glass-card {
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: none !important;
+  }
+
+  .max-w-\[1600px\] {
+    max-width: 100% !important;
+  }
+
+  .xl\:flex-row {
+    flex-direction: column !important;
+  }
+
+  .xl\:w-\[380px\] {
+    display: none !important;
+  }
+
+  .flex-1 {
+    width: 100% !important;
+  }
+
+  .grid {
+    display: grid !important;
+  }
+
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .bg-primary\/5,
+  .bg-card\/40,
+  .bg-card\/70,
+  .bg-secondary\/20,
+  .bg-secondary\/10 {
+    background: #f3f4f6 !important;
+  }
+
+  .border-primary\/30,
+  .border-border\/40,
+  .ring-2 {
+    border-color: #d1d5db !important;
+    box-shadow: none !important;
+  }
+
+  .text-foreground,
+  .text-foreground\/90,
+  .text-card-foreground {
+    color: #111827 !important;
+  }
+
+  .text-muted-foreground {
+    color: #6b7280 !important;
+  }
+
+  .text-primary {
+    color: #7c3aed !important;
+  }
+
+  .bg-primary {
+    background: #7c3aed !important;
+    color: #ffffff !important;
+  }
+
+  .shadow-xl,
+  .shadow-2xl,
+  .shadow-primary\/10,
+  .shadow-primary\/20 {
+    box-shadow: none !important;
+  }
+
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-xl {
+    border-radius: 8px !important;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  .card, [class*="card"] {
+    page-break-inside: avoid;
+  }
+}

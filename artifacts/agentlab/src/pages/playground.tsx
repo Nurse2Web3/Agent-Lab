@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Play, Save, Copy, Loader2, Star, AlertCircle, Clock,
   DollarSign, Database, Tag, Sparkles, Trophy, CheckCircle2,
-  ArrowRight, Zap, ChevronRight, Download, TrendingDown
+  ArrowRight, Zap, ChevronRight, Download, TrendingDown, Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -243,6 +243,10 @@ export default function Playground() {
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: "Exported", description: "Results downloaded as CSV." });
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   /* ------------------------------------------------------------------ */
@@ -524,6 +528,12 @@ export default function Playground() {
                         disabled={!(response as any).csvExport}
                       >
                         <Download className="w-3 h-3 mr-1.5" /> Export CSV
+                      </Button>
+                      <Button
+                        variant="outline" size="sm" className="h-8 text-xs rounded-lg print:hidden"
+                        onClick={handlePrint}
+                      >
+                        <Printer className="w-3 h-3 mr-1.5" /> Print / Save PDF
                       </Button>
                       <Button
                         size="sm" className="h-8 text-xs rounded-lg shadow-sm shadow-primary/20"
