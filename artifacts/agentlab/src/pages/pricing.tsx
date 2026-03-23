@@ -49,7 +49,7 @@ const TIERS = [
       { label: "GPT + Claude + GROK (all 3)", included: true },
       { label: "Saved test history", included: true },
       { label: "Side-by-side comparison view", included: true },
-      { label: "Basic export support", included: true },
+      { label: "CSV or PDF printable", included: true },
       { label: "Winner Engine recommendations", included: true },
       { label: "Advanced scoring", included: false },
     ],
