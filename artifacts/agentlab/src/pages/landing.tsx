@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap, Trophy, History, Download, Plug, GitCompare, Sparkles, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { ProviderIcon } from "@/components/provider-icon";
+import { BillingPolicy } from "@/components/billing-policy";
 
 const FAQS = [
   {
@@ -413,7 +414,11 @@ export default function Landing() {
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">
             Start with a Trial. Upgrade when you are ready to ship seriously.
           </h2>
+        </div>
 
+        <BillingPolicy />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
               {

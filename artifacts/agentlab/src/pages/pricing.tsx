@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ProviderIcon } from "@/components/provider-icon";
 import { useBillingStatus, useBillingProducts, useCheckout, useManageBilling } from "@/hooks/use-billing";
 import { useToast } from "@/hooks/use-toast";
+import { BillingPolicy } from "@/components/billing-policy";
 
 const PROVIDER_PILLS = ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"];
 
@@ -153,8 +154,11 @@ export default function Pricing() {
           </motion.div>
         )}
 
+        {/* Billing & Returns Policy */}
+        <BillingPolicy />
+
         {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch mt-16">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch mt-4">
           {TIERS.map((tier, i) => {
             const isCurrent = tier.planKey === currentPlan || (!tier.planKey && currentPlan === "sandbox");
             return (
