@@ -60,10 +60,10 @@ export function BillingPolicy() {
                   <>
                     Contact{" "}
                     <a
-                      href="mailto:support@nurse2web3.com"
+                      href="mailto:nwright38@icloud.com"
                       className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
                     >
-                      support@nurse2web3.com
+                      nwright38@icloud.com
                     </a>{" "}
                     within 7 days
                   </>
