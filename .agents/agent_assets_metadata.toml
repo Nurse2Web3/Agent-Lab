@@ -6,3 +6,9 @@ id = "-jfqvqnTMkocQ-giFzClM"
 uri = "file://AI_AGENTLAB_OVERVIEW.md"
 type = "text"
 title = "Ai AgentLab — Full System Overview"
+
+[[outputs]]
+id = "MBTu-Fu5PCqMKnkNi81Aj"
+uri = "file://AI_AGENTLAB_OVERVIEW.pdf"
+type = "pdf"
+title = "Ai AgentLab — Full System Overview (PDF)"
