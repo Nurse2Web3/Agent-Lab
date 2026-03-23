@@ -1,9 +1,10 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
 
 async function apiFetch(path: string, options?: RequestInit) {
   const res = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     ...options,
   });
@@ -14,7 +15,7 @@ async function apiFetch(path: string, options?: RequestInit) {
   return res.json();
 }
 
-export type Plan = "sandbox" | "pro" | "studio";
+export type Plan = "free" | "sandbox" | "pro" | "studio";
 
 export interface BillingStatus {
   plan: Plan;
@@ -52,6 +53,33 @@ export function useBillingProducts() {
     queryKey: ["billing-products"],
     queryFn: () => apiFetch("/billing/products"),
     staleTime: 5 * 60_000,
+  });
+}
+
+export function useActivateBillingSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (email: string) => {
+      return apiFetch("/billing/activate-session", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["billing-status"] });
+    },
+  });
+}
+
+export function useDeactivateBillingSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      return apiFetch("/billing/deactivate-session", { method: "POST" });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["billing-status"] });
+    },
   });
 }
 

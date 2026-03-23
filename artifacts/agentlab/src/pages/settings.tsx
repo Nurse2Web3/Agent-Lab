@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGetSettings, useSaveApiKey, useTestConnection } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
-import { Key, CheckCircle2, XCircle, Loader2, Server, Shield, CreditCard, ArrowRight, Crown } from "lucide-react";
+import { Key, CheckCircle2, XCircle, Loader2, Server, Shield, CreditCard, ArrowRight, Crown, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,21 +9,24 @@ import { useToast } from "@/hooks/use-toast";
 import { ProviderIcon } from "@/components/provider-icon";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useBillingStatus, useManageBilling, useCheckout } from "@/hooks/use-billing";
+import { useBillingStatus, useManageBilling, useCheckout, useActivateBillingSession, useDeactivateBillingSession } from "@/hooks/use-billing";
 
 const PLAN_LABELS: Record<string, string> = {
+  free: "No Active Session",
   sandbox: "Ai AgentLab Trial",
   pro: "Ai AgentLab Pro",
   studio: "Ai AgentLab Premium",
 };
 
 const PLAN_PROVIDERS: Record<string, string[]> = {
+  free: ["OpenAI", "Claude"],
   sandbox: ["OpenAI", "Claude"],
   pro: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
   studio: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
 };
 
 const PLAN_COLORS: Record<string, string> = {
+  free: "bg-muted text-muted-foreground",
   sandbox: "bg-muted text-muted-foreground",
   pro: "bg-primary/10 text-primary border-primary/20",
   studio: "bg-violet-500/10 text-violet-400 border-violet-500/20",
@@ -42,8 +45,31 @@ export default function Settings() {
   const { data: billingStatus, isLoading: billingLoading } = useBillingStatus();
   const { mutate: managePortal, isPending: isPortaling } = useManageBilling();
   const { mutate: checkout, isPending: isCheckingOut } = useCheckout();
+  const { mutate: activateSession, isPending: isActivating } = useActivateBillingSession();
+  const { mutate: deactivateSession } = useDeactivateBillingSession();
+
+  const [activationEmail, setActivationEmail] = useState("");
+  const [showActivation, setShowActivation] = useState(false);
 
   const billingSuccess = location.includes("billing=success");
+
+  const handleActivateSession = () => {
+    const email = activationEmail.trim();
+    if (!email) {
+      toast({ title: "Email required", description: "Enter the email used at checkout.", variant: "destructive" });
+      return;
+    }
+    activateSession(email, {
+      onSuccess: () => {
+        toast({ title: "Access activated!", description: "Your subscription is now linked to this browser." });
+        setActivationEmail("");
+        setShowActivation(false);
+      },
+      onError: (err: any) => {
+        toast({ title: "Activation failed", description: err.message, variant: "destructive" });
+      },
+    });
+  };
 
   const handleSave = (provider: string) => {
     const apiKey = keys[provider];
@@ -85,8 +111,9 @@ export default function Settings() {
   };
 
   const hasNoKeys = data?.providers?.every((p) => !p.connected);
-  const plan = billingStatus?.plan ?? "sandbox";
-  const isActivePlan = plan !== "sandbox";
+  const plan = billingStatus?.plan ?? "free";
+  const isActivePlan = plan === "pro" || plan === "studio";
+  const hasFreeSession = plan === "free";
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
@@ -120,9 +147,9 @@ export default function Settings() {
                 ) : (
                   <div className="flex items-center gap-3">
                     {isActivePlan && <Crown className="w-5 h-5 text-primary" />}
-                    <span className="text-xl font-bold">{PLAN_LABELS[plan]}</span>
-                    <Badge className={`text-xs border ${PLAN_COLORS[plan]}`} variant="outline">
-                      {isActivePlan ? "Active" : "Trial"}
+                    <span className="text-xl font-bold">{PLAN_LABELS[plan] ?? plan}</span>
+                    <Badge className={`text-xs border ${PLAN_COLORS[plan] ?? ""}`} variant="outline">
+                      {isActivePlan ? "Active" : hasFreeSession ? "Unlinked" : "Trial"}
                     </Badge>
                   </div>
                 )}
@@ -136,9 +163,15 @@ export default function Settings() {
                   </p>
                 )}
 
-                {!isActivePlan && !billingLoading && (
+                {hasFreeSession && !billingLoading && (
                   <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                    You're on the Trial plan with 3 comparisons. Upgrade to Ai AgentLab Pro to unlock more providers, 100 comparisons per month, saved history, and the Winner Engine.
+                    Your browser hasn't been linked to a subscription yet. Enter your checkout email below to activate access, or subscribe to a plan.
+                  </p>
+                )}
+
+                {!isActivePlan && !hasFreeSession && !billingLoading && (
+                  <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+                    You're on the Trial plan with 3 comparisons. Upgrade to unlock more providers, 100 comparisons/mo, saved history, and the Winner Engine.
                   </p>
                 )}
               </div>
@@ -157,11 +190,20 @@ export default function Settings() {
                 ) : (
                   <Button
                     className="rounded-xl shadow-lg shadow-primary/20"
-                    onClick={() => {
-                      window.location.href = "/pricing";
-                    }}
+                    onClick={() => { window.location.href = "/pricing"; }}
                   >
                     <ArrowRight className="w-4 h-4 mr-2" /> Upgrade to Ai AgentLab Pro
+                  </Button>
+                )}
+                {!isActivePlan && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-xl text-muted-foreground text-xs"
+                    onClick={() => setShowActivation((v) => !v)}
+                  >
+                    <LogIn className="w-3.5 h-3.5 mr-1.5" />
+                    Already subscribed? Activate access
                   </Button>
                 )}
               </div>
@@ -170,12 +212,12 @@ export default function Settings() {
             {/* Feature summary */}
             <div className="mt-6 pt-6 border-t border-border/40 grid sm:grid-cols-2 gap-3 text-sm">
               {[
-                { label: "Comparisons", sandbox: "3 total", pro: "100 / month", studio: "500 / month" },
-                { label: "Providers", sandbox: "2", pro: "3", studio: "3" },
-                { label: "Saved history", sandbox: "—", pro: "✓", studio: "✓" },
-                { label: "Exports", sandbox: "—", pro: "Basic", studio: "Full" },
-                { label: "Winner Engine", sandbox: "—", pro: "✓", studio: "✓" },
-                { label: "Advanced scoring", sandbox: "—", pro: "—", studio: "✓" },
+                { label: "Comparisons", free: "3 total", sandbox: "3 total", pro: "100 / month", studio: "500 / month" },
+                { label: "Providers", free: "2", sandbox: "2", pro: "3", studio: "3" },
+                { label: "Saved history", free: "—", sandbox: "—", pro: "✓", studio: "✓" },
+                { label: "Exports", free: "—", sandbox: "—", pro: "Basic", studio: "Full" },
+                { label: "Winner Engine", free: "—", sandbox: "—", pro: "✓", studio: "✓" },
+                { label: "Advanced scoring", free: "—", sandbox: "—", pro: "—", studio: "✓" },
               ].map((f) => (
                 <div key={f.label} className="flex justify-between items-center py-1.5 border-b border-border/20 last:border-0">
                   <span className="text-muted-foreground">{f.label}</span>
@@ -200,6 +242,53 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* ── Activate existing subscription ── */}
+        {showActivation && !isActivePlan && (
+          <Card className="glass-card mt-4 border-primary/20">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <LogIn className="w-5 h-5 text-primary" />
+                <h3 className="font-semibold text-base">Activate Your Subscription</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Enter the email address you used when subscribing. This links your active subscription to this browser.
+              </p>
+              <div className="flex gap-3">
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={activationEmail}
+                  onChange={(e) => setActivationEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleActivateSession()}
+                  className="rounded-xl"
+                />
+                <Button
+                  onClick={handleActivateSession}
+                  disabled={isActivating || !activationEmail.trim()}
+                  className="rounded-xl shrink-0"
+                >
+                  {isActivating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogIn className="w-4 h-4 mr-2" />}
+                  Activate
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Sign out of billing session */}
+        {isActivePlan && (
+          <div className="mt-3 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground rounded-xl"
+              onClick={() => deactivateSession()}
+            >
+              Sign out of billing session
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* ── API KEYS SECTION ── */}
