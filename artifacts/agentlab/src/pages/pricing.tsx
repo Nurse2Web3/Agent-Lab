@@ -63,7 +63,7 @@ const TIERS = [
     badge: "For Teams & Power Users",
     popular: false,
     tagline: "All 4 AIs. 500 tests. Built for teams who ship fast.",
-    desc: "Adds Perplexity Sonar Pro — real-time, web-grounded AI. Compare all 4 models and ship with full confidence.",
+    desc: "Unlock Perplexity Sonar Pro — the only plan with real-time, web-grounded AI that pulls live data as it answers. Run all 4 models side-by-side (GPT-4o, Claude 3.5, Grok, and Perplexity), run 500 tests a month, and get advanced scoring to see exactly which AI gives your team the sharpest, most accurate output. Built for teams and power users who need more than gut feeling to pick the right model.",
     cta: "Get Premium",
     providers: ["Perplexity", "OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
     features: [
