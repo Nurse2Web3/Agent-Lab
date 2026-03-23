@@ -170,7 +170,7 @@ export default function Pricing() {
                 className={`relative flex flex-col rounded-3xl border backdrop-blur-sm transition-all ${
                   tier.popular
                     ? "border-primary/50 bg-card/70 ring-1 ring-primary/30 shadow-2xl shadow-primary/20 z-10 scale-[1.03]"
-                    : "border-border/70 bg-card/30 hover:bg-card/50 hover:border-border"
+                    : "border-border bg-card/30 ring-1 ring-border/60 hover:bg-card/50 hover:border-border hover:ring-border"
                 }`}
               >
                 {tier.badge && !isCurrent && (
