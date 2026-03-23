@@ -67,16 +67,23 @@ export class BillingStorage {
 
     const itemRows = await db.execute(
       sql`
-        SELECT p.name FROM stripe.subscription_items si
+        SELECT pr.unit_amount, pr.currency, p.name as product_name
+        FROM stripe.subscription_items si
         JOIN stripe.prices pr ON pr.id = si.price
-        JOIN stripe.products p ON p.id = pr.product
+        LEFT JOIN stripe.products p ON p.id = pr.product
         WHERE si.subscription = ${user.stripeSubscriptionId}
         LIMIT 1
       `
     );
-    const productName = ((itemRows.rows[0] as any)?.name ?? "").toLowerCase();
-    if (productName.includes("studio")) return "studio";
+    const row0 = itemRows.rows[0] as any;
+    const productName = (row0?.product_name ?? "").toLowerCase();
+    if (productName.includes("studio") || productName.includes("premium")) return "studio";
     if (productName.includes("pro")) return "pro";
+
+    const unitAmount = Number(row0?.unit_amount ?? 0);
+    if (unitAmount >= 4900) return "studio";
+    if (unitAmount >= 2900) return "pro";
+
     return "sandbox";
   }
 

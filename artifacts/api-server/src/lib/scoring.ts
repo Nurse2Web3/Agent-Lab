@@ -36,15 +36,15 @@ export function computeSummary(results: ProviderResult[]): ComparisonSummary {
     ...results.map((r) =>
       [
         r.provider,
-        r.model,
-        r.latencyMs,
-        r.inputTokens,
-        r.outputTokens,
-        r.tokenCount,
-        r.dollarCost,
-        r.qualityScore.toFixed(1),
-        r.overallScore.toFixed(1),
-        r.costPerQuality.toFixed(8),
+        r.model ?? "",
+        r.latencyMs ?? 0,
+        r.inputTokens ?? 0,
+        r.outputTokens ?? 0,
+        r.tokenCount ?? 0,
+        r.dollarCost ?? r.estimatedCost ?? 0,
+        (r.qualityScore ?? 0).toFixed(1),
+        (r.overallScore ?? 0).toFixed(1),
+        (r.costPerQuality ?? (r.estimatedCost / (r.overallScore + 0.001))).toFixed(8),
       ].join(",")
     ),
   ];

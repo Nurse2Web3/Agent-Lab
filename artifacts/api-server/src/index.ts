@@ -3,6 +3,29 @@ import { getStripeSync } from "./stripeClient";
 import { pool } from "@workspace/db";
 import app from "./app";
 
+async function reconcileBillingFromStripe() {
+  try {
+    const result = await pool.query(`
+      SELECT s.id as sub_id, s.customer
+      FROM stripe.subscriptions s
+      WHERE s.status = 'active'
+      ORDER BY s.created DESC
+      LIMIT 1
+    `);
+    if (!result.rows[0]) return;
+    const { sub_id, customer } = result.rows[0];
+    await pool.query(`
+      UPDATE billing_users
+      SET stripe_customer_id = $1, stripe_subscription_id = $2
+      WHERE id = 'default-user'
+        AND (stripe_customer_id IS NULL OR stripe_subscription_id IS NULL)
+    `, [customer, sub_id]);
+    console.log(`Billing reconciled: customer=${customer} sub=${sub_id}`);
+  } catch {
+    // stripe schema may not exist yet
+  }
+}
+
 async function ensureAllTables() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS billing_users (
@@ -109,6 +132,7 @@ if (Number.isNaN(port) || port <= 0) throw new Error(`Invalid PORT value: "${raw
 (async () => {
   await ensureAllTables();
   await initStripe();
+  await reconcileBillingFromStripe();
 
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
