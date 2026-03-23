@@ -12,3 +12,9 @@ id = "MBTu-Fu5PCqMKnkNi81Aj"
 uri = "file://AI_AGENTLAB_OVERVIEW.pdf"
 type = "pdf"
 title = "Ai AgentLab — Full System Overview (PDF)"
+
+[[outputs]]
+id = "0KgzGMNme6dU7iqdywiqa"
+uri = "file://attached_assets/generated_images/aiagentlab-icon.png"
+type = "image"
+title = "Ai AgentLab — Social Media Icon (240x240)"
