@@ -123,7 +123,7 @@ export default function Landing() {
             Compare outputs across leading AI providers in one workspace
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"].map((p) => (
+            {["OpenAI", "Claude", "GROK THE ELON MODEL 🥇", "Perplexity"].map((p) => (
               <span key={p} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium text-foreground/80 backdrop-blur-sm">
                 <ProviderIcon provider={p} className="w-3.5 h-3.5" />
                 {p}
@@ -359,13 +359,14 @@ export default function Landing() {
       <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Supported providers</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Three leading AI providers. One workspace.</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Four leading AI providers. One workspace.</h2>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
+          <div className="grid md:grid-cols-4 gap-6 mb-10">
             {[
-              { name: "OpenAI", sub: "GPT-4o mini — fast and cost-effective", emoji: "◎" },
+              { name: "OpenAI", sub: "GPT-4o — fast and cost-effective", emoji: "◎" },
               { name: "Claude", sub: "Nuanced, safe, thoughtful outputs", emoji: "✺" },
               { name: "GROK THE ELON MODEL 🥇", sub: "The model everyone's talking about", emoji: "⚡" },
+              { name: "Perplexity Sonar Pro", sub: "Real-time, web-grounded AI — Premium only", emoji: "🌐" },
             ].map((p) => (
               <div key={p.name} className="glass-card rounded-2xl p-8 text-center group hover:border-primary/30 transition-colors">
                 <div className="text-3xl mb-4">{p.emoji}</div>
@@ -438,8 +439,8 @@ export default function Landing() {
               {
                 name: "Ai AgentLab Premium",
                 price: "$49/mo",
-                providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
-                desc: "Full access — all 3 providers, 500 tests, advanced scoring, and richer evaluation.",
+                providers: ["Perplexity", "OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
+                desc: "All 4 providers including Perplexity Sonar Pro — 500 tests, advanced scoring, and richer evaluation.",
                 highlight: false,
               },
             ].map((plan) => (

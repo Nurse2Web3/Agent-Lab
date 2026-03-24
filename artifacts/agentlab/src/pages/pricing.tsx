@@ -7,7 +7,7 @@ import { useBillingStatus, useBillingProducts, useCheckout, useManageBilling } f
 import { useToast } from "@/hooks/use-toast";
 import { BillingPolicy } from "@/components/billing-policy";
 
-const PROVIDER_PILLS = ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"];
+const PROVIDER_PILLS = ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇", "Perplexity"];
 
 const TIERS = [
   {

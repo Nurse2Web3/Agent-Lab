@@ -22,7 +22,7 @@ const PLAN_PROVIDERS: Record<string, string[]> = {
   free: ["OpenAI", "Claude"],
   sandbox: ["OpenAI", "Claude"],
   pro: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
-  studio: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
+  studio: ["Perplexity", "OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
 };
 
 const PLAN_COLORS: Record<string, string> = {
