@@ -370,13 +370,13 @@ export default function Playground() {
                         )}
                       </div>
                       {isLocked && isGrok && (
-                        <Link href="/pricing" className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-amber-400/90 hover:text-amber-400 transition-colors">
-                          <span>⚠️ MISSING: GROK THE ELON MODEL — Upgrade to Pro →</span>
+                        <Link href="/pricing" className="mt-1.5 ml-6 flex items-center gap-1 text-[11px] font-semibold text-primary/80 hover:text-primary transition-colors">
+                          Unlock Grok with Pro — $29/mo <ArrowRight className="w-2.5 h-2.5" />
                         </Link>
                       )}
                       {isLocked && p.id === "Perplexity" && (
-                        <Link href="/pricing" className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-cyan-400/90 hover:text-cyan-400 transition-colors">
-                          <span>⚠️ Perplexity Sonar Pro — Premium only →</span>
+                        <Link href="/pricing" className="mt-1.5 ml-6 flex items-center gap-1 text-[11px] font-semibold text-cyan-400/80 hover:text-cyan-400 transition-colors">
+                          Unlock Perplexity with Premium — $49/mo <ArrowRight className="w-2.5 h-2.5" />
                         </Link>
                       )}
                     </div>

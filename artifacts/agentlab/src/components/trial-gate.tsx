@@ -204,22 +204,48 @@ function PendingVerify({ email, devVerifyUrl, onRefresh }: {
 
 function ExhaustedBanner() {
   return (
-    <div className="text-center space-y-5 p-2">
-      <div className="mx-auto w-16 h-16 rounded-2xl bg-muted/50 border border-border/40 flex items-center justify-center">
-        <Lock className="w-8 h-8 text-muted-foreground" />
+    <div className="text-center space-y-6 p-2">
+      <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+        <Lock className="w-8 h-8 text-primary" />
       </div>
       <div>
-        <h3 className="text-xl font-bold mb-2">Your Ai AgentLab Trial has ended</h3>
+        <h3 className="text-xl font-bold mb-2">Your 3 free evaluations are used up</h3>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-          You've used your 3 free comparisons. Upgrade to Pro to unlock GROK THE ELON MODEL 🥇 alongside GPT and Claude.
+          Upgrade to keep evaluating — and unlock the features that make the results meaningful.
         </p>
       </div>
-      <div className="flex flex-col gap-2 max-w-xs mx-auto">
-        <Button className="w-full h-11 rounded-xl font-semibold" asChild>
-          <Link href="/pricing">Upgrade to Pro <ArrowRight className="ml-2 w-4 h-4" /></Link>
+
+      <div className="text-left max-w-sm mx-auto space-y-2">
+        {[
+          { label: "Winner Engine", desc: "Scored recommendations across quality, speed & cost", plan: "Pro" },
+          { label: "GROK THE ELON MODEL 🥇", desc: "Add a 3rd model to every comparison", plan: "Pro" },
+          { label: "Saved history", desc: "Keep a record of every evaluation run", plan: "Pro" },
+          { label: "CSV & PDF export", desc: "Share results with your team or document decisions", plan: "Pro" },
+          { label: "Perplexity Sonar Pro", desc: "Real-time, web-grounded AI — the 4th model", plan: "Premium" },
+        ].map((item) => (
+          <div key={item.label} className="flex items-start gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
+            <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
+              <Lock className="w-2.5 h-2.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">{item.label}</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${item.plan === "Premium" ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/20" : "bg-primary/15 text-primary border border-primary/20"}`}>
+                  {item.plan}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-2 max-w-xs mx-auto pt-1">
+        <Button className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20" asChild>
+          <Link href="/pricing">Upgrade to Pro — $29/mo <ArrowRight className="ml-2 w-4 h-4" /></Link>
         </Button>
-        <Button variant="outline" className="w-full h-11 rounded-xl text-sm font-semibold" asChild>
-          <Link href="/pricing">Go Premium</Link>
+        <Button variant="outline" className="w-full h-10 rounded-xl text-sm font-medium" asChild>
+          <Link href="/pricing">See all plans</Link>
         </Button>
       </div>
     </div>

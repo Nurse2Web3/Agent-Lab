@@ -18,18 +18,18 @@ const TIERS = [
     period: null,
     badge: null,
     popular: false,
-    tagline: "Try Ai AgentLab.",
-    desc: "Try Ai AgentLab with 3 side-by-side AI comparisons — GPT + Claude (upgrade for GROK - THE ELON MODEL 🥇).",
-    cta: "Start Trial",
+    tagline: "Start free. No card required.",
+    desc: "Run 3 evaluations across GPT + Claude. See the workflow, understand the scoring, and decide if you need more. No credit card required.",
+    cta: "Start Free Trial",
     providers: ["OpenAI", "Claude"],
     features: [
-      { label: "3 total comparisons", included: true },
-      { label: "GPT + Claude (2 providers)", included: true },
+      { label: "3 evaluations total", included: true },
+      { label: "GPT-4o + Claude (2 providers)", included: true },
       { label: "Side-by-side output view", included: true },
-      { label: "Basic speed visibility", included: true },
+      { label: "Winner Engine", included: false },
       { label: "Saved history", included: false },
-      { label: "Exports", included: false },
-      { label: "Advanced scoring", included: false },
+      { label: "CSV or PDF export", included: false },
+      { label: "Grok, Perplexity & advanced scoring", included: false },
     ],
   },
   {
@@ -38,20 +38,20 @@ const TIERS = [
     name: "Ai AgentLab Pro",
     price: "$29",
     period: "/month",
-    badge: "Recommended",
+    badge: "Most Popular",
     popular: true,
-    tagline: "For founders who need more.",
-    desc: "🔥 UPGRADE PRO ($29): Unlock GROK THE ELON MODEL + 100 tests.",
+    tagline: "The right plan for founders shipping AI.",
+    desc: "100 evaluations a month across GPT, Claude, and Grok. Unlock the Winner Engine, save every run, and export results as CSV or PDF. The plan most founders need to make confident model decisions.",
     cta: "Upgrade to Pro",
     providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
     features: [
-      { label: "100 comparisons per month", included: true },
-      { label: "GPT + Claude + GROK (all 3)", included: true },
-      { label: "Saved test history", included: true },
+      { label: "100 evaluations per month", included: true },
+      { label: "GPT-4o + Claude + Grok (all 3)", included: true },
+      { label: "Winner Engine — scored recommendations", included: true },
+      { label: "Saved evaluation history", included: true },
+      { label: "CSV or PDF export", included: true },
       { label: "Side-by-side comparison view", included: true },
-      { label: "CSV or PDF printable", included: true },
-      { label: "Winner Engine recommendations", included: true },
-      { label: "Advanced scoring", included: false },
+      { label: "Perplexity Sonar Pro & advanced scoring", included: false },
     ],
   },
   {
@@ -63,28 +63,28 @@ const TIERS = [
     badge: "For Teams & Power Users",
     popular: false,
     tagline: "All 4 AIs. 500 tests. Built for teams who ship fast.",
-    desc: "Unlock Perplexity Sonar Pro — the only plan with real-time, web-grounded AI that pulls live data as it answers. Run all 4 models side-by-side (GPT-4o, Claude 3.5, Grok, and Perplexity), run 500 tests a month, and get advanced scoring to see exactly which AI gives your team the sharpest, most accurate output. Built for teams and power users who need more than gut feeling to pick the right model.",
+    desc: "The only plan with Perplexity Sonar Pro — real-time, web-grounded AI that pulls live data as it answers. Run all 4 models side-by-side, run 500 evaluations a month, and get advanced scoring your whole team can act on.",
     cta: "Get Premium",
     providers: ["Perplexity", "OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
     features: [
-      { label: "Perplexity Sonar Pro — real-time web AI", included: true },
-      { label: "All 4 providers (GPT, Claude, Grok + Perplexity)", included: true },
-      { label: "500 comparisons per month", included: true },
-      { label: "Everything in Pro", included: true },
-      { label: "Advanced scoring", included: true },
+      { label: "500 evaluations per month", included: true },
+      { label: "All 4 providers including Perplexity Sonar Pro", included: true },
+      { label: "Perplexity — real-time, web-grounded AI", included: true },
+      { label: "Winner Engine with advanced scoring", included: true },
+      { label: "Saved history & full export", included: true },
       { label: "Richer evaluation insights", included: true },
-      { label: "Premium export and comparison workflow", included: true },
+      { label: "Everything in Pro, 5x the volume", included: true },
     ],
   },
 ];
 
 const COMPARISON_ROWS = [
-  { label: "Comparisons",       trial: "3 total",                        pro: "100 / month",                   premium: "500 / month" },
-  { label: "Providers",         trial: "GPT + Claude",                   pro: "GPT + Claude + GROK",           premium: "GPT + Claude + GROK + Perplexity" },
-  { label: "Saved history",     trial: "—",                              pro: "✓",                             premium: "✓" },
-  { label: "Exports",           trial: "—",                              pro: "Basic",                         premium: "Full" },
-  { label: "Advanced scoring",  trial: "—",                              pro: "—",                             premium: "✓" },
-  { label: "Winner Engine",     trial: "—",                              pro: "✓",                             premium: "✓" },
+  { label: "Evaluations",        trial: "3 total",        pro: "100 / month",           premium: "500 / month" },
+  { label: "AI Providers",       trial: "GPT + Claude",   pro: "GPT + Claude + Grok",   premium: "All 4 incl. Perplexity" },
+  { label: "Winner Engine",      trial: "—",              pro: "✓",                     premium: "✓ + advanced scoring" },
+  { label: "Saved history",      trial: "—",              pro: "✓",                     premium: "✓" },
+  { label: "CSV / PDF export",   trial: "—",              pro: "✓",                     premium: "✓" },
+  { label: "Perplexity Sonar",   trial: "—",              pro: "—",                     premium: "✓ Premium only" },
 ];
 
 export default function Pricing() {
@@ -134,7 +134,7 @@ export default function Pricing() {
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
             className="text-muted-foreground text-base">
-            Start with a trial, compare AI outputs side by side, and upgrade when you need more providers and deeper testing.
+            Start free with 3 evaluations. Upgrade when you need more models, saved history, exports, and scored recommendations.
           </motion.p>
         </div>
 
