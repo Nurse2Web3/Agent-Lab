@@ -42,7 +42,7 @@ export default function Success() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button asChild size="lg" className="h-12 px-8 text-sm font-semibold rounded-xl shadow-lg shadow-primary/30">
           <Link href="/playground">
-            Start Comparing <ArrowRight className="ml-2 w-4 h-4" />
+            Start Evaluating <ArrowRight className="ml-2 w-4 h-4" />
           </Link>
         </Button>
         <Button asChild size="lg" variant="outline" className="h-12 px-8 text-sm font-semibold rounded-xl">

@@ -1,0 +1,242 @@
+Clarify exactly what AgentLab evaluates
+
+Decide whether your product is primarily for:
+
+model selection
+prompt evaluation
+full agent evaluation
+all three, but in a staged way
+
+Recommended framing:
+
+Today: prompt + model evaluation
+Next: multi-step agent evaluation
+Later: production monitoring and regression suites
+
+Why this matters: evaluation for full agents is broader than output quality alone. It includes tool selection, argument accuracy, step efficiency, and boundary adherence.
+
+Phase 2, upgrade the product from “comparison” to “evaluation”
+4. Make the Winner Engine transparent
+
+Right now, a “winner” label is only strong if users understand how it was chosen.
+
+Add:
+
+visible score components
+adjustable score weights
+use-case presets such as support, coding, research, internal copilot
+score explanation panel
+
+Score dimensions should include:
+
+quality
+speed
+cost
+consistency
+format adherence
+tool-use accuracy, when applicable
+
+Why this matters: serious agent evaluation now relies on defined criteria and measurable scoring, not gut feel from one output.
+
+5. Add repeated runs, not just one-shot comparisons
+
+This is a major upgrade.
+
+Build:
+
+“Run 5 times” option
+variance score
+consistency indicator
+average latency and average cost across runs
+
+Why this matters: modern agent evaluation increasingly treats reliability as statistical, not anecdotal. One response is not enough to judge production readiness.
+
+6. Add datasets and evaluation suites
+
+Instead of just one prompt input box, give users the ability to:
+
+save a set of test prompts
+organize them into projects
+run all tests across multiple models
+compare results over time
+
+Dataset starter templates:
+
+customer support QA
+coding assistant
+content generation
+research assistant
+internal policy assistant
+
+Why this matters: current guidance for reliable agent development centers on datasets, experiments, and structured eval suites rather than isolated manual tests.
+
+7. Add regression testing before deployment
+
+This is one of the strongest monetizable features.
+
+Build:
+
+baseline version
+challenger version
+regression alert if new version scores worse
+“ship / do not ship” summary
+
+Why this matters: pre-release regression testing is now a core expectation in AI evaluation workflows. Teams want to know whether a prompt or model change made things worse.
+
+8. Add scenario-based evaluation
+
+Go beyond one input and one output.
+
+Examples:
+
+multi-turn support scenario
+tool-call workflow
+escalation-needed scenario
+out-of-scope prompt
+adversarial or malformed input
+
+Why this matters: recent guidance highlights that agent reliability depends on testing realistic scenarios that mirror production complexity.
+
+Phase 3, improve the homepage and conversion flow
+9. Redo the homepage structure
+
+Recommended homepage structure:
+
+Section 1
+Headline: Validate AI before production
+Subheadline: Run the same tasks across models and prompts, score them with your criteria, detect regressions, and choose what is safe to ship.
+
+Section 2
+Problem block:
+
+manual testing is slow
+one-off outputs are misleading
+prompt and model changes create hidden regressions
+teams ship AI without evidence
+
+Section 3
+How it works:
+
+Build a test set
+Run across models and prompts
+Score quality, speed, cost, consistency
+Compare against baseline
+Approve what ships
+
+Section 4
+Proof block:
+
+number of providers
+average time saved
+sample report screenshot
+customer quote or founder testimonial
+
+Section 5
+Use cases:
+
+support agents
+AI copilots
+research assistants
+prompt QA
+release testing
+
+Section 6
+Pricing with feature separation
+
+Why this matters: the market is rewarding tools that clearly map to the workflow from experiment to deployment.
+
+10. Add stronger proof on the site
+
+You need visible evidence.
+
+Add at least three:
+
+sample benchmark report
+screenshot of side-by-side scored outputs
+“baseline vs challenger” result table
+usage counter or real test-run metric
+early testimonial
+
+Without proof, the product risks feeling like a wrapper rather than an evaluation system.
+
+Phase 4, improve monetization
+11. Make free tier useful but limited
+
+Free should allow product understanding, not full operational use.
+
+Recommended free tier:
+
+2 providers connected
+10 saved runs
+1 project
+1 small eval set
+no exports
+no regression history
+12. Make paid plans about workflow value, not just volume
+
+Paid features should unlock things teams actually pay for:
+
+unlimited saved projects
+larger evaluation datasets
+baseline vs challenger comparisons
+repeated runs
+regression alerts
+exportable reports
+collaboration
+API access
+team audit trail
+
+Why this matters: most evaluation tools differentiate on operational capabilities, not simply “more tests.”
+
+Phase 5, build trust and seriousness
+13. Add privacy and data handling clarity
+
+You need a visible trust section covering:
+
+where prompts are stored
+whether customer data trains models
+retention controls
+API key security
+team privacy
+
+This is especially important if you want founders and teams to evaluate real business prompts.
+
+14. Add collaboration and project history
+
+For team use, build:
+
+saved projects
+run history
+side-by-side diffs
+comments
+approval state
+
+This moves AgentLab from solo experimentation to a product team tool.
+
+15. Add exportable decision reports
+
+This is very sellable.
+
+The report should summarize:
+
+which model/prompt won
+why it won
+scores by dimension
+failure cases
+regression status
+recommendation
+
+A clean PDF or shareable report makes the product feel much more real.
+
+Recommended build order
+Build now
+Homepage repositioning
+Winner Engine explanation
+Saved projects
+Repeated runs
+Baseline vs challenger comparisons
+Build next
+Datasets / eval suites
+Regression alerts
+Exportable reports
+Use-case templates

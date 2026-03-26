@@ -1,27 +1,31 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, Trophy, History, Download, Plug, GitCompare, Sparkles, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowRight, Zap, Trophy, History, Download, Plug, GitCompare, Sparkles, Check, ChevronDown, ChevronUp, ShieldCheck, BarChart3, Layers, FlaskConical } from "lucide-react";
 import { useState } from "react";
 import { ProviderIcon } from "@/components/provider-icon";
 import { BillingPolicy } from "@/components/billing-policy";
 
 const FAQS = [
   {
-    q: "What makes Ai AgentLab different from a normal AI playground?",
-    a: "A normal playground helps you generate outputs. Ai AgentLab helps you compare them, score them, and decide what to ship.",
+    q: "What is Ai AgentLab?",
+    a: "Ai AgentLab is an AI evaluation workspace. You build a test set, run it across models and prompts, score outputs on quality, speed, cost, and consistency, then get a clear recommendation for what is safe to ship.",
   },
   {
-    q: "Do I need API keys to use it?",
-    a: "No. You can start in demo mode and explore the workflow before connecting any providers.",
+    q: "How is this different from a prompt playground?",
+    a: "Playgrounds help you generate outputs. AgentLab helps you validate them. Every run is scored, compared against your criteria, and summarized into a ship or do not ship decision — so you are not guessing when you go to production.",
   },
   {
     q: "Who is this built for?",
-    a: "Non-technical founders, indie makers, and product builders evaluating prompts and models for real AI features.",
+    a: "Founders, product teams, and indie makers who are building AI features and need evidence — not gut feel — to choose the right model, prompt, or agent setup before they ship.",
   },
   {
-    q: "Can I export what works?",
-    a: "Yes. Paid plans let you copy the winning prompt, settings, and payload so you can use them in production.",
+    q: "Can I export the evaluation results?",
+    a: "Yes. Paid plans let you export scored results as CSV or PDF — including the winning model, score breakdown, and recommendation — so you can share it with your team or document the decision.",
+  },
+  {
+    q: "Do I need API keys to start?",
+    a: "No. You can explore the workflow in demo mode before connecting any providers. When you are ready, connect your keys and run real evaluations.",
   },
 ];
 
@@ -61,8 +65,8 @@ export default function Landing() {
           transition={{ duration: 0.5 }}
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8"
         >
-          <Sparkles className="w-4 h-4" />
-          <span>The AI decision studio for founders</span>
+          <FlaskConical className="w-4 h-4" />
+          <span>AI evaluation workspace for founders &amp; product teams</span>
         </motion.div>
 
         <motion.h1
@@ -71,9 +75,8 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-5xl md:text-7xl font-display font-bold tracking-tight text-white mb-6 leading-[1.1]"
         >
-          Test AI agents. <br className="hidden md:block" />
-          <span className="text-gradient-primary">Compare outputs.</span><br />
-          Ship with confidence.
+          Validate AI<br className="hidden md:block" />
+          <span className="text-gradient-primary">before you ship.</span>
         </motion.h1>
 
         <motion.p
@@ -82,7 +85,7 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Ai AgentLab helps founders compare prompts and models side by side, score what matters, and choose the best option to ship — without scripts, spreadsheets, or switching between tabs.
+          Run the same tasks across models and prompts, score outputs on quality, speed, cost, and consistency, detect regressions, and choose what is safe to ship — with evidence, not gut feel.
         </motion.p>
 
         <motion.div
@@ -93,7 +96,7 @@ export default function Landing() {
         >
           <Button size="lg" className="h-14 px-8 text-base rounded-full shadow-lg shadow-primary/25 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90" asChild>
             <Link href="/playground">
-              Try the Lab <ArrowRight className="ml-2 w-5 h-5" />
+              Start Evaluating <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
           </Button>
           <Button size="lg" variant="outline" className="h-14 px-8 text-base rounded-full bg-secondary/50 backdrop-blur border-border/50 hover:bg-secondary" asChild>
@@ -109,7 +112,7 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.45 }}
           className="mt-6 text-sm text-muted-foreground/70"
         >
-          Built for non-technical founders, indie makers, and product builders shipping AI features.
+          Pre-production validation for founders, product teams, and AI builders.
         </motion.p>
 
         {/* Provider strip */}
@@ -120,7 +123,7 @@ export default function Landing() {
           className="mt-10"
         >
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-4">
-            Compare outputs across leading AI providers in one workspace
+            Evaluate across four leading AI providers in one workspace
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             {["OpenAI", "Claude", "GROK THE ELON MODEL 🥇", "Perplexity"].map((p) => (
@@ -135,17 +138,34 @@ export default function Landing() {
 
       {/* ── PROBLEM SECTION ── */}
       <div className="relative z-10 border-t border-border/30 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">Why this exists</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-            Choosing an AI model should not feel like guesswork.
-          </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Most founders test the same prompt across multiple tools, compare responses manually, and try to remember which output was better, faster, or cheaper. The process is messy, inconsistent, and hard to trust.
-          </p>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mt-4">
-            Ai AgentLab turns that into one workflow: run once, compare everything side by side, and choose what to ship with more confidence.
-          </p>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">The problem</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+              Most teams ship AI without validation.
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              One test run, one output, one guess. That is not a release process — that is how regressions end up in production.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              { title: "Manual testing is slow", desc: "Copying prompts across ChatGPT, Claude, and API playgrounds wastes hours and produces results you can't reproduce." },
+              { title: "One-off outputs are misleading", desc: "A single response tells you nothing about consistency, reliability, or how the model behaves under variation." },
+              { title: "Prompt changes create hidden regressions", desc: "A small edit to your system prompt can silently break behavior you already validated. Without a baseline, you won't catch it." },
+              { title: "Teams ship without evidence", desc: "Most AI releases are based on vibes, not data. There is no paper trail, no scoring, no documented reason for the decision." },
+            ].map((item, i) => (
+              <div key={i} className="glass-card rounded-2xl p-6 flex gap-4 items-start">
+                <div className="w-6 h-6 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-red-400 text-xs font-bold">✕</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -154,19 +174,20 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">How it works</p>
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">One prompt. Multiple providers. Clear decision.</h2>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">From test set to ship decision in one workflow.</h2>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
               {[
-                { step: "01", title: "Run once", desc: "Enter your prompt, choose your providers, and launch a comparison in one click." },
-                { step: "02", title: "Compare everything", desc: "See output quality, speed, token count, and estimated cost in one view instead of across scattered tabs." },
-                { step: "03", title: "Choose the winner", desc: "Use the Winner Engine to surface Best Quality, Cheapest, Fastest, and the best overall option to ship." },
-                { step: "04", title: "Export to production", desc: "Copy the winning prompt, settings, and payload so you can move from testing to shipping without rebuilding the setup manually." },
+                { step: "01", title: "Build a test set", desc: "Write the prompts and tasks that matter for your product. Organize them by use case — support, coding, research, or your own custom criteria." },
+                { step: "02", title: "Run across models and prompts", desc: "Fire your test set across up to 4 AI providers simultaneously. No switching tabs. No copy-pasting. One click." },
+                { step: "03", title: "Score quality, speed, cost, consistency", desc: "Every run is scored across multiple dimensions. The Winner Engine surfaces the best option for each tradeoff — not just the one that looked good once." },
+                { step: "04", title: "Compare against baseline", desc: "Test new prompt versions and model updates against a known-good baseline. Catch regressions before they reach production." },
+                { step: "05", title: "Approve what ships", desc: "Export a scored recommendation — with evidence — so your team can make a documented, confident release decision." },
               ].map((item, i) => (
                 <div key={i} className="flex gap-6">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full border border-primary/30 flex items-center justify-center text-primary font-display font-bold">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full border border-primary/30 flex items-center justify-center text-primary font-display font-bold text-sm">
                     {item.step}
                   </div>
                   <div>
@@ -185,15 +206,16 @@ export default function Landing() {
                     <div className="w-3 h-3 rounded-full bg-red-500/50" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                     <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                    <span className="ml-2 text-xs text-muted-foreground font-mono">agentlab — compare run</span>
+                    <span className="ml-2 text-xs text-muted-foreground font-mono">agentlab — evaluation run</span>
                   </div>
                   <div className="p-6 space-y-4">
-                    <div className="space-y-2">
+                    <div className="space-y-1 mb-3">
+                      <div className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Test prompt</div>
                       <div className="h-2 rounded bg-secondary/60 w-3/4" />
                       <div className="h-2 rounded bg-secondary/60 w-1/2" />
                     </div>
                     <div className="grid grid-cols-3 gap-3 mt-4">
-                      {["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"].map((p) => (
+                      {["OpenAI", "Claude", "Grok"].map((p) => (
                         <div key={p} className="rounded-lg border border-border/50 p-3 bg-secondary/20">
                           <div className="text-xs font-medium mb-2 text-muted-foreground">{p}</div>
                           <div className="space-y-1">
@@ -201,16 +223,17 @@ export default function Landing() {
                             <div className="h-1.5 rounded bg-secondary/60 w-5/6" />
                             <div className="h-1.5 rounded bg-secondary/40 w-4/5" />
                           </div>
+                          <div className="mt-2 text-xs text-emerald-400 font-semibold">Score: 91</div>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/25">
+                    <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
                       <div className="flex justify-between items-center">
                         <div>
-                          <div className="text-xs text-muted-foreground mb-1">Recommended Winner</div>
-                          <span className="font-bold text-foreground">Grok</span>
+                          <div className="text-xs text-muted-foreground mb-0.5">Validation result</div>
+                          <span className="font-bold text-foreground text-sm">Grok — Safe to ship</span>
                         </div>
-                        <span className="text-xs bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold">Ship This 🏆</span>
+                        <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-semibold">✓ Approved</span>
                       </div>
                     </div>
                   </div>
@@ -225,46 +248,46 @@ export default function Landing() {
       <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Core features</p>
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">A faster way to decide what to ship.</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Evaluation features</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Everything you need to validate before shipping.</h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: GitCompare,
-                title: "Side-by-side comparison",
-                desc: "Run the same prompt across multiple AI providers and compare outputs in a single view.",
-                highlight: false,
-              },
-              {
-                icon: Trophy,
-                title: "Winner Engine",
-                desc: "Ai AgentLab does not just show outputs. It recommends what to ship. Every run surfaces Best Quality, Cheapest, Fastest, and Recommended Winner so you can make tradeoffs quickly.",
+                icon: BarChart3,
+                title: "Multi-dimensional scoring",
+                desc: "Every run is scored on quality, speed, cost, and consistency — not just how the output looks. The Winner Engine surfaces the best option for each tradeoff so you can make an informed decision.",
                 highlight: true,
               },
               {
-                icon: Zap,
-                title: "Demo mode",
-                desc: "Try the workflow before connecting any API keys. Demo mode lets you explore the full product experience with realistic simulated results.",
+                icon: GitCompare,
+                title: "Baseline vs. challenger",
+                desc: "Set a known-good baseline. Run a new prompt version or model against it. Get a side-by-side regression report so you can see exactly what changed — and whether it got better or worse.",
+                highlight: false,
+              },
+              {
+                icon: ShieldCheck,
+                title: "Pre-production validation",
+                desc: "AgentLab is not a sandbox for exploration. It is a validation layer for release decisions — built for teams who need evidence before they deploy an AI feature.",
                 highlight: false,
               },
               {
                 icon: History,
-                title: "Saved history",
-                desc: "Keep a record of past runs, revisit decisions, and compare new experiments against what worked before.",
+                title: "Evaluation history",
+                desc: "Every test run is saved. Go back, compare across sessions, and build a documented record of every decision your team made before shipping.",
                 highlight: false,
               },
               {
                 icon: Download,
-                title: "Production export",
-                desc: "Copy the winning prompt, settings, and API payload for real use in your product. No more rerunning tests just to recreate what worked.",
+                title: "Exportable decision reports",
+                desc: "Export your evaluation as CSV or PDF — scored outputs, winner recommendation, and failure cases included. Share it with your team or attach it to your release process.",
                 highlight: false,
               },
               {
-                icon: Plug,
-                title: "Provider connections",
-                desc: "Connect Grok, OpenAI, and Claude when you are ready and compare real outputs across the leading AI providers in one workspace.",
+                icon: Layers,
+                title: "Four AI providers",
+                desc: "Evaluate across GPT-4o, Claude 3.5, Grok, and Perplexity Sonar Pro in one workspace. No switching tabs, no rebuilding the same prompt four times.",
                 highlight: false,
               },
             ].map((feature, i) => (
@@ -291,22 +314,22 @@ export default function Landing() {
       <div className="relative z-10 py-24 border-t border-border/30 bg-background/40 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Why it is different</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">The Winner Engine</p>
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-              More than a playground. A decision engine for AI builders.
+              Not just outputs. A scored, documented release decision.
             </h2>
           </div>
 
           <div className="glass-card rounded-3xl p-10 border-primary/20 ring-1 ring-primary/10 grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                Most tools help you generate outputs. Ai AgentLab helps you decide what to ship.
+                Most teams pick a model based on one output that felt right. The Winner Engine gives you a structured score across every dimension that matters in production.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-8">
-                The Winner Engine balances quality, speed, and cost efficiency so you can move faster with fewer bad guesses. Instead of comparing responses by eye and hoping for the best, you get a clearer path to a production-ready choice.
+                Quality. Speed. Cost. Consistency. Every run is evaluated across all four — so when you ship, you have data behind the decision, not just a hunch.
               </p>
               <ul className="space-y-3">
-                {["Best Quality", "Cheapest", "Fastest", "Recommended Winner"].map((item) => (
+                {["Output quality score", "Speed and latency ranking", "Cost efficiency comparison", "Consistency across runs", "Recommended Winner with rationale"].map((item) => (
                   <li key={item} className="flex items-center gap-3 text-sm font-medium">
                     <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 text-primary" />
@@ -320,13 +343,14 @@ export default function Landing() {
             <div className="rounded-2xl border border-primary/25 bg-primary/5 overflow-hidden">
               <div className="px-5 py-3 border-b border-primary/15 flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Winner Engine</span>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Evaluation Report</span>
               </div>
               <div className="p-6 space-y-4">
                 {[
-                  { label: "Best Quality", value: "GROK 🥇", bar: "w-[92%]", color: "bg-emerald-500/60" },
-                  { label: "Cheapest", value: "Grok", bar: "w-[78%]", color: "bg-sky-500/60" },
-                  { label: "Fastest", value: "Grok", bar: "w-[95%]", color: "bg-violet-500/60" },
+                  { label: "Output Quality", value: "Grok 🥇", bar: "w-[92%]", color: "bg-emerald-500/60" },
+                  { label: "Cost Efficiency", value: "Grok", bar: "w-[85%]", color: "bg-sky-500/60" },
+                  { label: "Response Speed", value: "Grok", bar: "w-[95%]", color: "bg-violet-500/60" },
+                  { label: "Consistency", value: "Claude", bar: "w-[88%]", color: "bg-amber-500/60" },
                 ].map((row) => (
                   <div key={row.label}>
                     <div className="flex justify-between text-xs mb-1.5">
@@ -340,7 +364,7 @@ export default function Landing() {
                 ))}
                 <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-between">
                   <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">Recommended Winner</div>
+                    <div className="text-xs text-muted-foreground mb-0.5">Recommended to Ship</div>
                     <span className="font-bold text-lg">Grok</span>
                   </div>
                   <span className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-full font-semibold">Ship This 🏆</span>
@@ -350,23 +374,48 @@ export default function Landing() {
           </div>
 
           <p className="text-center text-sm text-muted-foreground/70 mt-8">
-            Built to grow from prompt comparison into full agent testing, version tracking, and workflow evaluation.
+            Built to scale from prompt validation into full agent regression testing and production monitoring.
           </p>
         </div>
       </div>
 
-      {/* ── PROVIDERS ── */}
+      {/* ── USE CASES ── */}
       <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Use cases</p>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">What teams validate with AgentLab.</h2>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {[
+              { emoji: "🤝", name: "Support agents", desc: "Validate that your support AI handles edge cases, escalation prompts, and out-of-scope questions before going live." },
+              { emoji: "💻", name: "AI copilots", desc: "Test your coding or writing assistant across models to find the one that produces the most consistent, high-quality output for your use case." },
+              { emoji: "🔍", name: "Research assistants", desc: "Evaluate factual accuracy and citation quality across models — especially with Perplexity Sonar Pro for real-time web-grounded responses." },
+              { emoji: "📋", name: "Prompt QA", desc: "Run your system prompts through structured test sets before every release. Catch regressions early instead of in production." },
+              { emoji: "🚀", name: "Release testing", desc: "Set a baseline, run a challenger version, and get a regression report — so your team can make a documented, confident deploy decision." },
+              { emoji: "🏢", name: "Internal policy assistants", desc: "Validate that AI tools trained on company policy respond accurately and stay in-scope across a range of realistic employee queries." },
+            ].map((p) => (
+              <div key={p.name} className="glass-card rounded-2xl p-6 text-left group hover:border-primary/30 transition-colors">
+                <div className="text-2xl mb-3">{p.emoji}</div>
+                <h3 className="text-base font-bold mb-2">{p.name}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── PROVIDERS ── */}
+      <div className="relative z-10 py-24 border-t border-border/30 bg-background/40 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Supported providers</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Four leading AI providers. One workspace.</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">Four leading AI providers. One evaluation workspace.</h2>
 
           <div className="grid md:grid-cols-4 gap-6 mb-10">
             {[
               { name: "OpenAI", sub: "GPT-4o — fast and cost-effective", emoji: "◎" },
-              { name: "Claude", sub: "Nuanced, safe, thoughtful outputs", emoji: "✺" },
-              { name: "GROK THE ELON MODEL 🥇", sub: "The model everyone's talking about", emoji: "⚡" },
-              { name: "Perplexity Sonar Pro", sub: "Real-time, web-grounded AI — Premium only", emoji: "🌐" },
+              { name: "Claude", sub: "Nuanced, safe, highly consistent", emoji: "✺" },
+              { name: "GROK THE ELON MODEL 🥇", sub: "Fast, direct, and widely discussed", emoji: "⚡" },
+              { name: "Perplexity Sonar Pro", sub: "Real-time web-grounded AI — Premium only", emoji: "🌐" },
             ].map((p) => (
               <div key={p.name} className="glass-card rounded-2xl p-8 text-center group hover:border-primary/30 transition-colors">
                 <div className="text-3xl mb-4">{p.emoji}</div>
@@ -377,25 +426,26 @@ export default function Landing() {
           </div>
 
           <p className="text-sm text-muted-foreground/70">
-            Designed to support real provider comparisons today, with room to expand into broader agent workflows over time.
+            Built for real provider evaluation today, with a roadmap toward multi-step agent testing and production monitoring.
           </p>
         </div>
       </div>
 
       {/* ── WHO IT'S FOR ── */}
-      <div className="relative z-10 py-24 border-t border-border/30 bg-background/40 backdrop-blur-sm">
+      <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Who it is for</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Built for founders making product decisions.</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">For teams who need evidence before they ship.</h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
-            Ai AgentLab is designed for non-technical founders, indie makers, and product builders who want a faster, clearer way to choose the right AI setup for their product.
+            Ai AgentLab is built for founders, product managers, and developers who are accountable for AI features in production — and who need a documented, defensible process for getting there.
           </p>
           <ul className="inline-flex flex-col items-start gap-4 text-left">
             {[
-              "Compare prompts without writing test scripts",
-              "Understand tradeoffs without using spreadsheets",
-              "Move from testing to shipping with less friction",
-              "Make better model decisions with more confidence",
+              "Validate prompts and models before every release",
+              "Catch regressions before they reach production",
+              "Score outputs on quality, speed, cost, and consistency",
+              "Export a recommendation your team can act on",
+              "Build a history of decisions — not just a folder of screenshots",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3 text-base">
                 <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0">
@@ -409,11 +459,11 @@ export default function Landing() {
       </div>
 
       {/* ── PRICING PREVIEW ── */}
-      <div className="relative z-10 py-24 border-t border-border/30">
+      <div className="relative z-10 py-24 border-t border-border/30 bg-background/40 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">Pricing</p>
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-12">
-            Start with a Trial. Upgrade when you are ready to ship seriously.
+            Start free. Upgrade when your release process demands it.
           </h2>
         </div>
 
@@ -426,21 +476,21 @@ export default function Landing() {
                 name: "Ai AgentLab Trial",
                 price: "$0",
                 providers: ["OpenAI", "Claude"],
-                desc: "3 free comparisons — GPT + Claude (upgrade for GROK - THE ELON MODEL 🥇).",
+                desc: "3 evaluations — GPT + Claude. Understand the workflow before you commit.",
                 highlight: false,
               },
               {
                 name: "Ai AgentLab Pro",
                 price: "$29/mo",
                 providers: ["OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
-                desc: "🔥 UPGRADE PRO ($29): Unlock GROK THE ELON MODEL + 100 tests.",
+                desc: "100 evaluations/month across 3 models. CSV and PDF export. Saved history. Built for founders shipping regularly.",
                 highlight: true,
               },
               {
                 name: "Ai AgentLab Premium",
                 price: "$49/mo",
                 providers: ["Perplexity", "OpenAI", "Claude", "GROK THE ELON MODEL 🥇"],
-                desc: "All 4 providers including Perplexity Sonar Pro — 500 tests, advanced scoring, and richer evaluation.",
+                desc: "500 evaluations/month. All 4 providers including Perplexity Sonar Pro. Advanced scoring. Built for teams and power users.",
                 highlight: false,
               },
             ].map((plan) => (
@@ -452,67 +502,55 @@ export default function Landing() {
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider text-primary-foreground bg-primary px-3 py-1 rounded-full">Recommended</span>
                 )}
                 <div className="flex items-baseline justify-between mb-1">
-                  <h3 className="text-lg font-bold">{plan.name}</h3>
-                  <span className="text-sm font-semibold text-muted-foreground">{plan.price}</span>
+                  <h3 className="text-sm font-semibold text-muted-foreground">{plan.name}</h3>
+                  <span className="text-xl font-bold text-foreground">{plan.price}</span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{plan.desc}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {plan.providers.map((p) => (
-                    <span key={p} className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-secondary/60 border border-border/50 text-foreground/80">
-                      <ProviderIcon provider={p} className="w-3 h-3" />
-                      {p}
+                <p className="text-sm text-foreground/70 mb-4 leading-relaxed">{plan.desc}</p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {plan.providers.map((prov) => (
+                    <span key={prov} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-secondary/60 border border-border/50 text-foreground/70">
+                      <ProviderIcon provider={prov} className="w-3 h-3" />
+                      {prov}
                     </span>
                   ))}
                 </div>
               </div>
             ))}
           </div>
-
-          <p className="text-sm text-muted-foreground/70">
-            The Trial is built for exploration. Paid plans are built for real shipping decisions.
-          </p>
-
-          <div className="mt-8">
-            <Button variant="outline" className="rounded-full" asChild>
-              <Link href="/pricing">See full pricing</Link>
-            </Button>
-          </div>
+          <Button size="lg" className="rounded-full px-8" asChild>
+            <Link href="/pricing">See full pricing <ArrowRight className="ml-2 w-4 h-4" /></Link>
+          </Button>
         </div>
       </div>
 
       {/* ── FAQ ── */}
-      <div className="relative z-10 py-24 border-t border-border/30 bg-background/40 backdrop-blur-sm">
+      <div className="relative z-10 py-24 border-t border-border/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold">Common questions</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">FAQ</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold">Common questions.</h2>
           </div>
           <div className="space-y-3">
-            {FAQS.map((faq) => (
-              <FaqItem key={faq.q} q={faq.q} a={faq.a} />
-            ))}
+            {FAQS.map((faq, i) => <FaqItem key={i} {...faq} />)}
           </div>
         </div>
       </div>
 
       {/* ── FINAL CTA ── */}
-      <div className="py-32 relative z-10">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      <div className="relative z-10 py-24 border-t border-border/30 bg-background/40 backdrop-blur-sm">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-            Stop guessing which AI setup to ship.
+            Stop guessing.<br />
+            <span className="text-gradient-primary">Start validating.</span>
           </h2>
-          <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
-            Compare prompts, evaluate tradeoffs, and choose the best version with more confidence.
+          <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
+            Run your first evaluation in minutes. No API keys required to start.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="h-14 px-10 text-base rounded-full shadow-lg shadow-primary/25 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90" asChild>
-              <Link href="/playground">
-                Try the Lab <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="h-14 px-8 text-base rounded-full bg-secondary/50 backdrop-blur border-border/50 hover:bg-secondary" asChild>
-              <Link href="/pricing">View Pricing</Link>
-            </Button>
-          </div>
+          <Button size="lg" className="h-14 px-10 text-base rounded-full shadow-lg shadow-primary/25 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90" asChild>
+            <Link href="/playground">
+              Start Evaluating Free <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

@@ -75,7 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 rounded-full px-6"
                 asChild
               >
-                <Link href="/playground">Start Comparing</Link>
+                <Link href="/playground">Start Evaluating</Link>
               </Button>
             </div>
 
@@ -112,7 +112,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               ))}
               <div className="h-px bg-border my-2" />
               <Button className="w-full justify-center bg-primary" size="lg" asChild>
-                <Link href="/playground">Start Comparing</Link>
+                <Link href="/playground">Start Evaluating</Link>
               </Button>
             </div>
           </motion.div>
