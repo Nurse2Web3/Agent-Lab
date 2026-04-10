@@ -1,11 +1,11 @@
-import { ProviderCallOptions, ProviderResult } from "./types.js";
-import { computeScores } from "./utils.js";
+import { ProviderCallOptions, ProviderResult, StreamCallback, StreamingProviderResult } from "./types.js";
+import { computeScores, estimateTokens } from "./utils.js";
 import { PROVIDER_CONFIG } from "./config.js";
 
 const cfg = PROVIDER_CONFIG.openai;
 
-const INPUT_COST_PER_M = 5.00;
-const OUTPUT_COST_PER_M = 15.00;
+const INPUT_COST_PER_M = 0.15;
+const OUTPUT_COST_PER_M = 0.60;
 
 function calcCost(inputTokens: number, outputTokens: number) {
   return (inputTokens * INPUT_COST_PER_M + outputTokens * OUTPUT_COST_PER_M) / 1_000_000;
@@ -80,6 +80,108 @@ export async function callOpenAI(options: ProviderCallOptions): Promise<Provider
     console.error("OpenAI error:", err);
     return { ...getMockOpenAIResponse(prompt), isDemo: true };
   }
+}
+
+export async function callOpenAIStream(
+  opts: { prompt: string; systemPrompt?: string; temperature?: number; apiKey?: string },
+  onChunk: StreamCallback,
+  cfg: { defaultModel: string },
+): Promise<StreamingProviderResult> {
+  const { prompt, systemPrompt, temperature = 0.7, apiKey } = opts;
+  const start = Date.now();
+  let ttftMs = 0;
+  let accumulated = "";
+
+  const messages: { role: string; content: string }[] = [];
+  if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
+  messages.push({ role: "user", content: prompt });
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: cfg.defaultModel,
+      messages,
+      temperature,
+      max_tokens: 1024,
+      stream: true,
+    }),
+  });
+
+  if (!response.body) throw new Error("No response body");
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  const base: StreamingProviderResult = {
+    provider: "openai",
+    model: cfg.defaultModel,
+    text: "",
+    isComplete: false,
+    latencyMs: 0,
+    ttftMs: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    tokenCount: 0,
+    estimatedCost: 0,
+    dollarCost: "$0.000000",
+    qualityScore: 0,
+    clarityScore: 0,
+    toneScore: 0,
+    overallScore: 0,
+    isDemo: false,
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    for (const line of chunk.split("\n")) {
+      if (!line.startsWith("data: ")) continue;
+      const data = line.slice(6);
+      if (data === "[DONE]") continue;
+      try {
+        const parsed = JSON.parse(data);
+        const token = parsed.choices?.[0]?.delta?.content;
+        if (token) {
+          if (ttftMs === 0) ttftMs = Date.now() - start;
+          accumulated += token;
+          const partial: StreamingProviderResult = {
+            ...base,
+            text: accumulated,
+            ttftMs,
+            latencyMs: Date.now() - start,
+          };
+          onChunk(partial);
+        }
+      } catch {}
+    }
+  }
+
+  // Finalize
+  const tokens = estimateTokens(accumulated);
+  const rawCost = calcCost(tokens.input, tokens.output);
+  const scores = computeScores(accumulated, "openai");
+
+  const final: StreamingProviderResult = {
+    ...base,
+    ...scores,
+    text: accumulated,
+    isComplete: true,
+    latencyMs: Date.now() - start,
+    ttftMs,
+    inputTokens: tokens.input,
+    outputTokens: tokens.output,
+    tokenCount: tokens.total,
+    estimatedCost: Math.round(rawCost * 10000) / 10000,
+    dollarCost: `$${rawCost.toFixed(6)}`,
+  };
+  onChunk(final);
+  return final;
 }
 
 function getMockOpenAIResponse(prompt: string): ProviderResult {

@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { apiKeysTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
-import { callGroq, callOpenAI, callClaude, callPerplexity } from "../lib/providers/index.js";
+import { apiKeysTable, tokenUsageTable, dailyUsageSummaryTable } from "@workspace/db/schema";
+import { eq, sql } from "drizzle-orm";
+import { callGroq, callOpenAI, callClaude, callPerplexity, callGemini, callKimi, callDeepSeek, callQwen } from "../lib/providers/index.js";
 import { computeSummary } from "../lib/scoring.js";
 import { trialStorage } from "../trialStorage.js";
 import { billingStorage } from "../billingStorage.js";
@@ -23,6 +23,10 @@ const ENV_KEY_MAP: Record<string, string> = {
   claude: "ANTHROPIC_API_KEY",
   grok: "XAI_API_KEY",
   perplexity: "PERPLEXITY_API_KEY",
+  gemini: "GEMINI_API_KEY",
+  kimi: "MOONSHOT_API_KEY",
+  deepseek: "DEEPSEEK_API_KEY",
+  qwen: "DASHSCOPE_API_KEY",
 };
 
 async function getApiKey(provider: string): Promise<string | undefined> {
@@ -180,6 +184,14 @@ router.post("/compare", async (req, res, next) => {
       calls.push(callClaude(opts));
     } else if (normalized === "perplexity") {
       calls.push(callPerplexity(opts));
+    } else if (normalized === "gemini") {
+      calls.push(callGemini(opts));
+    } else if (normalized === "kimi") {
+      calls.push(callKimi(opts));
+    } else if (normalized === "deepseek") {
+      calls.push(callDeepSeek(opts));
+    } else if (normalized === "qwen") {
+      calls.push(callQwen(opts));
     }
   }
 
@@ -202,6 +214,39 @@ router.post("/compare", async (req, res, next) => {
       error: `Provider failed: ${r.reason}`,
     } as ProviderResult;
   });
+
+  // Record token usage for pro/studio users
+  const planForUsage = await billingStorage.getPlan(BASE_USER_ID);
+  if (planForUsage === "pro" || planForUsage === "studio") {
+    for (const result of resolvedResults) {
+      if (result.error) continue;
+      await db.insert(tokenUsageTable).values({
+        userId: BASE_USER_ID,
+        provider: result.provider,
+        model: result.model,
+        inputTokens: result.inputTokens,
+        outputTokens: result.outputTokens,
+        totalTokens: result.tokenCount,
+        costCredits: Math.round(result.estimatedCost * 10000),
+      }).catch(() => {}); // don't fail the comparison if usage recording fails
+
+      // Upsert daily summary
+      const today = new Date().toISOString().split("T")[0];
+      await db.execute(sql`
+        INSERT INTO daily_usage_summary
+          (user_id, date, total_input_tokens, total_output_tokens, total_tokens, total_cost_credits, comparison_count, updated_at)
+        VALUES
+          (${BASE_USER_ID}, ${today}, ${result.inputTokens}, ${result.outputTokens}, ${result.tokenCount}, ${Math.round(result.estimatedCost * 10000)}, 1, NOW())
+        ON CONFLICT (user_id, date) DO UPDATE SET
+          total_input_tokens = daily_usage_summary.total_input_tokens + EXCLUDED.total_input_tokens,
+          total_output_tokens = daily_usage_summary.total_output_tokens + EXCLUDED.total_output_tokens,
+          total_tokens = daily_usage_summary.total_tokens + EXCLUDED.total_tokens,
+          total_cost_credits = daily_usage_summary.total_cost_credits + EXCLUDED.total_cost_credits,
+          comparison_count = daily_usage_summary.comparison_count + 1,
+          updated_at = NOW()
+      `).catch(() => {});
+    }
+  }
 
   if (plan === "sandbox" && trialUserId) {
     await trialStorage.incrementComparisons(trialUserId);

@@ -1,5 +1,4 @@
 import { ProviderCallOptions, ProviderResult } from "./types.js";
-import { getMockGeminiResponse } from "../mockResponses.js";
 import { computeScores } from "./utils.js";
 
 const INPUT_COST_PER_M = 0.075;
@@ -7,6 +6,36 @@ const OUTPUT_COST_PER_M = 0.30;
 
 function calcCost(inputTokens: number, outputTokens: number) {
   return (inputTokens * INPUT_COST_PER_M + outputTokens * OUTPUT_COST_PER_M) / 1_000_000;
+}
+
+function getMockGeminiResponse(prompt: string): ProviderResult {
+  const text = "Gemini provides broad, factual responses with strong reasoning. Add your Gemini API key in Settings to enable this provider.";
+  const latencyMs = 1100;
+  const inputTokens = Math.round(prompt.split(" ").length * 0.9);
+  const outputTokens = Math.round(text.split(" ").length * 0.4);
+  const tokenCount = inputTokens + outputTokens;
+  const rawCost = calcCost(inputTokens, outputTokens);
+  const estimatedCost = Math.round(rawCost * 10000) / 10000;
+  const dollarCost = `$${rawCost.toFixed(6)}`;
+  const scores = computeScores(text, "gemini");
+  const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
+  return {
+    provider: "gemini",
+    model: "gemini-1.5-flash",
+    text,
+    latencyMs,
+    inputTokens,
+    outputTokens,
+    tokenCount,
+    estimatedCost,
+    dollarCost,
+    costPerQuality,
+    qualityScore: scores.quality,
+    clarityScore: scores.clarity,
+    toneScore: scores.tone,
+    overallScore: scores.overall,
+    isDemo: true,
+  };
 }
 
 export async function callGemini(options: ProviderCallOptions): Promise<ProviderResult> {

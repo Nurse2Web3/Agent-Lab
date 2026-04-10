@@ -29,3 +29,9 @@ export function computeScores(text: string, provider: string): { quality: number
     overall: Math.round(overall * 10) / 10,
   };
 }
+
+export function estimateTokens(text: string): { input: number; output: number; total: number } {
+  const input = Math.round(text.split(" ").length * 0.9);
+  const output = Math.round(text.split(" ").length * 0.4);
+  return { input, output, total: input + output };
+}

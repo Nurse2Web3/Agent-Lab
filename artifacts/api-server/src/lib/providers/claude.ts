@@ -1,5 +1,5 @@
-import { ProviderCallOptions, ProviderResult } from "./types.js";
-import { computeScores } from "./utils.js";
+import { ProviderCallOptions, ProviderResult, StreamCallback, StreamingProviderResult } from "./types.js";
+import { computeScores, estimateTokens } from "./utils.js";
 import { PROVIDER_CONFIG } from "./config.js";
 
 const cfg = PROVIDER_CONFIG.claude;
@@ -76,6 +76,84 @@ export async function callClaude(options: ProviderCallOptions): Promise<Provider
     console.error("Claude error:", err);
     return { ...getMockClaudeResponse(prompt), isDemo: true };
   }
+}
+
+export async function callClaudeStream(
+  opts: { prompt: string; systemPrompt?: string; temperature?: number; apiKey?: string },
+  onChunk: StreamCallback,
+  cfg: { defaultModel: string },
+): Promise<StreamingProviderResult> {
+  const { prompt, systemPrompt, temperature = 0.7, apiKey } = opts;
+  const start = Date.now();
+  let ttftMs = 0;
+  let accumulated = "";
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey ?? "",
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: cfg.defaultModel,
+      max_tokens: 1024,
+      system: systemPrompt || undefined,
+      messages: [{ role: "user", content: prompt }],
+      temperature,
+      stream: true,
+    }),
+  });
+
+  if (!response.body) throw new Error("No response body");
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  const base: StreamingProviderResult = {
+    provider: "claude",
+    model: cfg.defaultModel,
+    text: "",
+    isComplete: false,
+    latencyMs: 0, ttftMs: 0,
+    inputTokens: 0, outputTokens: 0, tokenCount: 0,
+    estimatedCost: 0, dollarCost: "$0.000000",
+    qualityScore: 0, clarityScore: 0, toneScore: 0, overallScore: 0,
+    isDemo: false,
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value, { stream: true });
+    for (const line of chunk.split("\n")) {
+      if (!line.startsWith("data: ")) continue;
+      const data = line.slice(6);
+      if (data === "[DONE]") continue;
+      try {
+        const parsed = JSON.parse(data);
+        const token = parsed.choices?.[0]?.delta?.content;
+        if (token) {
+          if (ttftMs === 0) ttftMs = Date.now() - start;
+          accumulated += token;
+          onChunk({ ...base, text: accumulated, ttftMs, latencyMs: Date.now() - start });
+        }
+      } catch {}
+    }
+  }
+
+  const tokens = estimateTokens(accumulated);
+  const rawCost = calcCost(tokens.input, tokens.output);
+  const scores = computeScores(accumulated, "claude");
+  const final: StreamingProviderResult = {
+    ...base, ...scores,
+    text: accumulated, isComplete: true,
+    latencyMs: Date.now() - start, ttftMs,
+    inputTokens: tokens.input, outputTokens: tokens.output, tokenCount: tokens.total,
+    estimatedCost: Math.round(rawCost * 10000) / 10000,
+    dollarCost: `$${rawCost.toFixed(6)}`,
+  };
+  onChunk(final);
+  return final;
 }
 
 function getMockClaudeResponse(prompt: string): ProviderResult {

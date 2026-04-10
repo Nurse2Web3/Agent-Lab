@@ -55,11 +55,9 @@ router.post("/settings/test", async (req, res) => {
   const { provider } = req.body as { provider: string };
 
   const rows = await db.select().from(apiKeysTable).where(eq(apiKeysTable.provider, provider));
-  let apiKey = rows[0]?.encryptedKey;
-  if (!apiKey) {
-    const envName = ENV_KEY_MAP[provider];
-    if (envName) apiKey = process.env[envName];
-  }
+  const dbKey: string | undefined = rows[0]?.encryptedKey;
+  const envKey = (ENV_KEY_MAP[provider] ? process.env[ENV_KEY_MAP[provider]!] : undefined) as string | undefined;
+  const apiKey: string | undefined = dbKey ?? envKey;
 
   if (!apiKey) {
     res.json({ success: false, message: "No API key found for this provider", latencyMs: 0 });
