@@ -5,8 +5,9 @@ import {
   Play, Save, Copy, Loader2, Star, AlertCircle, Clock,
   DollarSign, Database, Tag, Sparkles, Trophy, CheckCircle2,
   ArrowRight, Zap, ChevronRight, Download, TrendingDown, Printer, Crown,
-  GitCompare, Maximize2
+  GitCompare, Maximize2, Library
 } from "lucide-react";
+import { TemplatesModal } from "@/components/templates-modal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -146,6 +147,7 @@ export default function Playground() {
   const [demoResponse, setDemoResponse] = useState<any>(null);
   const [demoLoading, setDemoLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "diff">("grid");
+  const [templatesModalOpen, setTemplatesModalOpen] = useState(false);
 
   const isDemoMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo");
 
@@ -210,6 +212,13 @@ export default function Playground() {
   const applyTemplate = (tpl: typeof TEMPLATES[0]) => {
     setPrompt(tpl.prompt);
     setSystemPrompt(tpl.sys);
+  };
+
+  const handleApplyTemplateFromModal = (tpl: { name: string; prompt: string; sys?: string }) => {
+    setPrompt(tpl.prompt);
+    if (tpl.sys) setSystemPrompt(tpl.sys);
+    setTemplatesModalOpen(false);
+    toast({ title: "Template applied", description: `"${tpl.name}" loaded into prompt editor.` });
   };
 
   const handleSaveWinner = (providerName: string) => {
@@ -287,7 +296,18 @@ export default function Playground() {
 
             {/* Templates */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Start with a template</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Start with a template</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-primary hover:text-primary hover:bg-primary/10"
+                  onClick={() => setTemplatesModalOpen(true)}
+                >
+                  <Library className="w-3.5 h-3.5 mr-1" />
+                  Browse Library
+                </Button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {TEMPLATES.map((tpl, i) => (
                   <Badge
@@ -865,6 +885,11 @@ export default function Playground() {
         </div>
       </div>
     </div>
+      <TemplatesModal
+        open={templatesModalOpen}
+        onOpenChange={setTemplatesModalOpen}
+        onApply={handleApplyTemplateFromModal}
+      />
     </TrialGate>
   );
 }

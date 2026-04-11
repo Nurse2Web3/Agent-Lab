@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, FlaskConical, History, Settings, CreditCard, X, Menu } from "lucide-react";
+import { Zap, FlaskConical, History, Settings, CreditCard, TrendingUp, X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/playground", label: "Compare", icon: FlaskConical },
+    { href: "/usage", label: "Usage", icon: TrendingUp },
     { href: "/history", label: "History", icon: History },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
     { href: "/settings", label: "Settings", icon: Settings },
