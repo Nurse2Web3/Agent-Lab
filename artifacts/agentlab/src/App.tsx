@@ -10,6 +10,7 @@ import Playground from "@/pages/playground";
 import History from "@/pages/history";
 import Settings from "@/pages/settings";
 import Pricing from "@/pages/pricing";
+import Usage from "@/pages/usage";
 import Success from "@/pages/success";
 import NotFound from "@/pages/not-found";
 
@@ -28,6 +29,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Landing} />
         <Route path="/playground" component={Playground} />
+        <Route path="/usage" component={Usage} />
         <Route path="/history" component={History} />
         <Route path="/settings" component={Settings} />
         <Route path="/pricing" component={Pricing} />
