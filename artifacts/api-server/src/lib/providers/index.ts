@@ -11,4 +11,5 @@ export { callOpenAIStream } from "./openai.js";
 export { callClaudeStream } from "./claude.js";
 export { callPerplexityStream } from "./perplexity.js";
 export { PROVIDER_CONFIG, getProvidersForPlan, isProviderAllowedForPlan } from "./config.js";
+export { getCircuitBreakerStatus, resetCircuitBreaker, resetAllCircuitBreakers } from "../circuitBreaker.js";
 export type { ProviderResult, ProviderCallOptions, StreamingProviderResult, StreamCallback } from "./types.js";

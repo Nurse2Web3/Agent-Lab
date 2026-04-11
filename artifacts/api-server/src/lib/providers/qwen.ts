@@ -1,5 +1,6 @@
 import { ProviderCallOptions, ProviderResult } from "./types.js";
 import { computeScores } from "./utils.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const MODEL = "qwen-plus";
 const BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
@@ -27,11 +28,14 @@ function getMockQwenResponse(prompt: string): ProviderResult {
   const scores = computeScores(text, "qwen");
   const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
+  const ttftMs = latencyMs;
+
   return {
     provider: "qwen",
     model: MODEL,
     text,
     latencyMs,
+    ttftMs,
     inputTokens,
     outputTokens,
     tokenCount,
@@ -88,6 +92,8 @@ export async function callQwen(options: ProviderCallOptions): Promise<ProviderRe
     const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount   = inputTokens + outputTokens;
     const latencyMs    = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs       = latencyMs;
     const rawCost      = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost   = `$${rawCost.toFixed(6)}`;
@@ -99,6 +105,7 @@ export async function callQwen(options: ProviderCallOptions): Promise<ProviderRe
       model: MODEL,
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,

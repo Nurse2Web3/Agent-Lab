@@ -22,8 +22,14 @@ app.post(
         res.status(500).json({ error: "Webhook processing error" });
         return;
       }
-      await WebhookHandlers.processWebhook(req.body as Buffer, sig);
-      res.status(200).json({ received: true });
+      const result = await WebhookHandlers.processWebhook(req.body as Buffer, sig);
+
+      if (result.alreadyProcessed) {
+        // Return 200 OK but indicate it was already processed (idempotent response)
+        res.status(200).json({ received: true, alreadyProcessed: true, eventId: result.eventId });
+      } else {
+        res.status(200).json({ received: true, eventId: result.eventId });
+      }
     } catch (error: any) {
       console.error("Webhook error:", error.message);
       res.status(400).json({ error: "Webhook processing error" });

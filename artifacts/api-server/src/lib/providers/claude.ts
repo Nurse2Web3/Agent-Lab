@@ -1,6 +1,7 @@
 import { ProviderCallOptions, ProviderResult, StreamCallback, StreamingProviderResult } from "./types.js";
 import { computeScores, estimateTokens } from "./utils.js";
 import { PROVIDER_CONFIG } from "./config.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const cfg = PROVIDER_CONFIG.claude;
 
@@ -18,8 +19,8 @@ export async function callClaude(options: ProviderCallOptions): Promise<Provider
     return getMockClaudeResponse(prompt);
   }
 
-  const start = Date.now();
-  try {
+  return executeWithCircuitBreaker("claude", async () => {
+    const start = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -49,6 +50,8 @@ export async function callClaude(options: ProviderCallOptions): Promise<Provider
     const outputTokens = data.usage?.output_tokens ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount = inputTokens + outputTokens;
     const latencyMs = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs = latencyMs;
     const rawCost = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost = `$${rawCost.toFixed(6)}`;
@@ -60,6 +63,7 @@ export async function callClaude(options: ProviderCallOptions): Promise<Provider
       model: cfg.defaultModel,
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,
@@ -72,10 +76,7 @@ export async function callClaude(options: ProviderCallOptions): Promise<Provider
       overallScore: scores.overall,
       isDemo: false,
     };
-  } catch (err) {
-    console.error("Claude error:", err);
-    return { ...getMockClaudeResponse(prompt), isDemo: true };
-  }
+  }, options);
 }
 
 export async function callClaudeStream(
@@ -172,11 +173,14 @@ function getMockClaudeResponse(prompt: string): ProviderResult {
   const scores = computeScores(text, "claude");
   const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
+  const ttftMs = latencyMs;
+
   return {
     provider: "claude",
     model: cfg.defaultModel,
     text,
     latencyMs,
+    ttftMs,
     inputTokens,
     outputTokens,
     tokenCount,

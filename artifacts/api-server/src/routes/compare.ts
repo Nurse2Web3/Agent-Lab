@@ -7,7 +7,10 @@ import { computeSummary } from "../lib/scoring.js";
 import { trialStorage } from "../trialStorage.js";
 import { billingStorage } from "../billingStorage.js";
 import { trialCompareRateLimiter } from "../middleware/rateLimiter.js";
+import { createTieredRateLimiter } from "../middleware/tieredRateLimiter.js";
 import type { ProviderResult } from "../lib/providers/types.js";
+
+const tieredRateLimiter = createTieredRateLimiter();
 
 const router: IRouter = Router();
 
@@ -66,6 +69,27 @@ router.post("/compare", async (req, res, next) => {
   }
 
   const plan = await billingStorage.getPlan(BASE_USER_ID);
+  const tier = plan === "sandbox" ? "trial" : plan;
+
+  // Apply tiered rate limiting before plan-specific checks
+  const userId = trialUserId || BASE_USER_ID;
+  const { checkRateLimit } = await import("../middleware/tieredRateLimiter.js");
+  const rateLimitResult = await checkRateLimit(userId, tier as "trial" | "pro" | "studio");
+
+  // Set rate limit headers on all responses
+  res.set("X-RateLimit-Limit", String(rateLimitResult.remaining + (rateLimitResult.allowed ? 0 : 1)));
+  res.set("X-RateLimit-Remaining", String(Math.max(0, rateLimitResult.remaining)));
+  res.set("X-RateLimit-Reset", String(Math.floor(rateLimitResult.resetAt.getTime() / 1000)));
+
+  if (!rateLimitResult.allowed) {
+    res.set("Retry-After", String(rateLimitResult.retryAfter || 60));
+    res.status(429).json({
+      error: "Rate limit exceeded. Please try again later.",
+      retryAfter: rateLimitResult.retryAfter,
+      resetAt: rateLimitResult.resetAt.toISOString(),
+    });
+    return;
+  }
 
   if (plan === "sandbox") {
     if (!trialUserId) {

@@ -1,6 +1,7 @@
 import { ProviderCallOptions, ProviderResult, StreamCallback, StreamingProviderResult } from "./types.js";
 import { getMockGroqResponse } from "../mockResponses.js";
 import { computeScores, estimateTokens } from "./utils.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const MODEL = "grok-beta";
 const BASE_URL = "https://api.x.ai/v1";
@@ -19,8 +20,8 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
     return getMockGroqResponse(prompt);
   }
 
-  const start = Date.now();
-  try {
+  return executeWithCircuitBreaker("grok", async () => {
+    const start = Date.now();
     const messages: { role: string; content: string }[] = [];
     if (systemPrompt) {
       messages.push({ role: "system", content: systemPrompt });
@@ -54,6 +55,8 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
     const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount   = inputTokens + outputTokens;
     const latencyMs    = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs       = latencyMs;
     const rawCost      = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost    = `$${rawCost.toFixed(6)}`;
@@ -65,6 +68,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
       model: MODEL,
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,
@@ -77,10 +81,7 @@ export async function callGroq(options: ProviderCallOptions): Promise<ProviderRe
       overallScore: scores.overall,
       isDemo: false,
     };
-  } catch (err) {
-    console.error("Grok error:", err);
-    return { ...getMockGroqResponse(prompt), isDemo: true };
-  }
+  }, options);
 }
 
 export async function callGroqStream(

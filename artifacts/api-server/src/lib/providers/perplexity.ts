@@ -1,5 +1,6 @@
 import { ProviderCallOptions, ProviderResult, StreamCallback, StreamingProviderResult } from "./types.js";
 import { computeScores, estimateTokens } from "./utils.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const MODEL = "sonar-pro";
 const BASE_URL = "https://api.perplexity.ai";
@@ -53,8 +54,8 @@ export async function callPerplexity(options: ProviderCallOptions): Promise<Prov
     return getMockPerplexityResponse(prompt);
   }
 
-  const start = Date.now();
-  try {
+  return executeWithCircuitBreaker("perplexity", async () => {
+    const start = Date.now();
     const messages: { role: string; content: string }[] = [];
     if (systemPrompt) {
       messages.push({ role: "system", content: systemPrompt });
@@ -89,6 +90,8 @@ export async function callPerplexity(options: ProviderCallOptions): Promise<Prov
     const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount   = inputTokens + outputTokens;
     const latencyMs    = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs       = latencyMs;
     const rawCost      = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost    = `$${rawCost.toFixed(6)}`;
@@ -100,6 +103,7 @@ export async function callPerplexity(options: ProviderCallOptions): Promise<Prov
       model: MODEL,
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,
@@ -112,10 +116,7 @@ export async function callPerplexity(options: ProviderCallOptions): Promise<Prov
       overallScore: scores.overall,
       isDemo: false,
     };
-  } catch (err) {
-    console.error("Perplexity error:", err);
-    return { ...getMockPerplexityResponse(prompt), isDemo: true };
-  }
+  }, options);
 }
 
 const PERPLEXITY_INPUT_COST_PER_M = 3.00;

@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Play, Save, Copy, Loader2, Star, AlertCircle, Clock,
   DollarSign, Database, Tag, Sparkles, Trophy, CheckCircle2,
-  ArrowRight, Zap, ChevronRight, Download, TrendingDown, Printer
+  ArrowRight, Zap, ChevronRight, Download, TrendingDown, Printer, Crown,
+  GitCompare, Maximize2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +21,8 @@ import { useTrialStatus } from "@/hooks/use-trial";
 import { TrialGate } from "@/components/trial-gate";
 import { Link } from "wouter";
 import { getCompositeFingerprint } from "@/lib/deviceFingerprint";
+import { ScoreRing } from "@/components/score-ring";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PROVIDERS = [
   { id: "OpenAI",      name: "OpenAI",                   model: "gpt-4o-mini",               plan: ["sandbox", "pro", "studio"] },
@@ -142,6 +145,7 @@ export default function Playground() {
   const [scores, setScores] = useState<Record<string, number>>({});
   const [demoResponse, setDemoResponse] = useState<any>(null);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "diff">("grid");
 
   const isDemoMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo");
 
@@ -422,27 +426,102 @@ export default function Playground() {
         {/* ── RIGHT: Results ── */}
         <div className="flex-1 min-w-0 space-y-6">
 
-          {/* Empty state */}
+          {/* Empty state - Guided onboarding */}
           {!response && !isPending && (
-            <div className="min-h-[580px] flex flex-col items-center justify-center text-center p-10 border-2 border-dashed border-border/30 rounded-3xl bg-secondary/5">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 text-primary">
-                <Sparkles className="w-8 h-8" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-8"
+            >
+              {/* Hero section */}
+              <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-10 border-2 border-dashed border-border/30 rounded-3xl bg-secondary/5">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 text-primary">
+                  <Sparkles className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Run your first comparison</h3>
+                <p className="text-muted-foreground max-w-md leading-relaxed mb-8">
+                  Test one prompt across multiple providers and see which option wins on quality, speed, and cost.
+                </p>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {TEMPLATES.map((tpl, i) => (
+                    <Button key={i} variant="outline" size="sm" className="rounded-full" onClick={() => applyTemplate(tpl)}>
+                      <Tag className="w-3.5 h-3.5 mr-1.5" /> {tpl.name}
+                    </Button>
+                  ))}
+                </div>
+                <p className="mt-6 text-xs text-muted-foreground/60">
+                  Or write your own prompt in the panel on the left.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold mb-3">Run your first comparison</h3>
-              <p className="text-muted-foreground max-w-md leading-relaxed mb-8">
-                Test one prompt across multiple providers and see which option wins on quality, speed, and cost.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                {TEMPLATES.map((tpl, i) => (
-                  <Button key={i} variant="outline" size="sm" className="rounded-full" onClick={() => applyTemplate(tpl)}>
-                    <Tag className="w-3.5 h-3.5 mr-1.5" /> {tpl.name}
-                  </Button>
-                ))}
+
+              {/* How it works - 3 steps */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="border-border/40 bg-card/40">
+                  <CardHeader className="pb-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 text-primary">
+                      <span className="text-lg font-bold">1</span>
+                    </div>
+                    <CardTitle className="text-base">Write or select a prompt</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Use a template or write your own prompt. Compare across GPT-4o, Claude, Grok, and more.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border/40 bg-card/40">
+                  <CardHeader className="pb-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 text-primary">
+                      <span className="text-lg font-bold">2</span>
+                    </div>
+                    <CardTitle className="text-base">See side-by-side results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Each model is scored on quality, speed, and cost. See which performs best for your use case.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border/40 bg-card/40">
+                  <CardHeader className="pb-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 text-primary">
+                      <span className="text-lg font-bold">3</span>
+                    </div>
+                    <CardTitle className="text-base">Save the winner</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Save your comparison to history and export the results. Build a library of what works.
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
-              <p className="mt-6 text-xs text-muted-foreground/60">
-                Or write your own prompt in the panel on the left.
-              </p>
-            </div>
+
+              {/* Pro tips */}
+              <div className="rounded-xl border border-border/50 bg-background/40 p-4 space-y-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm font-semibold">Pro tips for better comparisons</span>
+                </div>
+                <ul className="text-xs text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-3 h-3 mt-0.5 text-primary" />
+                    <span>Be specific about format and length in your prompt</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-3 h-3 mt-0.5 text-primary" />
+                    <span>Include examples of the output style you want</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-3 h-3 mt-0.5 text-primary" />
+                    <span>Test with your actual production prompts, not just demos</span>
+                  </li>
+                </ul>
+              </div>
+            </motion.div>
           )}
 
           {/* Loading */}
@@ -555,9 +634,24 @@ export default function Playground() {
 
               {/* ── RESULT CARDS ── */}
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Provider outputs</p>
-                <div className={`grid grid-cols-1 gap-5 ${response.results.length >= 2 ? "md:grid-cols-2" : ""} ${response.results.length >= 3 ? "lg:grid-cols-3" : ""} items-start`}>
-                  {response.results.map((result, i) => {
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Provider outputs</p>
+                  <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "grid" | "diff")} className="w-[220px]">
+                    <TabsList className="h-8 text-xs">
+                      <TabsTrigger value="grid" className="h-6 text-xs gap-1">
+                        <Maximize2 className="w-3 h-3" /> Grid
+                      </TabsTrigger>
+                      <TabsTrigger value="diff" className="h-6 text-xs gap-1">
+                        <GitCompare className="w-3 h-3" /> Diff
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+
+                <Tabs value={viewMode} className="mt-4">
+                  <TabsContent value="grid" className="mt-0">
+                    <div className={`grid grid-cols-1 gap-5 ${response.results.length >= 2 ? "md:grid-cols-2" : ""} ${response.results.length >= 3 ? "lg:grid-cols-3" : ""} items-start`}>
+                  {response.results.map((result: any, i: number) => {
                     const isWinner = response.recommendedWinner === result.provider;
                     const isFastest = response.fastest === result.provider;
                     const isCheapest = response.cheapest === result.provider;
@@ -572,13 +666,27 @@ export default function Playground() {
                       >
                         <Card className={`overflow-hidden flex flex-col h-full ${
                           isWinner
-                            ? "ring-2 ring-primary/60 border-primary/40 shadow-xl shadow-primary/10"
+                            ? "ring-2 ring-amber-500/40 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
                             : "border-border/40 bg-card/40"
                         }`}>
 
                           {/* Card header */}
                           <CardHeader className="pb-3 border-b border-border/40 bg-secondary/20">
-                            <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start justify-between gap-2 relative">
+                              {/* Winner Crown */}
+                              {isWinner && (
+                                <motion.div
+                                  initial={{ scale: 0, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10, delay: 0.2 }}
+                                  className="absolute -top-1 -right-1 z-10"
+                                >
+                                  <div className="relative">
+                                    <Crown className="w-6 h-6 text-amber-400 fill-amber-400" style={{ filter: "drop-shadow(0 0 8px rgba(245, 158, 11, 0.6))" }} />
+                                  </div>
+                                </motion.div>
+                              )}
+
                               <div className="flex items-center gap-2">
                                 <ProviderIcon provider={result.provider} className="w-5 h-5" />
                                 <div>
@@ -588,8 +696,8 @@ export default function Playground() {
                               </div>
                               <div className="flex flex-wrap justify-end gap-1">
                                 {isWinner && (
-                                  <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                                    Winner 🏆
+                                  <span className="text-[10px] font-bold bg-amber-500 text-amber-950 px-2 py-0.5 rounded-full shadow-sm">
+                                    Winner
                                   </span>
                                 )}
                                 {isBestQuality && !isWinner && (
@@ -615,27 +723,43 @@ export default function Playground() {
                               </div>
                             </div>
 
-                            {/* Metric row */}
-                            <div className="flex gap-2 mt-3 flex-wrap">
-                              <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
-                                <Clock className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-xs font-mono font-medium">{result.latencyMs}ms</span>
+                            {/* 2x2 Score Ring Grid */}
+                            <div className="grid grid-cols-2 gap-3 mt-4">
+                              {/* Overall Score Ring */}
+                              <div className="flex flex-col items-center p-2 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                                <ScoreRing score={result.overallScore} size={72} strokeWidth={7} label="Overall" />
                               </div>
-                              <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
-                                <DollarSign className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-xs font-mono font-medium">{(result as any).dollarCost ?? `$${result.estimatedCost.toFixed(5)}`}</span>
+                              {/* Quality Score Ring */}
+                              <div className="flex flex-col items-center p-2 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                                <ScoreRing score={result.qualityScore} size={72} strokeWidth={7} label="Quality" />
                               </div>
-                              <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
-                                <Database className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-xs font-mono font-medium">{result.tokenCount} tokens</span>
+                              {/* Speed Ring */}
+                              <div className="flex flex-col items-center p-2 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                                <ScoreRing score={5 - (result.latencyMs / 200)} size={72} strokeWidth={7} label="Speed" />
+                                <Badge variant="secondary" className="mt-1 text-[10px] font-mono">
+                                  {result.latencyMs}ms
+                                </Badge>
                               </div>
+                              {/* Cost Ring */}
+                              <div className="flex flex-col items-center p-2 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                                <ScoreRing score={Math.max(0, 5 - (result.estimatedCost * 1000))} size={72} strokeWidth={7} label="Cost" />
+                                <Badge variant="secondary" className="mt-1 text-[10px] font-mono">
+                                  ${(result.estimatedCost * 1000).toFixed(3)}
+                                </Badge>
+                              </div>
+                            </div>
+                            {/* Token count row */}
+                            <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-border/40">
+                              <Database className="w-3 h-3 text-muted-foreground" />
+                              <span className="text-xs font-mono text-muted-foreground">{result.tokenCount} tokens</span>
                               {(result as any).costPerQuality !== undefined && (
-                                <div className="flex items-center gap-1 bg-secondary/60 rounded-lg px-2.5 py-1">
+                                <>
+                                  <span className="text-muted-foreground">•</span>
                                   <TrendingDown className="w-3 h-3 text-muted-foreground" />
-                                  <span className="text-xs font-mono font-medium">
+                                  <span className="text-xs font-mono text-muted-foreground">
                                     {((result as any).costPerQuality * 1000000).toFixed(2)}μ$/pt
                                   </span>
-                                </div>
+                                </>
                               )}
                             </div>
                           </CardHeader>
@@ -693,10 +817,51 @@ export default function Playground() {
                     );
                   })}
                 </div>
-              </div>
+              </TabsContent>
 
-            </motion.div>
-          )}
+              {/* Diff View */}
+              <TabsContent value="diff" className="mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {response.results.map((result: any, i: number) => {
+                    const isWinner = response.recommendedWinner === result.provider;
+                    return (
+                      <Card key={result.provider} className={`overflow-hidden ${isWinner ? "ring-2 ring-amber-500/40 border-amber-500/40" : ""}`}>
+                        <CardHeader className="pb-3 border-b border-border/40 bg-secondary/20">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <ProviderIcon provider={result.provider} className="w-5 h-5" />
+                              <CardTitle className="text-base">{result.provider}</CardTitle>
+                            </div>
+                            {isWinner && (
+                              <Badge className="bg-amber-500 text-amber-950 text-xs">
+                                <Crown className="w-3 h-3 mr-1" /> Winner
+                              </Badge>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                          <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed text-sm">
+                            {result.text.split(/(\s+)/).map((word: string, idx: number) => {
+                              // Simple diff highlighting - highlight unique words/phrases
+                              const isUnique = !response.results.some((r: any, ri: number) =>
+                                ri !== i && r.text.includes(word.trim())
+                              );
+                              if (word.trim() && isUnique && word.trim().length > 3) {
+                                return <mark key={idx} className="bg-amber-500/20 text-amber-200 rounded px-0.5">{word}</mark>;
+                              }
+                              return word;
+                            })}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </motion.div>
+      )}
         </div>
       </div>
     </div>

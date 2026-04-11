@@ -1,6 +1,7 @@
 import { ProviderCallOptions, ProviderResult } from "./types.js";
 import { computeScores } from "./utils.js";
 import { PROVIDER_CONFIG } from "./config.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const cfg = PROVIDER_CONFIG.kimi;
 
@@ -53,6 +54,8 @@ export async function callKimi(options: ProviderCallOptions): Promise<ProviderRe
     const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount = inputTokens + outputTokens;
     const latencyMs = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs = latencyMs;
     const rawCost = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost = `$${rawCost.toFixed(6)}`;
@@ -64,6 +67,7 @@ export async function callKimi(options: ProviderCallOptions): Promise<ProviderRe
       model: cfg.defaultModel,
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,
@@ -98,11 +102,14 @@ function getMockKimiResponse(prompt: string): ProviderResult {
   const scores = computeScores(text, "kimi");
   const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
+  const ttftMs = latencyMs;
+
   return {
     provider: "kimi",
     model: cfg.defaultModel,
     text,
     latencyMs,
+    ttftMs,
     inputTokens,
     outputTokens,
     tokenCount,

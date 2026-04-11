@@ -1,5 +1,6 @@
 import { ProviderCallOptions, ProviderResult } from "./types.js";
 import { computeScores } from "./utils.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const INPUT_COST_PER_M = 0.075;
 const OUTPUT_COST_PER_M = 0.30;
@@ -19,11 +20,14 @@ function getMockGeminiResponse(prompt: string): ProviderResult {
   const dollarCost = `$${rawCost.toFixed(6)}`;
   const scores = computeScores(text, "gemini");
   const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
+  const ttftMs = latencyMs;
+
   return {
     provider: "gemini",
     model: "gemini-1.5-flash",
     text,
     latencyMs,
+    ttftMs,
     inputTokens,
     outputTokens,
     tokenCount,
@@ -45,8 +49,8 @@ export async function callGemini(options: ProviderCallOptions): Promise<Provider
     return getMockGeminiResponse(prompt);
   }
 
-  const start = Date.now();
-  try {
+  return executeWithCircuitBreaker("gemini", async () => {
+    const start = Date.now();
     const messages: { role: string; parts: { text: string }[] }[] = [];
     if (systemPrompt) {
       messages.push({ role: "user", parts: [{ text: systemPrompt }] });
@@ -83,6 +87,8 @@ export async function callGemini(options: ProviderCallOptions): Promise<Provider
     const outputTokens = data.usageMetadata?.candidatesTokenCount ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount = inputTokens + outputTokens;
     const latencyMs = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs = latencyMs;
     const rawCost = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost = `$${rawCost.toFixed(6)}`;
@@ -94,6 +100,7 @@ export async function callGemini(options: ProviderCallOptions): Promise<Provider
       model: "gemini-1.5-flash",
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,
@@ -106,8 +113,5 @@ export async function callGemini(options: ProviderCallOptions): Promise<Provider
       overallScore: scores.overall,
       isDemo: false,
     };
-  } catch (err) {
-    console.error("Gemini error:", err);
-    return { ...getMockGeminiResponse(prompt), isDemo: true };
-  }
+  }, options);
 }

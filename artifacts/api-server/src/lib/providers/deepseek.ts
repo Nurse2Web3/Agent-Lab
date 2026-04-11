@@ -1,5 +1,6 @@
 import { ProviderCallOptions, ProviderResult } from "./types.js";
 import { computeScores } from "./utils.js";
+import { executeWithCircuitBreaker } from "../circuitBreaker.js";
 
 const MODEL = "deepseek-chat";
 const BASE_URL = "https://api.deepseek.com";
@@ -27,11 +28,14 @@ function getMockDeepSeekResponse(prompt: string): ProviderResult {
   const scores = computeScores(text, "deepseek");
   const costPerQuality = scores.overall > 0 ? rawCost / scores.overall : 0;
 
+  const ttftMs = latencyMs;
+
   return {
     provider: "deepseek",
     model: MODEL,
     text,
     latencyMs,
+    ttftMs,
     inputTokens,
     outputTokens,
     tokenCount,
@@ -88,6 +92,8 @@ export async function callDeepSeek(options: ProviderCallOptions): Promise<Provid
     const outputTokens = data.usage?.completion_tokens ?? Math.round(text.split(" ").length * 0.4);
     const tokenCount   = inputTokens + outputTokens;
     const latencyMs    = Date.now() - start;
+    // TTFT for non-streaming = full latency (first token = complete response)
+    const ttftMs       = latencyMs;
     const rawCost      = calcCost(inputTokens, outputTokens);
     const estimatedCost = Math.round(rawCost * 10000) / 10000;
     const dollarCost    = `$${rawCost.toFixed(6)}`;
@@ -99,6 +105,7 @@ export async function callDeepSeek(options: ProviderCallOptions): Promise<Provid
       model: MODEL,
       text,
       latencyMs,
+      ttftMs,
       inputTokens,
       outputTokens,
       tokenCount,
